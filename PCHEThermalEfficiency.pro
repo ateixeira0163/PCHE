@@ -52,8 +52,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     correlations.csv \
-    fluids.txt \
-    nusselt.txt
+    fluids.txt
 
 RESOURCES += \
     images.qrc \

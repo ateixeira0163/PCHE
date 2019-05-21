@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>circularSection.png</file>
+        <file>rectangleSection.png</file>
+        <file>semiCircularSection.png</file>
+        <file>circularSectionMesures.png</file>
+        <file>rectangleSectionMesures.png</file>
+        <file>semiCircularSectionMesures.png</file>
+    </qresource>
+</RCC>

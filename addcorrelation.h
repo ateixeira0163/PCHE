@@ -4,12 +4,6 @@
 #include <QDialog>
 #include <QDebug>
 #include <QMessageBox>
-#include <cstdlib>
-#include <cstring>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <string>
 #include <QFile>
 #include <QTextStream>
 
@@ -30,9 +24,6 @@ private slots:
 
 private:
     Ui::AddCorrelation *ui;
-    std::fstream correlationLib;
-
-    bool verifyExpression(QString exp);
 
 signals:
     void sendNewSignal();

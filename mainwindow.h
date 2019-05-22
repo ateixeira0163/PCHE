@@ -53,6 +53,7 @@ private slots:
     void addNewFluid();
     void addNewNusselt();
 
+    void loadCorrelations();
 
     void on_addNewButton_clicked();
 
@@ -97,10 +98,11 @@ private:
     // Details
     QString whichComboBox;
 
+    // Correlation
+    QVector<Correlation> corList;
 
     // Testing purposes
     Correlation *test;
-    Correlation *cor1;
 
 
 };

@@ -1,6 +1,5 @@
 #include "addcorrelation.h"
 #include "ui_addcorrelation.h"
-using namespace std;
 
 AddCorrelation::AddCorrelation(QWidget *parent) :
     QDialog(parent),
@@ -8,7 +7,9 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
+    ui->fluidBox->setEditable(true);
+    ui->sectionBox->setEditable(true);
+    ui->borderBox->setEditable(true);
     // To add the existent options
     // Test commit
     QFile file("..//PCHEThermalEfficiency//correlations.csv");
@@ -34,6 +35,9 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
         }
     }
     file.close();
+
+    // Add a way to add multiple fluids while input a correlation
+
 }
 
 AddCorrelation::~AddCorrelation()
@@ -65,32 +69,9 @@ void AddCorrelation::on_buttonBox_accepted()
     file.close();
     emit sendNewSignal();
 
-    // Use QFile???
-/*
-    correlationLib.open("..//PCHEThermalEfficiency//nusselt.txt", fstream::in | fstream::out | fstream::app);
-    if (verifyExpression(ui->exprBox->text())){
-        correlationLib << ui->exprBox->text().toStdString() << "; "
-                       << ui->authorBox->text().toStdString() << "; "
-                       << ui->reMinBox->value() << "; " << ui->reMaxBox->value() << "; "
-                       << ui->prMinBox->value() << "; " << ui->prMaxBox->value() << "; "
-                       << ui->fluidBox->currentText().toStdString() << "; "
-                       << ui->sectionBox->currentText().toStdString() << "; "
-                       << ui->angleBox->value() << "; "
-                       << ui->borderBox->currentText().toStdString() << "; ";
-                       //<< ui->nusseltNotes->toPlainText().toStdString() << "\n" ;
-        emit sendNewSignal();
-    }
-    else {
-        QMessageBox::warning(this, tr("Invalid Expression"),tr("The expression could not be computed. \n Please rewrite the notation used."));
+    QMessageBox::information(
+                this,
+                tr("New correlation"),
+                tr("The new correlation has been added"));
 
-    }
-    correlationLib.close();
-    */
-
-}
-
-bool AddCorrelation::verifyExpression(QString exp)
-{
-    // To add after some sort of verification
-    return true; // if the expression is correct
 }

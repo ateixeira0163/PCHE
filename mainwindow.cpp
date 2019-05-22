@@ -11,8 +11,6 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
 
     initList();
 
-
-
     ui->nusseltLabel->setText("0.023 Re <sup>0.8</sup> Pr <sup>0.3</sup>");
     ui->nusseltLabel->adjustSize();
 
@@ -55,13 +53,13 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     //Correlation test(author, nuExpr, nuRange, prRange);
     test = new Correlation(author, nuExpr, nuRange, prRange);
     QVector<int> z = test->getNuRange();
-    qDebug() << z[0] << "," << z[1];
+    //qDebug() << z[0] << "," << z[1];
 
     Correlation test2;
     test2.getAuthor();
 
 
-    ///
+    /*
     QString a = "Ngo expression";
     QString b = "Ngo";
     QVector<int> c = {3500,22000};
@@ -73,33 +71,6 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
 
     Correlation cor0(a,b,c,d,e,f,g,h);
 
-    Correlation cor1(QString a = "Ngo expression",
-                     QString b = "Ngo",
-                     QVector<int> c = {3500,22000},
-                     QVector<double> d = {0.75,2.2},
-                     QString e = "CO2 supercritical",
-                     QString f = "Rectangular",
-                     double g = 52,
-                     QString h = nullptr);
-
-    Correlation cor2(QString a = "I. Kim expression",
-                     QString b = "I. Kim",
-                     QVector<int> c = {350,800},
-                     QVector<double> d = {0.66,0.66},
-                     QString e = "Helium",
-                     QString f = "Semi-circular",
-                     double g = 15,
-                     QString h = nullptr);
-
-    Correlation cor3(QString a = "Berbish expression",
-                     QString b = "Berbish",
-                     QVector<int> c = {8242,57794},
-                     QVector<double> d = {NULL,NULL},
-                     QString e = "Ar",
-                     QString f = "Semi-circular",
-                     double g = 180,
-                     QString h = nullptr);
-
     QVector<int> reRangeCase = {3600,20000};
     QVector<double> prRangeCase = {0.4,0.8};
     QString fluidCase = "Water";
@@ -107,41 +78,11 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     double angleCase = 15;
     QString borderCase = nullptr;
 
-
-
     QVector<int> score;
     score.push_back(cor0.compare(reRangeCase,prRangeCase,fluidCase,
                                  sectionCase,angleCase,borderCase));
     qDebug() << score;
-
-
-    // QFile test
-
-    /*
-    // Reading
-    QFile file("..//PCHEThermalEfficiency//correlations.csv");
-    if (!file.open(QFile::ReadOnly | QIODevice::Text)) {
-            qDebug() << file.errorString();
-    }
-
-    QStringList wordList;
-        while (!file.atEnd()) {
-            QString line = file.readLine();
-            wordList = line.split(',');
-
-        }
-    //qDebug() << wordList[0];
-    qDebug() << wordList;
-    file.close();
-
-    // Writing
-    if (!file.open(QFile::ReadWrite | QIODevice::Append | QIODevice::Text)) {
-        qDebug() << file.errorString();
-    }
-    QTextStream out(&file);
-    out << "A,B" << "C";
-    file.close();
-*/
+    */
     // End - Test section
 }
 
@@ -365,6 +306,31 @@ void MainWindow::addNewNusselt()
     qDebug() << "Nothing for now";
 }
 
+void MainWindow::loadCorrelations()
+{
+    QFile file("..//PCHEThermalEfficiency//correlations.csv");  // Declare file
+    if (!file.open(QFile::ReadOnly | QIODevice::Text)){         // Check if open was succesful
+        qDebug() << file.errorString();                         // if not = return string of error
+    }
+
+    QStringList itemList;                       // List of string to store the information for each line
+    while (!file.atEnd()){                      // Until the end
+        QString line = file.readLine();         // Read each line
+        itemList = line.split(',');             // define separator
+        if (itemList.size() > 1){               // Certify that is not a empty line
+            Correlation temp(itemList[0],itemList[1],           // The object is created
+            {itemList[2].toInt(),itemList[3].toInt()},
+            {itemList[4].toDouble(),itemList[5].toDouble()},
+            itemList[6], itemList[7], itemList[8].toDouble(), itemList[9]);
+            corList.push_back(temp);            // We add to the list
+        }
+    }
+
+    file.close(); // Close file
+
+
+}
+
 void MainWindow::on_comboBoxNu_activated(const QString &arg1)
 {
     if (arg1 == "Add new"){
@@ -384,6 +350,8 @@ void MainWindow::on_searchButton_clicked()
     QString section = ui->sectionBox->currentText();
     double angle = ui->angleBox->value();
     QString border = ui->borderBox->currentText();
+
+    loadCorrelations();
 
    //test->compare(nuRange,prRange);
 }

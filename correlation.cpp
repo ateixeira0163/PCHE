@@ -3,6 +3,8 @@
 Correlation::Correlation(QString inExpr, QString inAuthor, QVector<int> inNuRange, QVector<double> inPrRange, QString inFluid, QString inSection, double inAngle, QString inBorder)
 {
     // Set the values
+
+    // Compare input values to set "" to NULL
     author = inAuthor;
     expr = inExpr;
     nuRange = inNuRange;
@@ -30,25 +32,21 @@ void Correlation::setPrRange(QVector<double> inPrRange)
 
 QString Correlation::getExpression()
 {
-    qDebug() << expr;
     return expr;
 }
 
 QVector<int> Correlation::getNuRange()
 {
-    qDebug() << nuRange;
     return nuRange;
 }
 
 QVector<double> Correlation::getPrRange()
 {
-    qDebug() << prRange;
     return prRange;
 }
 
 QString Correlation::getAuthor()
 {
-    qDebug() << author;
     return author;
 }
 

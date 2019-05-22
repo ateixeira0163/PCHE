@@ -234,7 +234,7 @@
   <widget class="QComboBox" name="borderBox">
    <property name="geometry">
     <rect>
-     <x>87</x>
+     <x>90</x>
      <y>220</y>
      <width>171</width>
      <height>22</height>
@@ -338,6 +338,18 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>exprBox</tabstop>
+  <tabstop>authorBox</tabstop>
+  <tabstop>reMinBox</tabstop>
+  <tabstop>reMaxBox</tabstop>
+  <tabstop>prMinBox</tabstop>
+  <tabstop>prMaxBox</tabstop>
+  <tabstop>fluidBox</tabstop>
+  <tabstop>sectionBox</tabstop>
+  <tabstop>angleBox</tabstop>
+  <tabstop>borderBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

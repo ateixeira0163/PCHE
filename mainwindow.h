@@ -57,6 +57,7 @@ private slots:
     void addNewFluid();
     void addNewNusselt();
     void loadCorrelations();
+    void addCorrelations();
 
 
 private:
@@ -102,7 +103,6 @@ private:
 
     // Correlation
     QVector<Correlation> corList;
-    QStringListModel *corModelList;
 
     // Testing purposes
     //Correlation *test;

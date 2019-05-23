@@ -14,8 +14,15 @@ public:
                 QString inBorder = nullptr);
 
     QString getAuthor();
+    QVector<int> getNuRange();
+    QVector<double> getPrRange();
+    QString getFluid();
+    QString getSection();
+    double getAngle();
+    QString getBorder();
 
-    int compare(QVector<int> cNuRange, QVector<double> cPrRange, QString cFluid,
+
+    QPair<int, QList<bool>> compare(QVector<int> cNuRange, QVector<double> cPrRange, QString cFluid,
                  QString cSection, double cAngle, QString cBorder);
 
 protected:

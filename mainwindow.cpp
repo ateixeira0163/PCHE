@@ -45,26 +45,6 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     hSection = 0;
 
     MainWindow::on_rectangleButton_clicked();
-
-    // For test purposes
-    //QString author = "Kays";
-    //QString nuExpr = "0.24*Re^0.425*Pr^(1/3)";
-    //QVector<int> nuRange = {400,3000};
-    //QVector<double> prRange = {0.8,1.2};
-
-    //Correlation test(author, nuExpr, nuRange, prRange);
-    //test = new Correlation(author, nuExpr, nuRange, prRange);
-    //QVector<int> z = test->getNuRange();
-    //qDebug() << z[0] << "," << z[1];
-
-
-    /*
-    QVector<int> score;
-    score.push_back(cor0.compare(reRangeCase,prRangeCase,fluidCase,
-                                 sectionCase,angleCase,borderCase));
-    qDebug() << score;
-    */
-    // End - Test section
 }
 
 MainWindow::~MainWindow()   // Class MainWindow destructor
@@ -292,7 +272,7 @@ void MainWindow::loadCorrelations()
     ui->borderBox->addItem("");
     ui->borderBox->setCurrentIndex(0);
 
-    QFile file(":/correlations.csv");  // Declare file
+    QFile file("..//PCHEThermalEfficiency//correlations.csv");  // Declare file
     if (!file.open(QFile::ReadOnly | QIODevice::Text)){         // Check if open was succesful
         qDebug() << file.errorString();                         // if not = return string of error
     }
@@ -325,6 +305,51 @@ void MainWindow::loadCorrelations()
 
 }
 
+void MainWindow::on_addNewButton_clicked()
+{
+    AddCorrelation addCorrelationWindow;
+    connect(&addCorrelationWindow, &AddCorrelation::sendNewSignal, this, &MainWindow::addCorrelations);
+    addCorrelationWindow.exec();
+    qDebug() << "AddNewCorrelation window opened.";
+}
+
+void MainWindow::addCorrelations()
+{
+    QFile file("..//PCHEThermalEfficiency//correlations.csv");  // Declare file
+    if (!file.open(QFile::ReadOnly | QIODevice::Text)){         // Check if open was succesful
+        qDebug() << file.errorString();                         // if not = return string of error
+    }
+
+    QStringList itemList;                       // List of string to store the information for each line
+    QString line;
+    while (!file.atEnd()){                      // Until the end
+        line = file.readLine();         // Read each line
+    }
+
+    itemList = line.split(',');             // define separator
+    if (itemList.size() > 1){               // Certify that is not a empty line
+        Correlation temp(itemList[0],itemList[1],           // The object is created
+        {itemList[2].toInt(),itemList[3].toInt()},
+        {itemList[4].toDouble(),itemList[5].toDouble()},
+        itemList[6], itemList[7], itemList[8].toDouble(), itemList[9]);
+        corList.push_back(temp);            // We add to the list
+
+        // Add the already existing to the options
+        if (ui->fluidBox->findText(itemList[6]) == -1 && itemList[6] != ""){ // not found yet
+            ui->fluidBox->addItem(itemList[6]);
+        }
+        if (ui->sectionBox->findText(itemList[7]) == -1 && itemList[7] != ""){
+            ui->sectionBox->addItem(itemList[7]);
+        }
+        if (ui->borderBox->findText(itemList[9]) == -1 && itemList[9] != ""){
+            ui->borderBox->addItem(itemList[9]);
+        }
+    }
+
+
+    file.close(); // Close file
+}
+
 
 void MainWindow::on_comboBoxNu_activated(const QString &arg1)
 {
@@ -347,9 +372,12 @@ void MainWindow::on_searchButton_clicked()
     QString border = ui->borderBox->currentText();
 
     QList<QPair<int, QPair<int,QString> > > rankList; // (score,(originalpos,author))
+    QList<QPair<int, QList<bool>>> resultsList;
 
     for (int i = 0; i < corList.size(); i++){
-        int score = corList[i].compare(nuRange,prRange,fluid,section,angle,border); // We compare with all the correlations
+        // We compare with all the correlations and add results to list
+        resultsList.push_back(corList[i].compare(nuRange,prRange,fluid,section,angle,border));
+        int score = resultsList[i].first;
         // Code to input the data in descending order from score
         int pos = 0;
         int j = 0;
@@ -358,36 +386,84 @@ void MainWindow::on_searchButton_clicked()
             else break;
             j++;
         }
+        // Insert to the list
         rankList.insert(pos, qMakePair(score,qMakePair(i,corList[i].getAuthor())));
     }
-    qDebug() << rankList;
 
-    /* Testing */
-
-    auto model = new QStandardItemModel();
-    auto modelTable = new QStandardItemModel();
+    auto modelTable = new QStandardItemModel(); // For TableView
     for (int i = 0; i < rankList.size(); i++){      // We add to the list of options to ListView
-        model->appendRow(new QStandardItem(rankList[i].second.second));
-        modelTable->appendRow(new QStandardItem(rankList[i].second.second));
-        QStandardItem *item = new QStandardItem(QString::number(rankList[i].first));
-        modelTable->setItem(i,1,item);
-        QModelIndex iIndex = modelTable->index(i,0);
+        modelTable->appendRow(new QStandardItem(rankList[i].second.second));    // Append first element to TableView
 
-        if (rankList[i].first > 1) modelTable->setData(iIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+        QModelIndex iIndex = modelTable->index(i,0);    // create index to add icons
+        // Add correspondent icon
+        if (rankList[i].first > 11) modelTable->setData(iIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
         else if (rankList[i].first > 0) modelTable->setData(iIndex,QIcon(":/checkmarkYellow.png"),Qt::DecorationRole);
         else modelTable->setData(iIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
 
-        if (rankList[i].first > 0) model->setData(model->index(i,0), QBrush(Qt::green), Qt::BackgroundRole);
+        //(condition ? if_true : if_false) -> print NuRange into TableView
+        QString printNuRange = ((corList[rankList[i].second.first].getNuRange()[0] == NULL && corList[rankList[i].second.first].getNuRange()[1] == NULL) ?
+                    "Not specified": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getNuRange()[0])).arg(QString::number(corList[rankList[i].second.first].getNuRange()[1])));
+        QStandardItem *itemNuRange = new QStandardItem(printNuRange);
+        modelTable->setItem(i,1,itemNuRange);
+        QModelIndex nuRangeIndex = modelTable->index(i,1);
+        if (resultsList[rankList[i].second.first].second[0]) modelTable->setData(nuRangeIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+        else modelTable->setData(nuRangeIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+
+        // print valid PrRange
+        QString printPrRange = ((corList[rankList[i].second.first].getPrRange()[0] == NULL && corList[rankList[i].second.first].getPrRange()[1] == NULL) ?
+                    "Not specified": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getPrRange()[0])).arg(QString::number(corList[rankList[i].second.first].getPrRange()[1])));
+        QStandardItem *itemPrRange = new QStandardItem(printPrRange);
+        modelTable->setItem(i,2,itemPrRange);
+        QModelIndex prRangeIndex = modelTable->index(i,2);
+        if (resultsList[rankList[i].second.first].second[1]) modelTable->setData(prRangeIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+        else modelTable->setData(prRangeIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+
+        // print valid fluid
+        QString printFluid = (corList[rankList[i].second.first].getFluid() == nullptr ?
+                    "Not specified": corList[rankList[i].second.first].getFluid());
+        QStandardItem *itemFluid = new QStandardItem(printFluid);
+        modelTable->setItem(i,3,itemFluid);
+        QModelIndex fluidIndex = modelTable->index(i,3);
+        if (resultsList[rankList[i].second.first].second[2]) modelTable->setData(fluidIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+        else modelTable->setData(fluidIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+
+        // print valid section
+        QString printSection = (corList[rankList[i].second.first].getSection() == nullptr ?
+                    "Not specified": corList[rankList[i].second.first].getSection());
+        QStandardItem *itemSection = new QStandardItem(printSection);
+        modelTable->setItem(i,4,itemSection);
+        QModelIndex sectionIndex = modelTable->index(i,4);
+        if (resultsList[rankList[i].second.first].second[3]) modelTable->setData(sectionIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+        else modelTable->setData(sectionIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+
+        // print valid angle
+        QString printAngle = (corList[rankList[i].second.first].getAngle() == NULL ?
+                    "Not specified": QString("%0°").arg(QString::number(corList[rankList[i].second.first].getAngle())));
+        QStandardItem *itemAngle = new QStandardItem(printAngle);
+        modelTable->setItem(i,5,itemAngle);
+        QModelIndex angleIndex = modelTable->index(i,5);
+        if (resultsList[rankList[i].second.first].second[4]) modelTable->setData(angleIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+        else modelTable->setData(angleIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+
+        // print valid border
+        QString printBorder = (corList[rankList[i].second.first].getBorder() == nullptr ?
+                    "Not specified": corList[rankList[i].second.first].getBorder());
+        QStandardItem *itemBorder = new QStandardItem(printBorder);
+        modelTable->setItem(i,6,itemBorder);
+        QModelIndex borderIndex = modelTable->index(i,6);
+        if (resultsList[rankList[i].second.first].second[5]) modelTable->setData(borderIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+        else modelTable->setData(borderIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+
     }
-    ui->listSearchResults->setModel(model);
-    ui->tableView->setModel(modelTable);
+    modelTable->setHeaderData(0,Qt::Horizontal,"Author");
+    modelTable->setHeaderData(1,Qt::Horizontal,"Re - Range");
+    modelTable->setHeaderData(2,Qt::Horizontal,"Pr - Range");
+    modelTable->setHeaderData(3,Qt::Horizontal,"Fluid");
+    modelTable->setHeaderData(4,Qt::Horizontal,"Section");
+    modelTable->setHeaderData(5,Qt::Horizontal,"Angle");
+    modelTable->setHeaderData(6,Qt::Horizontal,"Border");
+    ui->tableView->setModel(modelTable);    // Set model for tableView
 
 }
 
-void MainWindow::on_addNewButton_clicked()
-{
-    AddCorrelation addCorrelationWindow;
-    connect(&addCorrelationWindow, &AddCorrelation::sendNewSignal, this, &MainWindow::addNewNusselt);
-    addCorrelationWindow.exec();
-    qDebug() << "AddNewCorrelation window opened.";
-}
+

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1253</width>
-    <height>631</height>
+    <height>670</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -852,8 +852,8 @@ background-repeat: none;
        <widget class="QGroupBox" name="inputParametersBox_2">
         <property name="geometry">
          <rect>
-          <x>370</x>
-          <y>290</y>
+          <x>790</x>
+          <y>360</y>
           <width>351</width>
           <height>131</height>
          </rect>
@@ -1242,39 +1242,20 @@ background-repeat: none;
        <widget class="QGroupBox" name="groupBox_2">
         <property name="geometry">
          <rect>
-          <x>730</x>
-          <y>10</y>
-          <width>331</width>
+          <x>370</x>
+          <y>290</y>
+          <width>351</width>
           <height>271</height>
          </rect>
         </property>
         <property name="title">
          <string>Search results </string>
         </property>
-        <widget class="QListView" name="listSearchResults">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>60</y>
-           <width>111</width>
-           <height>192</height>
-          </rect>
-         </property>
-         <property name="cursor" stdset="0">
-          <cursorShape>PointingHandCursor</cursorShape>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::WheelFocus</enum>
-         </property>
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-        </widget>
         <widget class="QLabel" name="label_24">
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>40</y>
+           <y>20</y>
            <width>95</width>
            <height>16</height>
           </rect>
@@ -1291,9 +1272,9 @@ background-repeat: none;
         <widget class="QTableView" name="tableView">
          <property name="geometry">
           <rect>
-           <x>140</x>
-           <y>60</y>
-           <width>171</width>
+           <x>10</x>
+           <y>40</y>
+           <width>331</width>
            <height>192</height>
           </rect>
          </property>
@@ -1301,7 +1282,7 @@ background-repeat: none;
           <bool>false</bool>
          </property>
          <attribute name="horizontalHeaderVisible">
-          <bool>false</bool>
+          <bool>true</bool>
          </attribute>
          <attribute name="verticalHeaderVisible">
           <bool>false</bool>
@@ -1374,6 +1355,51 @@ background-repeat: none;
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>reMinBox</tabstop>
+  <tabstop>reMaxBox</tabstop>
+  <tabstop>prMinBox</tabstop>
+  <tabstop>prMaxBox</tabstop>
+  <tabstop>fluidBox</tabstop>
+  <tabstop>sectionBox</tabstop>
+  <tabstop>angleBox</tabstop>
+  <tabstop>borderBox</tabstop>
+  <tabstop>searchButton</tabstop>
+  <tabstop>addNewButton</tabstop>
+  <tabstop>pColdInlet</tabstop>
+  <tabstop>comboBoxColdP</tabstop>
+  <tabstop>tColdInlet</tabstop>
+  <tabstop>comboBoxColdFluid</tabstop>
+  <tabstop>comboBoxColdT</tabstop>
+  <tabstop>comboBoxColdPOutlet</tabstop>
+  <tabstop>pColdOutlet</tabstop>
+  <tabstop>tabWidget_3</tabstop>
+  <tabstop>comboBoxH</tabstop>
+  <tabstop>radioButtonSemiCirc</tabstop>
+  <tabstop>sectionHMesure</tabstop>
+  <tabstop>rectangleButton</tabstop>
+  <tabstop>radioButtonCirc</tabstop>
+  <tabstop>semiCircularButton</tabstop>
+  <tabstop>radioButtonRect</tabstop>
+  <tabstop>sectionDMesure</tabstop>
+  <tabstop>circularButton</tabstop>
+  <tabstop>comboBoxD</tabstop>
+  <tabstop>runButton</tabstop>
+  <tabstop>comboBoxNu</tabstop>
+  <tabstop>tabWidget_2</tabstop>
+  <tabstop>reHotInlet</tabstop>
+  <tabstop>tHotInlet</tabstop>
+  <tabstop>comboBoxHotP</tabstop>
+  <tabstop>pHotOut</tabstop>
+  <tabstop>comboBoxHotT</tabstop>
+  <tabstop>pHotInlet</tabstop>
+  <tabstop>comboBoxHotPOut</tabstop>
+  <tabstop>comboBoxHotFluid</tabstop>
+  <tabstop>reColdInlet</tabstop>
+  <tabstop>checkBox</tabstop>
+  <tabstop>tableView</tabstop>
+ </tabstops>
  <resources>
   <include location="images.qrc"/>
  </resources>

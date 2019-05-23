@@ -16,7 +16,7 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
     // To add the existent options
     // Test commit
 
-    QFile file(":/correlations.csv");
+    QFile file("..//PCHEThermalEfficiency//correlations.csv");
     if (!file.open(QFile::ReadOnly | QIODevice::Text)){
         qDebug() << file.errorString();
     }
@@ -54,7 +54,7 @@ void AddCorrelation::on_buttonBox_accepted()
     // To add the new fluid to the .txt
 
     // Using QFile
-    QFile file(":/correlations.csv");
+    QFile file("..//PCHEThermalEfficiency//correlations.csv");
     if (!file.open(QFile::ReadWrite | QIODevice::Append | QIODevice::Text)) {
         qDebug() << file.errorString();
     }

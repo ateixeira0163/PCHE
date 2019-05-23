@@ -1288,6 +1288,25 @@ background-repeat: none;
           <string>Best correlations</string>
          </property>
         </widget>
+        <widget class="QTableView" name="tableView">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>60</y>
+           <width>171</width>
+           <height>192</height>
+          </rect>
+         </property>
+         <property name="showGrid">
+          <bool>false</bool>
+         </property>
+         <attribute name="horizontalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+        </widget>
        </widget>
       </widget>
       <widget class="QWidget" name="resultsTab">

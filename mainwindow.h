@@ -16,6 +16,7 @@
 #include <QString>
 #include <QStringList>
 #include <QStringListModel>
+#include <QStandardItemModel> //Testing
 #include <QFile>
 #include <QTextStream>
 #include <cstdlib>

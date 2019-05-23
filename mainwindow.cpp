@@ -362,15 +362,26 @@ void MainWindow::on_searchButton_clicked()
     }
     qDebug() << rankList;
 
-    corModelList = new QStringListModel(this);  // Create model to the ListView
-    QStringList optionsList;                    // Create String list to input into the ListView
+    /* Testing */
 
+    auto model = new QStandardItemModel();
+    auto modelTable = new QStandardItemModel();
     for (int i = 0; i < rankList.size(); i++){      // We add to the list of options to ListView
-        optionsList << rankList[i].second.second;
-    }
+        model->appendRow(new QStandardItem(rankList[i].second.second));
+        modelTable->appendRow(new QStandardItem(rankList[i].second.second));
+        QStandardItem *item = new QStandardItem(QString::number(rankList[i].first));
+        modelTable->setItem(i,1,item);
+        QModelIndex iIndex = modelTable->index(i,0);
 
-    corModelList->setStringList(optionsList);   // Set StringList to ModelList
-    ui->listSearchResults->setModel(corModelList);  // Add to the ListView
+        if (rankList[i].first > 1) modelTable->setData(iIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+        else if (rankList[i].first > 0) modelTable->setData(iIndex,QIcon(":/checkmarkYellow.png"),Qt::DecorationRole);
+        else modelTable->setData(iIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+
+        if (rankList[i].first > 0) model->setData(model->index(i,0), QBrush(Qt::green), Qt::BackgroundRole);
+    }
+    ui->listSearchResults->setModel(model);
+    ui->tableView->setModel(modelTable);
+
 }
 
 void MainWindow::on_addNewButton_clicked()

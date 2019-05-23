@@ -19,7 +19,7 @@ AddNewFluidWindow::~AddNewFluidWindow()
 void AddNewFluidWindow::on_buttonBox_accepted()
 {
     // To add the new fluid to the .txt
-    fluidsLib.open("..//PCHEThermalEfficiency//fluids.txt", fstream::in | fstream::out | fstream::app);
+    fluidsLib.open(":/fluids.txt", fstream::in | fstream::out | fstream::app);
     fluidsLib << ui->newFluidName->text().toStdString() << " " << ui->newFluidP1->value() << " " << ui->newFluidP2->value() << "\n";
     fluidsLib.close();
 

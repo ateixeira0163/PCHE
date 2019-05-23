@@ -196,7 +196,7 @@ void MainWindow::on_comboBoxColdFluid_activated(const QString &arg1)
 
 void MainWindow::initList()
 {
-    fluidsLib.open("..//PCHEThermalEfficiency//fluids.txt");
+    fluidsLib.open(":/fluids.txt");
     string fluidName;
     double a, b;
     while(fluidsLib >> fluidName >> a >> b){
@@ -252,7 +252,7 @@ void MainWindow::addNewFluid()
     ui->comboBoxColdFluid->removeItem(fluidsName.size());
 
     // Then we open the file
-    fluidsLib.open("..//PCHEThermalEfficiency//fluids.txt");
+    fluidsLib.open(":/fluids.txt");
     string fluidName;
     double a, b;
     while(fluidsLib >> fluidName >> a >> b){
@@ -292,7 +292,7 @@ void MainWindow::loadCorrelations()
     ui->borderBox->addItem("");
     ui->borderBox->setCurrentIndex(0);
 
-    QFile file("..//PCHEThermalEfficiency//correlations.csv");  // Declare file
+    QFile file(":/correlations.csv");  // Declare file
     if (!file.open(QFile::ReadOnly | QIODevice::Text)){         // Check if open was succesful
         qDebug() << file.errorString();                         // if not = return string of error
     }
@@ -346,29 +346,31 @@ void MainWindow::on_searchButton_clicked()
     double angle = ui->angleBox->value();
     QString border = ui->borderBox->currentText();
 
-    QMultiMap<int,QString> rankingList;   // To add the scores
+    QList<QPair<int, QPair<int,QString> > > rankList; // (score,(originalpos,author))
 
     for (int i = 0; i < corList.size(); i++){
-        int score = corList[i].compare(nuRange,prRange,fluid,section,angle,border);
-        rankingList.insert(score,corList[i].getAuthor());
-        qDebug() << corList[i].getAuthor() << " : " << score << "\n";
+        int score = corList[i].compare(nuRange,prRange,fluid,section,angle,border); // We compare with all the correlations
+        // Code to input the data in descending order from score
+        int pos = 0;
+        int j = 0;
+        while(j < rankList.size()){
+            if (score < rankList[j].first) pos++;
+            else break;
+            j++;
+        }
+        rankList.insert(pos, qMakePair(score,qMakePair(i,corList[i].getAuthor())));
     }
+    qDebug() << rankList;
 
     corModelList = new QStringListModel(this);  // Create model to the ListView
     QStringList optionsList;                    // Create String list to input into the ListView
 
-    QMapIterator<int, QString> it(rankingList); // Iterator for the QMultiMap
-    it.toBack();                                // Search in reverse order
-    while(it.hasPrevious()){
-        it.previous();
-        optionsList << it.value();              // Add author name to the StringList
+    for (int i = 0; i < rankList.size(); i++){      // We add to the list of options to ListView
+        optionsList << rankList[i].second.second;
     }
 
     corModelList->setStringList(optionsList);   // Set StringList to ModelList
     ui->listSearchResults->setModel(corModelList);  // Add to the ListView
-
-    // TO DO:
-    // Try using QList to sort
 }
 
 void MainWindow::on_addNewButton_clicked()

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>fluids.txt</file>
+        <file>correlations.csv</file>
     </qresource>
 </RCC>

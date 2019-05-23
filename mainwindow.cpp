@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
 {
     ui->setupUi(this);
 
+    // Testing Git on lab
     initList();
     loadCorrelations();
 

@@ -1107,6 +1107,9 @@ background-repeat: none;
            <height>21</height>
           </rect>
          </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
         </widget>
         <widget class="QLabel" name="label_20">
          <property name="geometry">
@@ -1153,6 +1156,9 @@ background-repeat: none;
            <height>21</height>
           </rect>
          </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
         </widget>
         <widget class="QLabel" name="label_22">
          <property name="geometry">
@@ -1181,6 +1187,9 @@ background-repeat: none;
            <height>21</height>
           </rect>
          </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
         </widget>
         <widget class="QLabel" name="label_23">
          <property name="geometry">
@@ -1208,6 +1217,9 @@ background-repeat: none;
            <width>71</width>
            <height>22</height>
           </rect>
+         </property>
+         <property name="suffix">
+          <string>°</string>
          </property>
          <property name="maximum">
           <double>360.000000000000000</double>
@@ -1239,6 +1251,43 @@ background-repeat: none;
         <property name="title">
          <string>Search results </string>
         </property>
+        <widget class="QListView" name="listSearchResults">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>60</y>
+           <width>111</width>
+           <height>192</height>
+          </rect>
+         </property>
+         <property name="cursor" stdset="0">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::WheelFocus</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_24">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>40</y>
+           <width>95</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Best correlations</string>
+         </property>
+        </widget>
        </widget>
       </widget>
       <widget class="QWidget" name="resultsTab">

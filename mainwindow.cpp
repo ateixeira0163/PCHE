@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     ui->setupUi(this);
 
     initList();
+    loadCorrelations();
 
     ui->nusseltLabel->setText("0.023 Re <sup>0.8</sup> Pr <sup>0.3</sup>");
     ui->nusseltLabel->adjustSize();
@@ -45,39 +46,18 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     MainWindow::on_rectangleButton_clicked();
 
     // For test purposes
-    QString author = "Kays";
-    QString nuExpr = "0.24*Re^0.425*Pr^(1/3)";
-    QVector<int> nuRange = {400,3000};
-    QVector<double> prRange = {0.8,1.2};
+    //QString author = "Kays";
+    //QString nuExpr = "0.24*Re^0.425*Pr^(1/3)";
+    //QVector<int> nuRange = {400,3000};
+    //QVector<double> prRange = {0.8,1.2};
 
     //Correlation test(author, nuExpr, nuRange, prRange);
-    test = new Correlation(author, nuExpr, nuRange, prRange);
-    QVector<int> z = test->getNuRange();
+    //test = new Correlation(author, nuExpr, nuRange, prRange);
+    //QVector<int> z = test->getNuRange();
     //qDebug() << z[0] << "," << z[1];
-
-    Correlation test2;
-    test2.getAuthor();
 
 
     /*
-    QString a = "Ngo expression";
-    QString b = "Ngo";
-    QVector<int> c = {3500,22000};
-    QVector<double> d = {0.75,2.2};
-    QString e = "CO2 supercritical";
-    QString f = "Rectangular";
-    double g = 52;
-    QString h = nullptr;
-
-    Correlation cor0(a,b,c,d,e,f,g,h);
-
-    QVector<int> reRangeCase = {3600,20000};
-    QVector<double> prRangeCase = {0.4,0.8};
-    QString fluidCase = "Water";
-    QString sectionCase = "Rectangular";
-    double angleCase = 15;
-    QString borderCase = nullptr;
-
     QVector<int> score;
     score.push_back(cor0.compare(reRangeCase,prRangeCase,fluidCase,
                                  sectionCase,angleCase,borderCase));
@@ -93,10 +73,6 @@ MainWindow::~MainWindow()   // Class MainWindow destructor
 
 void MainWindow::on_actionAbout_triggered()
 {
-    /*                                      // Modal type (we cannot move the main window behind)
-    aboutDialog aboutDialog;
-    aboutDialog.setModal(true);
-    aboutDialog.exec();*/
     aboutDialogW = new aboutDialog(this);   // Modaless type (we can move the main window behind)
     aboutDialogW->show();
 }
@@ -308,6 +284,13 @@ void MainWindow::addNewNusselt()
 
 void MainWindow::loadCorrelations()
 {
+    ui->fluidBox->addItem("");          // Add empty options as defaut
+    ui->fluidBox->setCurrentIndex(0);
+    ui->sectionBox->addItem("");
+    ui->sectionBox->setCurrentIndex(0);
+    ui->borderBox->addItem("");
+    ui->borderBox->setCurrentIndex(0);
+
     QFile file("..//PCHEThermalEfficiency//correlations.csv");  // Declare file
     if (!file.open(QFile::ReadOnly | QIODevice::Text)){         // Check if open was succesful
         qDebug() << file.errorString();                         // if not = return string of error
@@ -323,13 +306,24 @@ void MainWindow::loadCorrelations()
             {itemList[4].toDouble(),itemList[5].toDouble()},
             itemList[6], itemList[7], itemList[8].toDouble(), itemList[9]);
             corList.push_back(temp);            // We add to the list
+
+            // Add the already existing to the options
+            if (ui->fluidBox->findText(itemList[6]) == -1 && itemList[6] != ""){ // not found yet
+                ui->fluidBox->addItem(itemList[6]);
+            }
+            if (ui->sectionBox->findText(itemList[7]) == -1 && itemList[7] != ""){
+                ui->sectionBox->addItem(itemList[7]);
+            }
+            if (ui->borderBox->findText(itemList[9]) == -1 && itemList[9] != ""){
+                ui->borderBox->addItem(itemList[9]);
+            }
         }
     }
 
     file.close(); // Close file
 
-
 }
+
 
 void MainWindow::on_comboBoxNu_activated(const QString &arg1)
 {
@@ -351,9 +345,29 @@ void MainWindow::on_searchButton_clicked()
     double angle = ui->angleBox->value();
     QString border = ui->borderBox->currentText();
 
-    loadCorrelations();
+    QMultiMap<int,QString> rankingList;   // To add the scores
 
-   //test->compare(nuRange,prRange);
+    for (int i = 0; i < corList.size(); i++){
+        int score = corList[i].compare(nuRange,prRange,fluid,section,angle,border);
+        rankingList.insert(score,corList[i].getAuthor());
+        qDebug() << corList[i].getAuthor() << " : " << score << "\n";
+    }
+
+    corModelList = new QStringListModel(this);  // Create model to the ListView
+    QStringList optionsList;                    // Create String list to input into the ListView
+
+    QMapIterator<int, QString> it(rankingList); // Iterator for the QMultiMap
+    it.toBack();                                // Search in reverse order
+    while(it.hasPrevious()){
+        it.previous();
+        optionsList << it.value();              // Add author name to the StringList
+    }
+
+    corModelList->setStringList(optionsList);   // Set StringList to ModelList
+    ui->listSearchResults->setModel(corModelList);  // Add to the ListView
+
+    // TO DO:
+    // Try using QList to sort
 }
 
 void MainWindow::on_addNewButton_clicked()

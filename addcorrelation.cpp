@@ -7,9 +7,12 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->fluidBox->setEditable(true);
-    ui->sectionBox->setEditable(true);
-    ui->borderBox->setEditable(true);
+    ui->fluidBox->addItem("");          // Add empty options as defaut
+    ui->fluidBox->setCurrentIndex(0);
+    ui->sectionBox->addItem("");
+    ui->sectionBox->setCurrentIndex(0);
+    ui->borderBox->addItem("");
+    ui->borderBox->setCurrentIndex(0);
     // To add the existent options
     // Test commit
     QFile file("..//PCHEThermalEfficiency//correlations.csv");
@@ -22,14 +25,13 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
         QString line = file.readLine();
         wordList = line.split(',');
         if (wordList.size() > 1){
-            qDebug() << wordList.size();
-            if (ui->fluidBox->findText(wordList[6]) == -1 || wordList[6] == " "){ // not found yet
+            if (ui->fluidBox->findText(wordList[6]) == -1 && wordList[6] != ""){ // not found yet
                 ui->fluidBox->addItem(wordList[6]);
             }
-            if (ui->sectionBox->findText(wordList[7]) == -1 || wordList[7] == " "){
+            if (ui->sectionBox->findText(wordList[7]) == -1 && wordList[7] != ""){
                 ui->sectionBox->addItem(wordList[7]);
             }
-            if (ui->borderBox->findText(wordList[9]) == -1 || wordList[9] == " "){
+            if (ui->borderBox->findText(wordList[9]) == -1 && wordList[9] != ""){
                 ui->borderBox->addItem(wordList[9]);
             }
         }

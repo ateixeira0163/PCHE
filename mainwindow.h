@@ -15,11 +15,13 @@
 #include <fstream>
 #include <QString>
 #include <QStringList>
+#include <QStringListModel>
 #include <QFile>
 #include <QTextStream>
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
+
 
 
 namespace Ui {
@@ -48,14 +50,13 @@ private slots:
     void on_comboBoxColdFluid_activated(const QString &arg1);
     void on_comboBoxNu_activated(const QString &arg1);
     void on_searchButton_clicked();
+    void on_addNewButton_clicked();
 
     void initList();
     void addNewFluid();
     void addNewNusselt();
-
     void loadCorrelations();
 
-    void on_addNewButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -100,9 +101,10 @@ private:
 
     // Correlation
     QVector<Correlation> corList;
+    QStringListModel *corModelList;
 
     // Testing purposes
-    Correlation *test;
+    //Correlation *test;
 
 
 };

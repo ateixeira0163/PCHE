@@ -5,44 +5,15 @@ Correlation::Correlation(QString inExpr, QString inAuthor, QVector<int> inNuRang
     // Set the values
 
     // Compare input values to set "" to NULL
-    author = inAuthor;
-    expr = inExpr;
-    nuRange = inNuRange;
-    prRange = inPrRange;
-    fluid = inFluid;
-    section = inSection;
-    border = inBorder;
-    angle = inAngle;
-}
+    expr = (inExpr == "" ? nullptr : inExpr);       // If/Else short statement
+    author = (inAuthor == "" ? nullptr : inAuthor); // (condition ? if_true : if_false)
+    nuRange = ((inNuRange[0] == 0 && inNuRange[1] == 0) ? QVector<int> {NULL,NULL} : inNuRange);
+    prRange = ((inPrRange[0] < 0.00001 && inPrRange[1] < 0.00001) ? QVector<double> {NULL,NULL} : inPrRange);
+    fluid = (inFluid == "" ? nullptr : inFluid);
+    section = (inSection == "" ? nullptr : inSection);
+    border = (inBorder == "" ? nullptr : inBorder);
+    angle = ((fabs(inAngle) < 0.00001) ? NULL : inAngle);
 
-void Correlation::setExpression(QString inExpr)
-{
-    expr = inExpr;
-}
-
-void Correlation::setNuRange(QVector<int> inNuRange)
-{
-    nuRange = inNuRange;
-}
-
-void Correlation::setPrRange(QVector<double> inPrRange)
-{
-    prRange = inPrRange;
-}
-
-QString Correlation::getExpression()
-{
-    return expr;
-}
-
-QVector<int> Correlation::getNuRange()
-{
-    return nuRange;
-}
-
-QVector<double> Correlation::getPrRange()
-{
-    return prRange;
 }
 
 QString Correlation::getAuthor()
@@ -50,17 +21,17 @@ QString Correlation::getAuthor()
     return author;
 }
 
-int Correlation::compare(QVector<int> aNuRange, QVector<double> aPrRange,QString aFluid,
-                          QString aSection, double aAngle, QString aBorder)
+int Correlation::compare(QVector<int> cNuRange, QVector<double> cPrRange,QString cFluid,
+                          QString cSection, double cAngle, QString cBorder)
 {
     // Return some kind of points in order to classify
     int score = 0;
 
     // Comparing Re range
-    if (aNuRange[0] == NULL || nuRange[0] == NULL) {
+    if ((cNuRange[0] == 0 && cNuRange[1] == 0) || (nuRange[0] == NULL && nuRange[1] == NULL)) {
         qDebug() << "Could not compare, since there's no value for Re domain";
     }
-    else if (aNuRange[0] >= nuRange[0] && aNuRange[1] <= nuRange[1]){
+    else if (cNuRange[0] >= nuRange[0] && cNuRange[1] <= nuRange[1]){
         qDebug() << "It's inside Reynolds range";
         score += 1;
     }
@@ -69,11 +40,11 @@ int Correlation::compare(QVector<int> aNuRange, QVector<double> aPrRange,QString
     }
 
     // Comparing Pr range
-    if (aPrRange[0] == NULL || prRange[0] == NULL){
+    if ((cPrRange[0] < 0.0001 && cPrRange[1] < 0.0001) || (prRange[0] == NULL && prRange[1] == NULL)){
         qDebug() << "Could not compare, since there's no value for Pr domain";
     }
 
-    else if (aPrRange[0] >= prRange[0] && aPrRange[1] <= prRange[1]){
+    else if (cPrRange[0] >= prRange[0] && cPrRange[1] <= prRange[1]){
         qDebug() << "It's inside Prandtl range";
         score += 1;
     }
@@ -82,10 +53,10 @@ int Correlation::compare(QVector<int> aNuRange, QVector<double> aPrRange,QString
     }
 
     // Comparing Fluid
-    if (aFluid == nullptr){
+    if (cFluid == "" || fluid == nullptr){
         qDebug() << "Could not compare, since there's no value for Fluid";
     }
-    else if (aFluid == fluid){
+    else if (cFluid == fluid){
         qDebug() << "The fluid choosen matches the case";
         score += 1;
     }
@@ -94,10 +65,10 @@ int Correlation::compare(QVector<int> aNuRange, QVector<double> aPrRange,QString
     }
 
     // Comparing the section
-    if (aSection == nullptr){
+    if (cSection == "" || section == nullptr){
         qDebug() << "Could not compare, since there's no value for Section";
     }
-    else if (aSection == section){
+    else if (cSection == section){
         qDebug() << "The section choosen matches the case";
         score += 1;
     }
@@ -106,10 +77,10 @@ int Correlation::compare(QVector<int> aNuRange, QVector<double> aPrRange,QString
     }
 
     // Comparing angle
-    if (aAngle == NULL){
+    if (fabs(cAngle) < 0.0001 || angle == NULL){
         qDebug() << "Could not compare, since there's no value for Angle";
     }
-    else if (std::abs(angle - aAngle) < 0.001){
+    else if (fabs(angle - cAngle) < 0.0001){
         qDebug() << "The angle choosen matches the case";
         score += 1;
     }
@@ -118,10 +89,10 @@ int Correlation::compare(QVector<int> aNuRange, QVector<double> aPrRange,QString
     }
 
     // Comparing border type
-    if (aBorder == nullptr){
+    if (cBorder == "" || border == nullptr){
         qDebug() << "Could not compare, since there's no value for Border type";
     }
-    else if (aBorder == border){
+    else if (cBorder == border){
         qDebug() << "The border type choosen matches the case";
         score += 1;
     }

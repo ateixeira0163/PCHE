@@ -13,17 +13,10 @@ public:
                 QString inFluid = nullptr, QString inSection = nullptr, double inAngle = NULL,
                 QString inBorder = nullptr);
 
-    void setExpression(QString expr);           // Functions to modify the interior of the class
-    void setNuRange(QVector<int> nuRange);
-    void setPrRange(QVector<double> prRange);
-
-    QString getExpression();                    // To get the protected values
-    QVector<int> getNuRange();
-    QVector<double> getPrRange();
     QString getAuthor();
 
-    int compare(QVector<int> aNuRange, QVector<double> aPrRange, QString aFluid,
-                 QString aSection, double aAngle, QString aBorder);
+    int compare(QVector<int> cNuRange, QVector<double> cPrRange, QString cFluid,
+                 QString cSection, double cAngle, QString cBorder);
 
 protected:
     QString expr, author, fluid, section, border;                               // Values of the class

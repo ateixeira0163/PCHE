@@ -1,6 +1,6 @@
 #include "correlation.h"
 
-Correlation::Correlation(QString inExpr, QString inAuthor, QVector<int> inNuRange, QVector<double> inPrRange, QString inFluid, QString inSection, double inAngle, QString inBorder)
+Correlation::Correlation(QString inExpr, QString inAuthor, QVector<int> inNuRange, QVector<double> inPrRange, QString inFluid, QString inSection, double inAngle, QString inBorder, QString inReference, QString inNotes)
 {
     // Set the values
 
@@ -13,7 +13,14 @@ Correlation::Correlation(QString inExpr, QString inAuthor, QVector<int> inNuRang
     section = (inSection == "" ? nullptr : inSection);
     border = (inBorder == "" ? nullptr : inBorder);
     angle = ((fabs(inAngle) < 0.00001) ? NULL : inAngle);
+    reference = (inReference == "" ? nullptr : inReference);
+    notes = (inNotes == "" ? nullptr : inNotes);
 
+}
+
+QString Correlation::getExpr()
+{
+    return expr;
 }
 
 QString Correlation::getAuthor()
@@ -51,6 +58,16 @@ QString Correlation::getBorder()
     return border;
 }
 
+QString Correlation::getReference()
+{
+    return reference;
+}
+
+QString Correlation::getNotes()
+{
+    return notes;
+}
+
 QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, QVector<double> cPrRange,QString cFluid,
                           QString cSection, double cAngle, QString cBorder)
 {
@@ -68,11 +85,11 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, QVector<doub
         score += 2;
         results.append(true);
     }
-    else if (cNuRange[0] >= nuRange[0]){
+    else if (cNuRange[1] >= nuRange[0] && nuRange[0] >= cNuRange[0]){
         score += 1;
         results.append(false);
     }
-    else if (cNuRange[1] <= nuRange[1]){
+    else if (cNuRange[1] >= nuRange[1] && nuRange[1] >= cNuRange[0]){
         score += 1;
         results.append(false);
     }
@@ -91,11 +108,11 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, QVector<doub
         score += 2;
         results.append(true);
     }
-    else if (cPrRange[0] >= prRange[0]){
+    else if (cPrRange[1] >= prRange[0] && prRange[0] >= cPrRange[0]){
         score += 1;
         results.append(false);
     }
-    else if (cPrRange[1] <= prRange[1]){
+    else if (cPrRange[1] >= prRange[1] && prRange[1] >= cPrRange[0]){
         score += 1;
         results.append(false);
     }
@@ -168,25 +185,3 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, QVector<doub
 
     return finalResults;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

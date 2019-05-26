@@ -954,7 +954,7 @@ background-repeat: none;
           <rect>
            <x>100</x>
            <y>30</y>
-           <width>101</width>
+           <width>71</width>
            <height>22</height>
           </rect>
          </property>
@@ -965,9 +965,9 @@ background-repeat: none;
         <widget class="QSpinBox" name="reMaxBox">
          <property name="geometry">
           <rect>
-           <x>220</x>
+           <x>180</x>
            <y>30</y>
-           <width>101</width>
+           <width>71</width>
            <height>22</height>
           </rect>
          </property>
@@ -975,11 +975,11 @@ background-repeat: none;
           <number>9999999</number>
          </property>
         </widget>
-        <widget class="QLabel" name="label_7">
+        <widget class="QLabel" name="reMinLabel">
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>10</y>
+           <y>15</y>
            <width>21</width>
            <height>16</height>
           </rect>
@@ -993,11 +993,11 @@ background-repeat: none;
           <string>min</string>
          </property>
         </widget>
-        <widget class="QLabel" name="label_8">
+        <widget class="QLabel" name="reMaxLabel">
          <property name="geometry">
           <rect>
-           <x>220</x>
-           <y>10</y>
+           <x>180</x>
+           <y>15</y>
            <width>24</width>
            <height>16</height>
           </rect>
@@ -1014,9 +1014,9 @@ background-repeat: none;
         <widget class="QDoubleSpinBox" name="prMaxBox">
          <property name="geometry">
           <rect>
-           <x>220</x>
+           <x>180</x>
            <y>70</y>
-           <width>101</width>
+           <width>71</width>
            <height>22</height>
           </rect>
          </property>
@@ -1039,11 +1039,11 @@ background-repeat: none;
           <string>Prandtl</string>
          </property>
         </widget>
-        <widget class="QLabel" name="label_10">
+        <widget class="QLabel" name="prMinLabel">
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>50</y>
+           <y>55</y>
            <width>21</width>
            <height>16</height>
           </rect>
@@ -1062,16 +1062,16 @@ background-repeat: none;
           <rect>
            <x>100</x>
            <y>70</y>
-           <width>101</width>
+           <width>71</width>
            <height>22</height>
           </rect>
          </property>
         </widget>
-        <widget class="QLabel" name="label_19">
+        <widget class="QLabel" name="prMaxLabel">
          <property name="geometry">
           <rect>
-           <x>220</x>
-           <y>50</y>
+           <x>180</x>
+           <y>55</y>
            <width>24</width>
            <height>16</height>
           </rect>
@@ -1089,13 +1089,19 @@ background-repeat: none;
          <property name="geometry">
           <rect>
            <x>260</x>
-           <y>230</y>
+           <y>200</y>
            <width>75</width>
            <height>23</height>
           </rect>
          </property>
          <property name="text">
           <string>Search</string>
+         </property>
+         <property name="autoDefault">
+          <bool>true</bool>
+         </property>
+         <property name="default">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QComboBox" name="fluidBox">
@@ -1229,13 +1235,42 @@ background-repeat: none;
          <property name="geometry">
           <rect>
            <x>170</x>
-           <y>230</y>
+           <y>200</y>
            <width>80</width>
            <height>23</height>
           </rect>
          </property>
          <property name="text">
           <string>Add new</string>
+         </property>
+         <property name="autoDefault">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="prInputButton">
+         <property name="geometry">
+          <rect>
+           <x>260</x>
+           <y>70</y>
+           <width>59</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Range</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="reInputButton">
+         <property name="geometry">
+          <rect>
+           <x>260</x>
+           <y>30</y>
+           <width>59</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Range</string>
          </property>
         </widget>
        </widget>
@@ -1278,11 +1313,14 @@ background-repeat: none;
            <height>192</height>
           </rect>
          </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
          <property name="showGrid">
           <bool>false</bool>
          </property>
          <attribute name="horizontalHeaderVisible">
-          <bool>true</bool>
+          <bool>false</bool>
          </attribute>
          <attribute name="verticalHeaderVisible">
           <bool>false</bool>
@@ -1356,7 +1394,6 @@ background-repeat: none;
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
   <tabstop>reMinBox</tabstop>
   <tabstop>reMaxBox</tabstop>
   <tabstop>prMinBox</tabstop>

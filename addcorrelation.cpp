@@ -14,7 +14,6 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
     ui->borderBox->addItem("");
     ui->borderBox->setCurrentIndex(0);
     // To add the existent options
-    // Test commit
 
     QFile file("..//PCHEThermalEfficiency//correlations.csv");
     if (!file.open(QFile::ReadOnly | QIODevice::Text)){
@@ -24,7 +23,7 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
     QStringList wordList;
     while (!file.atEnd()){
         QString line = file.readLine();
-        wordList = line.split(',');
+        wordList = line.split(';');
         if (wordList.size() > 1){
             if (ui->fluidBox->findText(wordList[6]) == -1 && wordList[6] != ""){ // not found yet
                 ui->fluidBox->addItem(wordList[6]);
@@ -61,14 +60,16 @@ void AddCorrelation::on_buttonBox_accepted()
 
     QTextStream out(&file);
 
-    out << ui->exprBox->text() << ","
-        << ui->authorBox->text() << ","
-        << ui->reMinBox->value() << "," << ui->reMaxBox->value() << ","
-        << ui->prMinBox->value() << "," << ui->prMaxBox->value() << ","
-        << ui->fluidBox->currentText() << ","
-        << ui->sectionBox->currentText() << ","
-        << ui->angleBox->value() << ","
-        << ui->borderBox->currentText() << ",\n";
+    out << ui->exprBox->text() << ";"
+        << ui->authorBox->text() << ";"
+        << ui->reMinBox->value() << ";" << ui->reMaxBox->value() << ";"
+        << ui->prMinBox->value() << ";" << ui->prMaxBox->value() << ";"
+        << ui->fluidBox->currentText() << ";"
+        << ui->sectionBox->currentText() << ";"
+        << ui->angleBox->value() << ";"
+        << ui->borderBox->currentText() << ";"
+        << ui->referenceBox->toPlainText() << ";"
+        << ui->notesBox->toPlainText() << ";\n";
     file.close();
     emit sendNewSignal();
 

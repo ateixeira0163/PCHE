@@ -45,6 +45,12 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     hSection = 0;
 
     MainWindow::on_rectangleButton_clicked();
+
+    // Correlations - TableView
+    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    prRangeStatement = true;
+    reRangeStatement = true;
+
 }
 
 MainWindow::~MainWindow()   // Class MainWindow destructor
@@ -280,12 +286,13 @@ void MainWindow::loadCorrelations()
     QStringList itemList;                       // List of string to store the information for each line
     while (!file.atEnd()){                      // Until the end
         QString line = file.readLine();         // Read each line
-        itemList = line.split(',');             // define separator
+        itemList = line.split(';');             // define separator
         if (itemList.size() > 1){               // Certify that is not a empty line
             Correlation temp(itemList[0],itemList[1],           // The object is created
             {itemList[2].toInt(),itemList[3].toInt()},
             {itemList[4].toDouble(),itemList[5].toDouble()},
-            itemList[6], itemList[7], itemList[8].toDouble(), itemList[9]);
+            itemList[6], itemList[7], itemList[8].toDouble(), itemList[9],
+            itemList[10], itemList[11]);
             corList.push_back(temp);            // We add to the list
 
             // Add the already existing to the options
@@ -310,7 +317,6 @@ void MainWindow::on_addNewButton_clicked()
     AddCorrelation addCorrelationWindow;
     connect(&addCorrelationWindow, &AddCorrelation::sendNewSignal, this, &MainWindow::addCorrelations);
     addCorrelationWindow.exec();
-    qDebug() << "AddNewCorrelation window opened.";
 }
 
 void MainWindow::addCorrelations()
@@ -326,12 +332,13 @@ void MainWindow::addCorrelations()
         line = file.readLine();         // Read each line
     }
 
-    itemList = line.split(',');             // define separator
+    itemList = line.split(';');             // define separator
     if (itemList.size() > 1){               // Certify that is not a empty line
         Correlation temp(itemList[0],itemList[1],           // The object is created
         {itemList[2].toInt(),itemList[3].toInt()},
         {itemList[4].toDouble(),itemList[5].toDouble()},
-        itemList[6], itemList[7], itemList[8].toDouble(), itemList[9]);
+        itemList[6], itemList[7], itemList[8].toDouble(), itemList[9],
+        itemList[10], itemList[11]);
         corList.push_back(temp);            // We add to the list
 
         // Add the already existing to the options
@@ -364,14 +371,32 @@ void MainWindow::on_comboBoxNu_activated(const QString &arg1)
 void MainWindow::on_searchButton_clicked()
 {
     // Get all the input from the ui
-    QVector<int> nuRange = {ui->reMinBox->value(), ui->reMaxBox->value()};
-    QVector<double> prRange = {ui->prMinBox->value(), ui->prMaxBox->value()};
+    QVector<int> nuRange = (reRangeStatement ?
+                                QVector<int> {ui->reMinBox->value(), ui->reMaxBox->value()} :
+                                QVector<int> {ui->reMinBox->value(), ui->reMinBox->value()});
+    QVector<double> prRange = (prRangeStatement ?
+                                   QVector<double> {ui->prMinBox->value(), ui->prMaxBox->value()} :
+                                   QVector<double> {ui->prMinBox->value(), ui->prMinBox->value()});
+
     QString fluid = ui->fluidBox->currentText();
     QString section = ui->sectionBox->currentText();
     double angle = ui->angleBox->value();
     QString border = ui->borderBox->currentText();
 
-    QList<QPair<int, QPair<int,QString> > > rankList; // (score,(originalpos,author))
+    // Calculate the max score based on nb of answers
+    int maxScore = 0;
+    if (nuRange != QVector<int> {0,0}) maxScore += 2;
+    if (prRange != QVector<double> {0,0}) maxScore += 2;
+    if (fluid != "") maxScore += 2;
+    if (section != "") maxScore += 2;
+    if (angle > 0) maxScore += 2;
+    if (border != "") maxScore += 2;
+
+
+    //rankList: (pos,(score((originalpos,author)))
+    // Sorry for this type of approach, but it's to much work to change now
+    // Please don't use QPair for more than 2 items (It's stupid, just look down to understand)
+    rankList.clear();
     QList<QPair<int, QList<bool>>> resultsList;
 
     for (int i = 0; i < corList.size(); i++){
@@ -396,16 +421,25 @@ void MainWindow::on_searchButton_clicked()
 
         QModelIndex iIndex = modelTable->index(i,0);    // create index to add icons
         // Add correspondent icon
-        if (rankList[i].first > 11) modelTable->setData(iIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+        if (rankList[i].first == maxScore) modelTable->setData(iIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
         else if (rankList[i].first > 0) modelTable->setData(iIndex,QIcon(":/checkmarkYellow.png"),Qt::DecorationRole);
         else modelTable->setData(iIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+
+        // Add % of coincidence
+        double a = rankList[i].first;
+        a = (a/maxScore)*100;
+        QStandardItem *itemCoincidence = new QStandardItem(QString::number(a) + "%");
+        modelTable->setItem(i,1,itemCoincidence);
+        QModelIndex coincidenceIndex = modelTable->index(i,1);
+        if (a > 99) modelTable->setData(coincidenceIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+        else modelTable->setData(coincidenceIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
 
         //(condition ? if_true : if_false) -> print NuRange into TableView
         QString printNuRange = ((corList[rankList[i].second.first].getNuRange()[0] == NULL && corList[rankList[i].second.first].getNuRange()[1] == NULL) ?
                     "Not specified": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getNuRange()[0])).arg(QString::number(corList[rankList[i].second.first].getNuRange()[1])));
         QStandardItem *itemNuRange = new QStandardItem(printNuRange);
-        modelTable->setItem(i,1,itemNuRange);
-        QModelIndex nuRangeIndex = modelTable->index(i,1);
+        modelTable->setItem(i,2,itemNuRange);
+        QModelIndex nuRangeIndex = modelTable->index(i,2);
         if (resultsList[rankList[i].second.first].second[0]) modelTable->setData(nuRangeIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
         else modelTable->setData(nuRangeIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
 
@@ -413,8 +447,8 @@ void MainWindow::on_searchButton_clicked()
         QString printPrRange = ((corList[rankList[i].second.first].getPrRange()[0] == NULL && corList[rankList[i].second.first].getPrRange()[1] == NULL) ?
                     "Not specified": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getPrRange()[0])).arg(QString::number(corList[rankList[i].second.first].getPrRange()[1])));
         QStandardItem *itemPrRange = new QStandardItem(printPrRange);
-        modelTable->setItem(i,2,itemPrRange);
-        QModelIndex prRangeIndex = modelTable->index(i,2);
+        modelTable->setItem(i,3,itemPrRange);
+        QModelIndex prRangeIndex = modelTable->index(i,3);
         if (resultsList[rankList[i].second.first].second[1]) modelTable->setData(prRangeIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
         else modelTable->setData(prRangeIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
 
@@ -422,8 +456,8 @@ void MainWindow::on_searchButton_clicked()
         QString printFluid = (corList[rankList[i].second.first].getFluid() == nullptr ?
                     "Not specified": corList[rankList[i].second.first].getFluid());
         QStandardItem *itemFluid = new QStandardItem(printFluid);
-        modelTable->setItem(i,3,itemFluid);
-        QModelIndex fluidIndex = modelTable->index(i,3);
+        modelTable->setItem(i,4,itemFluid);
+        QModelIndex fluidIndex = modelTable->index(i,4);
         if (resultsList[rankList[i].second.first].second[2]) modelTable->setData(fluidIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
         else modelTable->setData(fluidIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
 
@@ -431,8 +465,8 @@ void MainWindow::on_searchButton_clicked()
         QString printSection = (corList[rankList[i].second.first].getSection() == nullptr ?
                     "Not specified": corList[rankList[i].second.first].getSection());
         QStandardItem *itemSection = new QStandardItem(printSection);
-        modelTable->setItem(i,4,itemSection);
-        QModelIndex sectionIndex = modelTable->index(i,4);
+        modelTable->setItem(i,5,itemSection);
+        QModelIndex sectionIndex = modelTable->index(i,5);
         if (resultsList[rankList[i].second.first].second[3]) modelTable->setData(sectionIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
         else modelTable->setData(sectionIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
 
@@ -440,8 +474,8 @@ void MainWindow::on_searchButton_clicked()
         QString printAngle = (corList[rankList[i].second.first].getAngle() == NULL ?
                     "Not specified": QString("%0°").arg(QString::number(corList[rankList[i].second.first].getAngle())));
         QStandardItem *itemAngle = new QStandardItem(printAngle);
-        modelTable->setItem(i,5,itemAngle);
-        QModelIndex angleIndex = modelTable->index(i,5);
+        modelTable->setItem(i,6,itemAngle);
+        QModelIndex angleIndex = modelTable->index(i,6);
         if (resultsList[rankList[i].second.first].second[4]) modelTable->setData(angleIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
         else modelTable->setData(angleIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
 
@@ -449,21 +483,81 @@ void MainWindow::on_searchButton_clicked()
         QString printBorder = (corList[rankList[i].second.first].getBorder() == nullptr ?
                     "Not specified": corList[rankList[i].second.first].getBorder());
         QStandardItem *itemBorder = new QStandardItem(printBorder);
-        modelTable->setItem(i,6,itemBorder);
-        QModelIndex borderIndex = modelTable->index(i,6);
+        modelTable->setItem(i,7,itemBorder);
+        QModelIndex borderIndex = modelTable->index(i,7);
         if (resultsList[rankList[i].second.first].second[5]) modelTable->setData(borderIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
         else modelTable->setData(borderIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
 
     }
     modelTable->setHeaderData(0,Qt::Horizontal,"Author");
-    modelTable->setHeaderData(1,Qt::Horizontal,"Re - Range");
-    modelTable->setHeaderData(2,Qt::Horizontal,"Pr - Range");
-    modelTable->setHeaderData(3,Qt::Horizontal,"Fluid");
-    modelTable->setHeaderData(4,Qt::Horizontal,"Section");
-    modelTable->setHeaderData(5,Qt::Horizontal,"Angle");
-    modelTable->setHeaderData(6,Qt::Horizontal,"Border");
+    modelTable->setHeaderData(1,Qt::Horizontal,"Coincidence");
+    modelTable->setHeaderData(2,Qt::Horizontal,"Re - Range");
+    modelTable->setHeaderData(3,Qt::Horizontal,"Pr - Range");
+    modelTable->setHeaderData(4,Qt::Horizontal,"Fluid");
+    modelTable->setHeaderData(5,Qt::Horizontal,"Section");
+    modelTable->setHeaderData(6,Qt::Horizontal,"Angle");
+    modelTable->setHeaderData(7,Qt::Horizontal,"Border");
     ui->tableView->setModel(modelTable);    // Set model for tableView
 
 }
 
+void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
+{
 
+    /*QMessageBox::information(
+               this,
+               tr("Choosen correlation"),
+               corList[rankList[index.row()].first].getExpr());*/
+
+    CorrelationDetails correlationDetailsWindow;
+    correlationDetailsWindow.exec();
+    /*
+    AddCorrelation addCorrelationWindow;
+    connect(&addCorrelationWindow, &AddCorrelation::sendNewSignal, this, &MainWindow::addCorrelations);
+    addCorrelationWindow.exec();*/
+}
+
+
+void MainWindow::on_prInputButton_clicked()
+{
+    if (prRangeStatement == true){
+        ui->prInputButton->setText("Number");
+        ui->prMaxBox->hide();
+        ui->prMinBox->setMinimumWidth(151);
+        ui->prMinBox->setMaximumWidth(151);
+        ui->prMinLabel->hide();
+        ui->prMaxLabel->hide();
+        prRangeStatement = false;
+    }
+    else{
+        ui->prInputButton->setText("Range");
+        ui->prMaxBox->show();
+        ui->prMinBox->setMinimumWidth(71);
+        ui->prMinBox->setMaximumWidth(71);
+        ui->prMinLabel->show();
+        ui->prMaxLabel->show();
+        prRangeStatement = true;
+    }
+}
+
+void MainWindow::on_reInputButton_clicked()
+{
+    if (reRangeStatement == true){
+        ui->reInputButton->setText("Number");
+        ui->reMaxBox->hide();
+        ui->reMinBox->setMinimumWidth(151);
+        ui->reMinBox->setMaximumWidth(151);
+        ui->reMinLabel->hide();
+        ui->reMaxLabel->hide();
+        reRangeStatement = false;
+    }
+    else{
+        ui->reInputButton->setText("Range");
+        ui->reMaxBox->show();
+        ui->reMinBox->setMinimumWidth(71);
+        ui->reMinBox->setMaximumWidth(71);
+        ui->reMinLabel->show();
+        ui->reMaxLabel->show();
+        reRangeStatement = true;
+    }
+}

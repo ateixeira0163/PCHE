@@ -6,6 +6,7 @@
 #include "addnewfluidwindow.h"
 #include "addcorrelation.h"
 #include "correlation.h"
+#include "correlationdetails.h"
 #include <string>
 #include <QActionGroup>
 #include <QMessageBox>
@@ -16,7 +17,7 @@
 #include <QString>
 #include <QStringList>
 #include <QStringListModel>
-#include <QStandardItemModel> //Testing
+#include <QStandardItemModel>
 #include <QFile>
 #include <QTextStream>
 #include <cstdlib>
@@ -59,6 +60,13 @@ private slots:
     void loadCorrelations();
     void addCorrelations();
 
+
+    void on_tableView_doubleClicked(const QModelIndex &index);
+
+
+    void on_prInputButton_clicked();
+
+    void on_reInputButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -103,6 +111,8 @@ private:
 
     // Correlation
     QVector<Correlation> corList;
+    QList<QPair<int, QPair<int,QString> > > rankList;
+    bool prRangeStatement, reRangeStatement;
 
     // Testing purposes
     //Correlation *test;

@@ -30,23 +30,20 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     aboutdialog.cpp \
-    addnewfluidwindow.cpp \
-    correlationdetails.cpp
+    addnewfluidwindow.cpp
 
 HEADERS += \
     addcorrelation.h \
     correlation.h \
         mainwindow.h \
     aboutdialog.h \
-    addnewfluidwindow.h \
-    correlationdetails.h
+    addnewfluidwindow.h
 
 FORMS += \
     addcorrelation.ui \
         mainwindow.ui \
     aboutdialog.ui \
-    addnewfluidwindow.ui \
-    correlationdetails.ui
+    addnewfluidwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

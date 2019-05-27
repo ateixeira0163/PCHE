@@ -6,7 +6,6 @@
 #include "addnewfluidwindow.h"
 #include "addcorrelation.h"
 #include "correlation.h"
-#include "correlationdetails.h"
 #include <string>
 #include <QActionGroup>
 #include <QMessageBox>

@@ -571,9 +571,7 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
                this,
                tr("Choosen correlation"),
                corList[rankList[index.row()].first].getExpr());*/
-
-    CorrelationDetails correlationDetailsWindow;
-    correlationDetailsWindow.exec();
+    qDebug() << index;
     /*
     AddCorrelation addCorrelationWindow;
     connect(&addCorrelationWindow, &AddCorrelation::sendNewSignal, this, &MainWindow::addCorrelations);

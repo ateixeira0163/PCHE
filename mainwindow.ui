@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
+    <width>882</width>
     <height>670</height>
    </rect>
   </property>
@@ -1323,6 +1323,19 @@ background-repeat: none;
          </item>
         </layout>
        </widget>
+       <widget class="QGroupBox" name="groupBox_4">
+        <property name="geometry">
+         <rect>
+          <x>380</x>
+          <y>10</y>
+          <width>451</width>
+          <height>271</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Plot</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="resultsTab">
        <attribute name="title">
@@ -1359,7 +1372,7 @@ background-repeat: none;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
+     <width>882</width>
      <height>20</height>
     </rect>
    </property>

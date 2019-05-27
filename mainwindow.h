@@ -22,8 +22,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
-
-
+#include <QtScript/QScriptEngine>
 
 namespace Ui {
 class MainWindow;
@@ -69,6 +68,10 @@ private slots:
     void on_reInputButton_clicked();
 
     void on_deleteButton_clicked();
+
+
+
+    void on_plotButton_clicked();
 
 private:
     Ui::MainWindow *ui;

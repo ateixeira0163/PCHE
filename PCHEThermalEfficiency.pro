@@ -5,8 +5,9 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += script
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = PCHEThermalEfficiency
 TEMPLATE = app
@@ -30,14 +31,16 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     aboutdialog.cpp \
-    addnewfluidwindow.cpp
+    addnewfluidwindow.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
     addcorrelation.h \
     correlation.h \
         mainwindow.h \
     aboutdialog.h \
-    addnewfluidwindow.h
+    addnewfluidwindow.h \
+    qcustomplot.h
 
 FORMS += \
     addcorrelation.ui \

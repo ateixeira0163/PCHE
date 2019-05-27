@@ -9,9 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
 {
     ui->setupUi(this);
 
-    // Testing Git on lab
-    initList();
-    loadCorrelations();
+    initList();    
 
     ui->nusseltLabel->setText("0.023 Re <sup>0.8</sup> Pr <sup>0.3</sup>");
     ui->nusseltLabel->adjustSize();
@@ -47,9 +45,12 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     MainWindow::on_rectangleButton_clicked();
 
     // Correlations - TableView
+    loadCorrelations();
+    showCorrelations();
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     prRangeStatement = true;
     reRangeStatement = true;
+    alreadySearched = false;
 
 }
 
@@ -355,6 +356,66 @@ void MainWindow::addCorrelations()
 
 
     file.close(); // Close file
+    if (alreadySearched) on_searchButton_clicked();
+    else showCorrelations();
+}
+
+void MainWindow::showCorrelations()
+{
+    // Function to show all the existant correlations without any comparison
+
+    auto modelTable = new QStandardItemModel();
+    for (int i = 0; i < corList.size(); i++){
+        // Add author
+        modelTable->appendRow(new QStandardItem(corList[i].getAuthor()));
+
+        // Add Re Range
+        QString printNuRange = ((corList[i].getNuRange()[0] == NULL && corList[i].getNuRange()[1] == NULL) ?
+                    "Not specified": QString("[%0,%1]").arg(QString::number(corList[i].getNuRange()[0])).arg(QString::number(corList[i].getNuRange()[1])));
+        QStandardItem *itemNuRange = new QStandardItem(printNuRange);
+        modelTable->setItem(i,1,itemNuRange);
+
+        // Add Pr Range
+        QString printPrRange = ((corList[i].getPrRange()[0] == NULL && corList[i].getPrRange()[1] == NULL) ?
+                    "Not specified": QString("[%0,%1]").arg(QString::number(corList[i].getPrRange()[0])).arg(QString::number(corList[i].getPrRange()[1])));
+        QStandardItem *itemPrRange = new QStandardItem(printPrRange);
+        modelTable->setItem(i,2,itemPrRange);
+
+        // Add fluid
+        QString printFluid = (corList[i].getFluid() == nullptr ?
+                    "Not specified": corList[i].getFluid());
+        QStandardItem *itemFluid = new QStandardItem(printFluid);
+        modelTable->setItem(i,3,itemFluid);
+
+        // Add section type
+        QString printSection = (corList[i].getSection() == nullptr ?
+                    "Not specified": corList[i].getSection());
+        QStandardItem *itemSection = new QStandardItem(printSection);
+        modelTable->setItem(i,4,itemSection);
+
+        // Add angle
+        QString printAngle = (corList[i].getAngle() == NULL ?
+                    "Not specified": QString("%0°").arg(QString::number(corList[i].getAngle())));
+        QStandardItem *itemAngle = new QStandardItem(printAngle);
+        modelTable->setItem(i,5,itemAngle);
+
+        QString printBorder = (corList[i].getBorder() == nullptr ?
+                    "Not specified": corList[i].getBorder());
+        QStandardItem *itemBorder = new QStandardItem(printBorder);
+        modelTable->setItem(i,6,itemBorder);
+    }
+
+    // Set all horizontal header
+    modelTable->setHeaderData(0,Qt::Horizontal,"Author");
+    modelTable->setHeaderData(1,Qt::Horizontal,"Re - Range");
+    modelTable->setHeaderData(2,Qt::Horizontal,"Pr - Range");
+    modelTable->setHeaderData(3,Qt::Horizontal,"Fluid");
+    modelTable->setHeaderData(4,Qt::Horizontal,"Section");
+    modelTable->setHeaderData(5,Qt::Horizontal,"Angle");
+    modelTable->setHeaderData(6,Qt::Horizontal,"Border");
+    ui->tableView->setModel(modelTable);    // Set model for tableView
+    ui->tableView->horizontalHeader()->show(); // show horizontal header
+
 }
 
 
@@ -391,7 +452,6 @@ void MainWindow::on_searchButton_clicked()
     if (section != "") maxScore += 2;
     if (angle > 0) maxScore += 2;
     if (border != "") maxScore += 2;
-
 
     //rankList: (pos,(score((originalpos,author)))
     // Sorry for this type of approach, but it's to much work to change now
@@ -498,7 +558,10 @@ void MainWindow::on_searchButton_clicked()
     modelTable->setHeaderData(6,Qt::Horizontal,"Angle");
     modelTable->setHeaderData(7,Qt::Horizontal,"Border");
     ui->tableView->setModel(modelTable);    // Set model for tableView
+    ui->tableView->horizontalHeader()->show();
+    ui->tableView->resizeColumnsToContents();
 
+    alreadySearched = true;
 }
 
 void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
@@ -520,6 +583,7 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 void MainWindow::on_prInputButton_clicked()
 {
+    // Change the input GUI for Prandtl number
     if (prRangeStatement == true){
         ui->prInputButton->setText("Number");
         ui->prMaxBox->hide();
@@ -542,6 +606,8 @@ void MainWindow::on_prInputButton_clicked()
 
 void MainWindow::on_reInputButton_clicked()
 {
+    // Function to hide/show some elements
+    // Change the input GUI for Reynolds input
     if (reRangeStatement == true){
         ui->reInputButton->setText("Number");
         ui->reMaxBox->hide();
@@ -559,5 +625,75 @@ void MainWindow::on_reInputButton_clicked()
         ui->reMinLabel->show();
         ui->reMaxLabel->show();
         reRangeStatement = true;
+    }
+}
+
+void MainWindow::on_deleteButton_clicked()
+{
+    // Open message box to be sure of the deletion
+    QMessageBox::StandardButton verify;
+    verify = QMessageBox::question(this, "Confirmation", "Are you sure?",
+                                   QMessageBox::Yes|QMessageBox::No);
+    if (verify == QMessageBox::Yes){
+        // Get the correct index from corList
+        int index = (alreadySearched ?
+                     rankList[ui->tableView->selectionModel()->currentIndex().row()].second.first :
+                     ui->tableView->selectionModel()->currentIndex().row());
+
+        // Remove item choosen from corList
+        corList.remove(index);
+
+        // Write correlations.csv again
+        QFile file("..//PCHEThermalEfficiency//correlations.csv");
+
+        // Verify if file was successfuly opened (Truncate overwrites the file)
+        if (!file.open(QFile::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
+            qDebug() << file.errorString();
+        }
+        QTextStream out(&file); // Define TextStream for writing
+
+        // Alocate variables to input
+        Correlation *k;
+        QString expr;
+        QString author;
+        QVector<int> reRange;
+        QVector<double> prRange;
+        QString fluid;
+        QString section;
+        double angle;
+        QString border;
+        QString reference;
+        QString notes;
+
+        // Iterate all correlation list to add again except the excluded one
+        for (int i = 0; i < corList.size(); i++){
+            k = &corList[i]; // to search just one time
+            // Convert Null values to "" or 0 to write into file
+            expr = (k->getExpr() == nullptr ? "" : k->getExpr());
+            author = (k->getAuthor() == nullptr ? "" : k->getAuthor());
+            reRange = (k->getNuRange()[0] == NULL ? QVector<int> {0,0} : k->getNuRange());
+            prRange = (k->getPrRange()[0] == NULL ? QVector<double> {0,0} : k->getPrRange());
+            fluid = (k->getFluid() == nullptr ? "" : k->getFluid());
+            section = (k->getSection() == nullptr ? "" : k->getSection());
+            angle = (k->getAngle() == NULL ? 0 : k->getAngle());
+            border = (k->getBorder() == nullptr ? "" : k->getBorder());
+            reference = (k->getReference() == nullptr ? "" : k->getReference());
+            notes = (k->getNotes() == nullptr ? "" : k->getNotes());
+
+            out << expr << ";"
+                << author << ";"
+                << reRange[0] << ";" << reRange[1] << ";"
+                << prRange[0] << ";" << prRange[1] << ";"
+                << fluid << ";"
+                << section << ";"
+                << angle << ";"
+                << border << ";"
+                << reference << ";"
+                << notes << ";" << "\n";
+        }
+        file.close();
+        // If there was already a research, it's refreshed
+        if (alreadySearched) on_searchButton_clicked();
+        else showCorrelations();
     }
 }

@@ -59,6 +59,7 @@ private slots:
     void addNewNusselt();
     void loadCorrelations();
     void addCorrelations();
+    void showCorrelations();
 
 
     void on_tableView_doubleClicked(const QModelIndex &index);
@@ -67,6 +68,8 @@ private slots:
     void on_prInputButton_clicked();
 
     void on_reInputButton_clicked();
+
+    void on_deleteButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -112,7 +115,7 @@ private:
     // Correlation
     QVector<Correlation> corList;
     QList<QPair<int, QPair<int,QString> > > rankList;
-    bool prRangeStatement, reRangeStatement;
+    bool prRangeStatement, reRangeStatement, alreadySearched;
 
     // Testing purposes
     //Correlation *test;

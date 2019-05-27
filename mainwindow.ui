@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1253</width>
+    <width>1200</width>
     <height>670</height>
    </rect>
   </property>
@@ -21,22 +21,13 @@
     </size>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -816,24 +807,11 @@ background-repeat: none;
          </widget>
         </widget>
        </widget>
-       <widget class="QGroupBox" name="groupBox_3">
-        <property name="geometry">
-         <rect>
-          <x>1110</x>
-          <y>20</y>
-          <width>101</width>
-          <height>71</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Model View</string>
-        </property>
-       </widget>
        <widget class="QPushButton" name="runButton">
         <property name="geometry">
          <rect>
-          <x>1140</x>
-          <y>90</y>
+          <x>470</x>
+          <y>240</y>
           <width>81</width>
           <height>41</height>
          </rect>
@@ -852,8 +830,8 @@ background-repeat: none;
        <widget class="QGroupBox" name="inputParametersBox_2">
         <property name="geometry">
          <rect>
-          <x>790</x>
-          <y>360</y>
+          <x>420</x>
+          <y>310</y>
           <width>351</width>
           <height>131</height>
          </rect>
@@ -919,10 +897,15 @@ background-repeat: none;
          </property>
         </widget>
        </widget>
+      </widget>
+      <widget class="QWidget" name="tab_4">
+       <attribute name="title">
+        <string>Correlations</string>
+       </attribute>
        <widget class="QGroupBox" name="groupBox">
         <property name="geometry">
          <rect>
-          <x>370</x>
+          <x>20</x>
           <y>10</y>
           <width>351</width>
           <height>271</height>
@@ -1277,55 +1260,68 @@ background-repeat: none;
        <widget class="QGroupBox" name="groupBox_2">
         <property name="geometry">
          <rect>
-          <x>370</x>
+          <x>20</x>
           <y>290</y>
-          <width>351</width>
-          <height>271</height>
+          <width>811</width>
+          <height>268</height>
          </rect>
         </property>
         <property name="title">
          <string>Search results </string>
         </property>
-        <widget class="QLabel" name="label_24">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>20</y>
-           <width>95</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Best correlations</string>
-         </property>
-        </widget>
-        <widget class="QTableView" name="tableView">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>40</y>
-           <width>331</width>
-           <height>192</height>
-          </rect>
-         </property>
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <property name="showGrid">
-          <bool>false</bool>
-         </property>
-         <attribute name="horizontalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
-         <attribute name="verticalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
-        </widget>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QTableView" name="tableView">
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="showGrid">
+              <bool>false</bool>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>25</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="deleteButton">
+               <property name="text">
+                <string>Delete</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_2">
+               <property name="text">
+                <string>Plot</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </widget>
       <widget class="QWidget" name="resultsTab">
@@ -1340,16 +1336,18 @@ background-repeat: none;
           </property>
          </widget>
         </item>
+        <item row="1" column="0">
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="title">
+           <string>Model View</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="libraryTab">
        <attribute name="title">
         <string>Library</string>
-       </attribute>
-      </widget>
-      <widget class="QWidget" name="tab_4">
-       <attribute name="title">
-        <string>???</string>
        </attribute>
       </widget>
      </widget>
@@ -1361,7 +1359,7 @@ background-repeat: none;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1253</width>
+     <width>1200</width>
      <height>20</height>
     </rect>
    </property>

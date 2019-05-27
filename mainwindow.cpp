@@ -566,16 +566,75 @@ void MainWindow::on_searchButton_clicked()
 
 void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
+    // Adequate index if list is order by search
+    int ind = (alreadySearched ?
+                 rankList[index.row()].second.first :
+                 index.row());
+    // Add informations to boxes
+    ui->exprBoxInfo->setText(corList[ind].getExpr());
+    ui->referenceBoxInfo->setPlainText(corList[ind].getReference());
+    ui->notesBoxInfo->setPlainText(corList[ind].getNotes());
 
-    /*QMessageBox::information(
-               this,
-               tr("Choosen correlation"),
-               corList[rankList[index.row()].first].getExpr());*/
-    qDebug() << index;
-    /*
-    AddCorrelation addCorrelationWindow;
-    connect(&addCorrelationWindow, &AddCorrelation::sendNewSignal, this, &MainWindow::addCorrelations);
-    addCorrelationWindow.exec();*/
+    // Clear graph widget to new plot
+    ui->customPlot->clearGraphs();
+    ui->customPlot->replot(); // refresh
+
+    QScriptEngine myEngine;
+
+    QString expression = corList[ind].getExpr();
+    int reMin = corList[ind].getNuRange()[0];
+    int reMax = corList[ind].getNuRange()[1];       // ADD VERIFICATION
+    expression.replace(QString("("),QString("Math.pow("));
+    expression.replace(QString("^"),QString(","));
+    QString funExpr = "(function(Re, Pr) { return " + expression + ";})";
+    QScriptValue funScript = myEngine.evaluate(funExpr);
+
+    // generate some data:
+    QVector<double> x(101), y(101);
+    for (int i=0; i < 101; i++){
+        x[i] = reMin + i*(reMax - reMin)/100;
+        QScriptValueList args;
+        args << x[i] << 1; //PR = 1 for now
+        QScriptValue result = funScript.call(QScriptValue(), args);
+        y[i] = result.toNumber();
+    }
+
+    // Add legend
+    //ui->customPlot->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom)); // period as decimal separator and comma as thousand separator
+    ui->customPlot->legend->setVisible(true);
+    QFont legendFont = font();  // start out with MainWindow's font..
+    legendFont.setPointSize(9); // and make a bit smaller for legend
+    ui->customPlot->legend->setFont(legendFont);
+    ui->customPlot->legend->setBrush(QBrush(QColor(255,255,255,230)));
+    // by default, the legend is in the inset layout of the main axis rect. So this is how we access it to change legend placement:
+    ui->customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignBottom|Qt::AlignRight);
+    // create graph and assign data to it:
+    ui->customPlot->addGraph();
+    ui->customPlot->graph(0)->setData(x, y);
+    ui->customPlot->graph(0)->setName(corList[ind].getAuthor());
+    // give the axes some labels:
+    ui->customPlot->xAxis->setLabel("x");
+    ui->customPlot->yAxis->setLabel("y");
+    // set axes ranges, so we see all data:
+    ui->customPlot->rescaleAxes();
+    // configure right and top axis to show ticks but no labels:
+    // (see QCPAxisRect::setupFullAxesBox for a quicker method to do this)
+    ui->customPlot->xAxis2->setVisible(true);
+    ui->customPlot->xAxis2->setTickLabels(false);
+    ui->customPlot->yAxis2->setVisible(true);
+    ui->customPlot->yAxis2->setTickLabels(false);
+    // make left and bottom axes always transfer their ranges to right and top axes:
+    connect(ui->customPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlot->xAxis2, SLOT(setRange(QCPRange)));
+    connect(ui->customPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlot->yAxis2, SLOT(setRange(QCPRange)));
+    ui->customPlot->replot();
+    ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+}
+
+
+void MainWindow::on_plotButton_clicked()
+{
+    QModelIndex ind = ui->tableView->selectionModel()->currentIndex();
+    on_tableView_doubleClicked(ind);
 }
 
 
@@ -695,3 +754,6 @@ void MainWindow::on_deleteButton_clicked()
         else showCorrelations();
     }
 }
+
+
+

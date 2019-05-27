@@ -1,6 +1,7 @@
-Ngo(2001);Ngo;3500;22000;0.75;2.2;CO2 supercritical;Rectangular;52;;;;
-Utamura(2008);Utamura;2100;20000;0;0;Agua;;0;;;;
-I. Kim (2009);I. Kim;350;800;0;0;Helio;Semicircular;15;;;;
-Berbish(2010);Berbish;8242;57794;0;0;Ar;Semicircular;0;;;;
-I. Kim(2013);I. Kim;0;0;0.66;13.41;Helio;Semicircular;15;;;;
-MineExpr;Me;200;300;0.3;0.5;Gas;Quadrada;14;Arrendondada;;;
+0.1696*(Re^0.629)*(Pr^0.317);Ngo (2007);3500;22000;0.75;2.2;CO2 supercritical;Rectangular;52;;Nikitin, K., Kato, Y., Ngo, L. Printed circuit heat exchanger thermal-hydraulic performance in supercritical CO2 experimental loop, Int. J. Refrig., vol.29, no. 5, pp. 807-814, 2006.;Global;
+0.24*(Re^0.425)*(Pr^1/3);Kays and London (1984);400;3000;0;0;;;0;;;Canal ondulado;
+0.0473*(Re^0.8)*(Pr^0.6);Utamura (2008);2100;30000;0;0;Agua;;0;;;;
+3.255+0.00729*(Re^1)-0.00729*350;I. Kim (2009);350;800;0.66;0.66;Helio;Semicircular;15;;;Experimental;
+0.253*(Re^0.597)*(Pr^0.349);Tsuzuki (2009);100;1500;2;11;Agua;;0;;;Canal em forma de S - CFD;
+0.207*(Re^0.627)*(Pr^0.340);Tsuzuki (2009);1500;15000;1;3;CO2;;0;;;Canal em forma de S - CFD;
+0.0228*(Re^0.8);Berbish (2010);8242;57794;0;0;Ar;Semicircular;90;;;Experimental;

@@ -18,6 +18,8 @@
 #include <QStringListModel>
 #include <QStandardItemModel>
 #include <QFile>
+#include <QFileDialog>
+#include <QDir>
 #include <QTextStream>
 #include <cstdlib>
 #include <cstring>
@@ -72,6 +74,10 @@ private slots:
 
 
     void on_plotButton_clicked();
+
+    void on_importResults_clicked();
+
+    void on_plotResults_clicked();
 
 private:
     Ui::MainWindow *ui;

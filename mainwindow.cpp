@@ -48,9 +48,14 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     loadCorrelations();
     showCorrelations();
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     prRangeStatement = true;
     reRangeStatement = true;
     alreadySearched = false;
+
+    // Test
+
+
 
 }
 
@@ -757,3 +762,90 @@ void MainWindow::on_deleteButton_clicked()
 
 
 
+
+void MainWindow::on_importResults_clicked()
+{
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Import Data"),
+                                                   QDir::homePath(), "CSV File (*.csv)");
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly | QIODevice::Text)){
+        qDebug() << file.errorString();
+    }
+
+    QVector<int> n;     //*
+    QVector<double> t;  //*
+    QVector<double> f;  //*
+
+    QVector<QVector<double>> data;
+    QVector<double> row;
+
+    QStringList itemList, headerList;
+    QString header = file.readLine(); // To eliminate the header
+    headerList = header.split(';');
+
+    QString line;
+
+    while (!file.atEnd()){
+        line = file.readLine();
+        itemList = line.split(';');
+        if (itemList.size() > 1){
+            row.clear();
+            for (int i = 0; i < itemList.size(); i++){
+                row.push_back(itemList[i].toDouble());
+            }
+            data.push_back(row);
+
+            n.push_back(itemList[0].toInt());   //*
+            t.push_back(itemList[1].toDouble());//*
+            f.push_back(itemList[2].toDouble());//*
+        }
+    }
+    file.close();
+
+    ui->resultsPlot->clearGraphs();
+    ui->resultsPlot->replot();
+
+    // Style
+    ui->resultsPlot->legend->setVisible(true);
+    QFont legendFont = font();
+    legendFont.setPointSize(10);
+    ui->resultsPlot->legend->setFont(legendFont);
+    ui->resultsPlot->legend->setBrush(QBrush(QColor(255,255,255,230)));
+    ui->resultsPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignBottom|Qt::AlignRight);
+    // Graph creation
+    ui->resultsPlot->addGraph();
+    ui->resultsPlot->graph(0)->setData(t,f);            // Set data
+    ui->resultsPlot->graph(0)->setName(headerList[2]);  // Set Name
+    ui->resultsPlot->xAxis->setLabel(headerList[1]);
+    ui->resultsPlot->yAxis->setLabel(headerList[2]);
+    // Set Ranges
+    ui->resultsPlot->rescaleAxes();
+    // Style 2
+    ui->resultsPlot->xAxis2->setVisible(true);
+    ui->resultsPlot->xAxis2->setTickLabels(false);
+    ui->resultsPlot->yAxis2->setVisible(true);
+    ui->resultsPlot->yAxis2->setTickLabels(false);
+    connect(ui->resultsPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->resultsPlot->xAxis2, SLOT(setRange(QCPRange)));
+    connect(ui->resultsPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->resultsPlot->yAxis2, SLOT(setRange(QCPRange)));
+    ui->resultsPlot->replot();
+    ui->resultsPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+
+
+    // Create options to plot
+    auto plotModelTable = new QStandardItemModel();
+    for (int i = 0; i < headerList.size() - 2; i++){    //ignore first and second column
+
+        QStandardItem *itemCheckBox = new QStandardItem(true);
+        itemCheckBox->setCheckable(true);
+        itemCheckBox->setCheckState(Qt::Unchecked);
+        plotModelTable->setItem(i,0,itemCheckBox);
+        plotModelTable->setItem(i,1, new QStandardItem(headerList[i+2]));
+    }
+    ui->plotTable->setModel(plotModelTable);
+}
+
+void MainWindow::on_plotResults_clicked()
+{
+    //
+}

@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
 {
     ui->setupUi(this);
 
+
     initList();    
 
     ui->nusseltLabel->setText("0.023 Re <sup>0.8</sup> Pr <sup>0.3</sup>");
@@ -775,6 +776,7 @@ void MainWindow::on_importResults_clicked()
         // Lists to store each item separate by ";"
         QStringList headerList;
         QString header = file.readLine(); // To eliminate the header (first line)
+        header = header.toUtf8();
         headerList = header.split(';');
 
         file.close();   // Close file
@@ -785,7 +787,7 @@ void MainWindow::on_importResults_clicked()
             QStandardItem *itemCheckBox = new QStandardItem(true);
             itemCheckBox->setCheckable(true);
             itemCheckBox->setCheckState(Qt::Unchecked);
-            itemCheckBox->setText(headerList[i+2]);
+            itemCheckBox->setText(headerList[i+2].toUtf8());
             plotModelTable->setItem(i,0,itemCheckBox);
         }
         ui->plotTable->setModel(plotModelTable);
@@ -909,3 +911,5 @@ void MainWindow::on_plotResults_clicked()
                     tr("You need to import a file first"));
     }
 }
+
+// G. F. Hewitt, Process Heat Transfer

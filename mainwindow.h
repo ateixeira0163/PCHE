@@ -125,8 +125,8 @@ private:
     QList<QPair<int, QPair<int,QString> > > rankList;
     bool prRangeStatement, reRangeStatement, alreadySearched;
 
-    // Testing purposes
-    //Correlation *test;
+    // Plot results
+    QString importedFileName = nullptr;
 
 
 };

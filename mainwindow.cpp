@@ -53,10 +53,6 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     reRangeStatement = true;
     alreadySearched = false;
 
-    // Test
-
-
-
 }
 
 MainWindow::~MainWindow()   // Class MainWindow destructor
@@ -765,87 +761,151 @@ void MainWindow::on_deleteButton_clicked()
 
 void MainWindow::on_importResults_clicked()
 {
-
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Import Data"),
+    // Import data results and show options on QTableView
+    // Get file path - Only .csv are accepted
+    importedFileName = QFileDialog::getOpenFileName(this, tr("Import Data"),
                                                    QDir::homePath(), "CSV File (*.csv)");
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QIODevice::Text)){
-        qDebug() << file.errorString();
-    }
-
-    QVector<int> n;     //*
-    QVector<double> t;  //*
-    QVector<double> f;  //*
-
-    QVector<QVector<double>> data;
-    QVector<double> row;
-
-    QStringList itemList, headerList;
-    QString header = file.readLine(); // To eliminate the header
-    headerList = header.split(';');
-
-    QString line;
-
-    while (!file.atEnd()){
-        line = file.readLine();
-        itemList = line.split(';');
-        if (itemList.size() > 1){
-            row.clear();
-            for (int i = 0; i < itemList.size(); i++){
-                row.push_back(itemList[i].toDouble());
-            }
-            data.push_back(row);
-
-            n.push_back(itemList[0].toInt());   //*
-            t.push_back(itemList[1].toDouble());//*
-            f.push_back(itemList[2].toDouble());//*
+    // To make sure the user choose a file
+    if (importedFileName != nullptr){
+        // Open file in readOnly mode
+        QFile file(importedFileName);
+        if (!file.open(QFile::ReadOnly | QIODevice::Text)){
+            qDebug() << file.errorString();
         }
+        // Lists to store each item separate by ";"
+        QStringList headerList;
+        QString header = file.readLine(); // To eliminate the header (first line)
+        headerList = header.split(';');
+
+        file.close();   // Close file
+
+        // Create options to plot
+        auto plotModelTable = new QStandardItemModel();
+        for (int i = 0; i < headerList.size() - 2; i++){    //ignore first and second column
+            QStandardItem *itemCheckBox = new QStandardItem(true);
+            itemCheckBox->setCheckable(true);
+            itemCheckBox->setCheckState(Qt::Unchecked);
+            itemCheckBox->setText(headerList[i+2]);
+            plotModelTable->setItem(i,0,itemCheckBox);
+        }
+        ui->plotTable->setModel(plotModelTable);
+        ui->plotTable->resizeColumnsToContents();
     }
-    file.close();
-
-    ui->resultsPlot->clearGraphs();
-    ui->resultsPlot->replot();
-
-    // Style
-    ui->resultsPlot->legend->setVisible(true);
-    QFont legendFont = font();
-    legendFont.setPointSize(10);
-    ui->resultsPlot->legend->setFont(legendFont);
-    ui->resultsPlot->legend->setBrush(QBrush(QColor(255,255,255,230)));
-    ui->resultsPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignBottom|Qt::AlignRight);
-    // Graph creation
-    ui->resultsPlot->addGraph();
-    ui->resultsPlot->graph(0)->setData(t,f);            // Set data
-    ui->resultsPlot->graph(0)->setName(headerList[2]);  // Set Name
-    ui->resultsPlot->xAxis->setLabel(headerList[1]);
-    ui->resultsPlot->yAxis->setLabel(headerList[2]);
-    // Set Ranges
-    ui->resultsPlot->rescaleAxes();
-    // Style 2
-    ui->resultsPlot->xAxis2->setVisible(true);
-    ui->resultsPlot->xAxis2->setTickLabels(false);
-    ui->resultsPlot->yAxis2->setVisible(true);
-    ui->resultsPlot->yAxis2->setTickLabels(false);
-    connect(ui->resultsPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->resultsPlot->xAxis2, SLOT(setRange(QCPRange)));
-    connect(ui->resultsPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->resultsPlot->yAxis2, SLOT(setRange(QCPRange)));
-    ui->resultsPlot->replot();
-    ui->resultsPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
-
-
-    // Create options to plot
-    auto plotModelTable = new QStandardItemModel();
-    for (int i = 0; i < headerList.size() - 2; i++){    //ignore first and second column
-
-        QStandardItem *itemCheckBox = new QStandardItem(true);
-        itemCheckBox->setCheckable(true);
-        itemCheckBox->setCheckState(Qt::Unchecked);
-        plotModelTable->setItem(i,0,itemCheckBox);
-        plotModelTable->setItem(i,1, new QStandardItem(headerList[i+2]));
-    }
-    ui->plotTable->setModel(plotModelTable);
 }
 
 void MainWindow::on_plotResults_clicked()
 {
-    //
+    // Plot data based on user choosen data on TableView
+    if (importedFileName != nullptr){
+        QModelIndex indData;
+        QVector<int> choosenData;
+        // Get all the choosen data to be plotted
+        for (int i = 0; i < ui->plotTable->model()->rowCount(); i++){
+            indData = ui->plotTable->model()->index(i,0,QModelIndex());
+            if (indData.data(Qt::CheckStateRole) == Qt::Checked){
+                choosenData.push_back(i+2); // Correction from not considering the first 2 columns
+            }
+        }
+        if (choosenData.size() > 0){
+            // Open file in readOnly mode
+            QFile file(importedFileName);
+            if (!file.open(QFile::ReadOnly | QIODevice::Text)){
+                qDebug() << file.errorString();
+            }
+
+            // Create a data matrix and a row to add to data w/ push_back
+            QVector<QVector<double>> data;
+            QVector<double> row;
+            // Lists to store each item separate by ";"
+            QStringList itemList, headerList;
+            QString header = file.readLine(); // To eliminate the header (first line)
+            headerList = header.split(';');
+            QString line;
+
+            // Read until the end of file
+            while (!file.atEnd()){
+                line = file.readLine();     // Get line
+                itemList = line.split(';'); // Separate by ";"
+                if (itemList.size() > 1){   // To make sure that it's not an empty line
+                    row.clear();            // Clear vector
+                    row.push_back(itemList[1].toDouble()); // Add second column
+                    for (int i = 0; i < choosenData.size(); i++){  // For all elements in a row
+                        row.push_back(itemList[choosenData[i]].toDouble());  // Add to vector
+                    }
+                    data.push_back(row);    // Add that vector to the matrix
+                }
+            }
+            file.close();   // Close file
+
+            // Clear graphs
+            ui->resultsPlot->clearGraphs();
+            ui->resultsPlot->replot();
+
+            // Get columns
+            QVector<QVector<double>> dataSet;
+            QVector<double> rowSet;
+            for (int i = 0; i < data[0].size(); i++){
+                rowSet.clear();
+                for (int j = 0; j < data.size(); j++){
+                    rowSet.push_back(data[j][i]);
+                }
+                dataSet.push_back(rowSet);
+            }
+            data.clear(); // erase from memory
+
+            // Style
+            ui->resultsPlot->legend->setVisible(true);
+            ui->resultsPlot->legend->setFont(QFont("Helvetica",9));
+            ui->resultsPlot->legend->setBrush(QBrush(QColor(255,255,255,230)));
+            ui->resultsPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignBottom|Qt::AlignRight);
+
+            // Create graphs
+            QPen pen;
+            for (int i = 0; i < choosenData.size(); i++){
+                if (headerList[choosenData[i]].contains("C", Qt::CaseInsensitive)){
+                    ui->resultsPlot->addGraph(); // Default axis
+                }
+                else if (headerList[choosenData[i]].contains("bar", Qt::CaseInsensitive)){
+                    ui->resultsPlot->addGraph(ui->resultsPlot->xAxis, ui->resultsPlot->yAxis2);
+                }
+                else {
+                    ui->resultsPlot->addGraph();
+                }
+                pen.setColor(QColor((choosenData.size()-i)*254/choosenData.size(),(i)*254/choosenData.size(), 100, 255));
+                ui->resultsPlot->graph(i)->setPen(pen);
+                ui->resultsPlot->graph(i)->setLineStyle(QCPGraph::lsLine);
+                ui->resultsPlot->graph(i)->setData(dataSet[0],dataSet[i+1]);
+                ui->resultsPlot->graph(i)->setName(headerList[choosenData[i]]);
+            }
+
+            // Set Axis labels
+            ui->resultsPlot->xAxis->setLabel(headerList[1]);
+            ui->resultsPlot->yAxis->setLabel("°C");
+            ui->resultsPlot->yAxis2->setLabel("bar");
+
+            // Set Ranges
+            ui->resultsPlot->rescaleAxes();
+            // Set opposites axis to be visible
+            ui->resultsPlot->xAxis2->setVisible(true);
+            ui->resultsPlot->xAxis2->setTickLabels(false);
+            ui->resultsPlot->yAxis2->setVisible(true);
+            ui->resultsPlot->yAxis2->setTickLabels(true);
+            connect(ui->resultsPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->resultsPlot->xAxis2, SLOT(setRange(QCPRange)));
+            //connect(ui->resultsPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->resultsPlot->yAxis2, SLOT(setRange(QCPRange)));
+            ui->resultsPlot->replot();
+            ui->resultsPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+        }
+        else {
+            QMessageBox::warning(
+                        this,
+                        tr("Attention"),
+                        tr("Please choose something to plot"));
+        }
+    }
+    else {
+        QMessageBox::warning(
+                    this,
+                    tr("Attention"),
+                    tr("You need to import a file first"));
+    }
 }

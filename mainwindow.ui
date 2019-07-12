@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1077</width>
-    <height>670</height>
+    <width>1066</width>
+    <height>778</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1533,50 +1533,254 @@ background-repeat: none;
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>421</width>
-          <height>161</height>
+          <width>351</width>
+          <height>331</height>
          </rect>
         </property>
         <property name="title">
          <string>Parameters</string>
         </property>
+        <widget class="QSpinBox" name="timeIntervalBox">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>40</y>
+           <width>111</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="suffix">
+          <string> s</string>
+         </property>
+         <property name="maximum">
+          <number>999999</number>
+         </property>
+         <property name="value">
+          <number>10</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_7">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>40</y>
+           <width>81</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Time interval</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_19">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>70</y>
+           <width>111</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Mass flow - water*</string>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="massFlowBox">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>70</y>
+           <width>111</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="suffix">
+          <string> g/s</string>
+         </property>
+         <property name="value">
+          <double>3.120000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="areaBox">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>100</y>
+           <width>111</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="prefix">
+          <string/>
+         </property>
+         <property name="suffix">
+          <string> m2</string>
+         </property>
+         <property name="decimals">
+          <number>8</number>
+         </property>
+         <property name="value">
+          <double>0.000976000000000</double>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_24">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>100</y>
+           <width>111</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Area</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QGroupBox" name="groupBox_5">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>180</y>
-          <width>421</width>
-          <height>391</height>
+          <x>370</x>
+          <y>10</y>
+          <width>666</width>
+          <height>331</height>
          </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>330</height>
+         </size>
         </property>
         <property name="title">
          <string>Plotted Data</string>
         </property>
-        <widget class="QPushButton" name="importResultsButton">
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="0" column="0">
+          <widget class="QTableView" name="plotTable2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>250</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>200</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <attribute name="horizontalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="verticalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="0" column="0">
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>468</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="importResultsButton">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Import</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="plotResultsButton">
+             <property name="text">
+              <string>Plot</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCustomPlot" name="customPlotData" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>250</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_6">
+        <property name="geometry">
+         <rect>
+          <x>370</x>
+          <y>350</y>
+          <width>661</width>
+          <height>330</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>330</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Plotted results</string>
+        </property>
+        <widget class="QCustomPlot" name="plotResults2" native="true">
          <property name="geometry">
           <rect>
            <x>230</x>
-           <y>350</y>
-           <width>80</width>
-           <height>25</height>
+           <y>40</y>
+           <width>411</width>
+           <height>271</height>
           </rect>
          </property>
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>25</height>
+           <height>250</height>
           </size>
          </property>
-         <property name="text">
-          <string>Import</string>
-         </property>
         </widget>
-        <widget class="QPushButton" name="plotResultsButton">
+        <widget class="QPushButton" name="plotResultsButton2">
          <property name="geometry">
           <rect>
-           <x>320</x>
-           <y>350</y>
+           <x>130</x>
+           <y>300</y>
            <width>80</width>
            <height>24</height>
           </rect>
@@ -1585,64 +1789,103 @@ background-repeat: none;
           <string>Plot</string>
          </property>
         </widget>
-        <widget class="QCustomPlot" name="customPlotData" native="true">
-         <property name="geometry">
-          <rect>
-           <x>159</x>
-           <y>40</y>
-           <width>241</width>
-           <height>291</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QTableView" name="plotTable2">
+        <widget class="QTableView" name="plotTable3">
          <property name="geometry">
           <rect>
            <x>10</x>
            <y>40</y>
-           <width>141</width>
-           <height>291</height>
+           <width>201</width>
+           <height>251</height>
           </rect>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>200</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <attribute name="horizontalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
-         <attribute name="verticalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
         </widget>
-       </widget>
-       <widget class="QGroupBox" name="groupBox_6">
-        <property name="geometry">
-         <rect>
-          <x>450</x>
-          <y>10</y>
-          <width>591</width>
-          <height>401</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Plotted results</string>
-        </property>
        </widget>
        <widget class="QGroupBox" name="groupBox_7">
         <property name="geometry">
          <rect>
-          <x>450</x>
-          <y>420</y>
-          <width>591</width>
-          <height>151</height>
+          <x>10</x>
+          <y>350</y>
+          <width>351</width>
+          <height>331</height>
          </rect>
         </property>
         <property name="title">
          <string>Results</string>
         </property>
+        <widget class="QSpinBox" name="tiBox">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>40</y>
+           <width>71</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="suffix">
+          <string> s</string>
+         </property>
+         <property name="maximum">
+          <number>999999</number>
+         </property>
+         <property name="value">
+          <number>9560</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_8">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>40</y>
+           <width>81</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>t_i</string>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="tfBox">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>70</y>
+           <width>71</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="suffix">
+          <string> s</string>
+         </property>
+         <property name="maximum">
+          <number>999999</number>
+         </property>
+         <property name="value">
+          <number>13230</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_10">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>70</y>
+           <width>81</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>t_f</string>
+         </property>
+        </widget>
        </widget>
       </widget>
       <widget class="QWidget" name="libraryTab">
@@ -1659,7 +1902,7 @@ background-repeat: none;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1077</width>
+     <width>1066</width>
      <height>20</height>
     </rect>
    </property>

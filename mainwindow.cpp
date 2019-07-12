@@ -418,6 +418,16 @@ void MainWindow::showCorrelations()
 
 }
 
+double MainWindow::mean(int begin, int end, QVector<double> vector)
+{
+    double mean = 0.00;
+    for (int i = begin; i < end; i++){
+        mean += vector[i];
+    }
+    mean /= (end - begin);
+    return mean;
+}
+
 void MainWindow::on_comboBoxNu_activated(const QString &arg1)
 {
     if (arg1 == "Add new"){
@@ -926,6 +936,44 @@ void MainWindow::on_importResultsButton_clicked()
             header = file.readLine();
         }
         headerList = header.split(';');
+
+        // --- Add data to variable importedData to be used later
+        importedData.clear(); // Clear data if there's any
+
+        QString line;
+        QStringList itemList;
+        QVector<double> row;
+        QVector<QVector<double>> data;
+        // Read until the end of the file
+        while (!file.atEnd()){
+            line = file.readLine();
+            itemList = line.split(';');
+            if (itemList.size() > 1){
+                row.clear();
+                for (int i = 0; i < 25; i+=2){ // Until now we have 13 columns**
+                    // Reads for i = {0, 2, 4, ..., 24}
+                    row.push_back(itemList[i].toDouble());
+                }
+                data.push_back(row);
+            }
+        }
+        // Now we have the data in columns. To easy access change to rows
+        QVector<double> rowSet;
+        for (int i = 0; i < data[0].size(); i++){
+            rowSet.clear();
+            for (int j = 0; j < data.size(); j++){
+                rowSet.push_back(data[j][i]);
+            }
+            importedData.push_back(rowSet);
+        }
+
+        for (int i = 0; i < data.size(); i++) {
+            importedData[0][i] *= ui->timeIntervalBox->value();
+        }
+
+        data.clear();
+
+        // --- Data have been imported to importedData.
         file.close();
 
         // Create options to plot
@@ -970,7 +1018,7 @@ void MainWindow::on_plotResultsButton_clicked()
             QStringList itemList, headerList;
             QString header;
             // To ignore all the lines up do 21.
-            // Save .csv in .csv - UTF-8 to work
+            // Save .csv in .csv - UTF-8 to work properly
             for (int i = 0; i < 21; i++){
                 header = file.readLine();
             }
@@ -1008,7 +1056,7 @@ void MainWindow::on_plotResultsButton_clicked()
             }
 
             for (int i = 0; i < data.size(); i++){
-                dataSet[0][i] *= 10; // Change after to variable: time interval
+                dataSet[0][i] *= ui->timeIntervalBox->value(); // Change after to variable: time interval
             }
             data.clear(); // erase from memory
 
@@ -1068,3 +1116,106 @@ void MainWindow::on_plotResultsButton_clicked()
                     tr("You need to import a file first"));
     }
 }
+
+void MainWindow::on_plotResultsButton2_clicked()
+{
+    // Function to calculate the results
+    // Verify if there's a selected file already
+    if (importedFileNameData != nullptr){
+        // use importedData variable to access the data already imported
+
+        int indTi = importedData[0].indexOf(ui->tiBox->value());
+        int indTf = importedData[0].indexOf(ui->tfBox->value());
+
+        // Means
+        double meanTwout1 = mean(indTi, indTf, importedData[1]); // T_water_out1
+        double meanTwout2 = mean(indTi, indTf, importedData[2]); // T_water_out2
+        double meanTwout = (meanTwout1 + meanTwout2)/2;     // T_water_out
+        double meanTwin1 = mean(indTi, indTf, importedData[3]); // T_water_in1
+        double meanTwin2 = mean(indTi, indTf, importedData[4]); // T_water_in2
+        double meanTwin = (meanTwin1 + meanTwin2)/2;
+        double meanTain = mean(indTi, indTf, importedData[5]);
+        //double meanPain = mean(indTi, indTf, importedData[6]);
+        //double meanQair = mean(indTi, indTf, importedData[7]);
+        //double meanPaout = mean(indTi, indTf, importedData[8]);
+        double meanTamb = mean(indTi, indTf, importedData[9]); //T_ambient
+        double meanTaout = mean(indTi, indTf, importedData[10]);
+        // double meanPwin = mean(indTi, indTf, importedData[11]);
+        // double meanPwout = mean(indTi, indTf, importedData[12]);
+
+        // Convert from mA to [bar] or [kg/m3]
+        // Create function convertmAtoBar(vector,expression);
+
+        // LMTD
+        QVector<double> logDiffT;
+        double tOutA, tInA, tOutW, tInW;
+        for (int i = indTi; i < indTf; i++){
+            tOutW = (importedData[1][i] + importedData[2][i])/2;
+            tInW = (importedData[3][i] + importedData[4][i])/2;
+            tOutA = importedData[10][i];
+            tInA = importedData[5][i];
+
+            logDiffT.push_back((tOutA - tInW - tInA + tOutW)/log((tOutA - tInW)/(tInA - tOutW)));
+        }
+
+
+        // Plot results
+        ui->plotResults2->clearGraphs();
+        ui->plotResults2->replot();
+        // Style
+        ui->plotResults2->legend->setVisible(true);
+        ui->plotResults2->legend->setFont(QFont("Helvetica",9));
+        ui->plotResults2->legend->setBrush(QBrush(QColor(255,255,255,230)));
+        ui->plotResults2->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignBottom|Qt::AlignRight);
+
+        ui->plotResults2->addGraph();
+        ui->plotResults2->graph(0)->setLineStyle(QCPGraph::lsLine);
+        ui->plotResults2->graph(0)->setData(importedData[0].mid(indTi,logDiffT.size()),logDiffT);
+        ui->plotResults2->graph(0)->setName("LMTD");
+
+        ui->plotResults2->xAxis->setLabel("[s]");
+        ui->plotResults2->yAxis->setLabel("ºC");
+
+        // Set Ranges
+        ui->plotResults2->rescaleAxes();
+        // Set opposites axis to be visible
+        ui->plotResults2->xAxis2->setVisible(true);
+        ui->plotResults2->xAxis2->setTickLabels(false);
+        ui->plotResults2->yAxis2->setVisible(true);
+        ui->plotResults2->yAxis2->setTickLabels(true);
+        connect(ui->plotResults2->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->plotResults2->xAxis2, SLOT(setRange(QCPRange)));
+        connect(ui->plotResults2->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->plotResults2->yAxis2, SLOT(setRange(QCPRange)));
+        ui->plotResults2->replot();
+        ui->plotResults2->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+
+    }
+    else {
+        QMessageBox::warning(
+                    this,
+                    tr("Attention"),
+                    tr("You need to import a file first"));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

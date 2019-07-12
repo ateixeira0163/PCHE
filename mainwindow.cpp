@@ -9,7 +9,6 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
 {
     ui->setupUi(this);
 
-
     initList();    
 
     ui->nusseltLabel->setText("0.023 Re <sup>0.8</sup> Pr <sup>0.3</sup>");
@@ -199,7 +198,6 @@ void MainWindow::initList()
     ui->comboBoxHotFluid->addItem("Add new");
     ui->comboBoxColdFluid->addItem("Add new");
 
-    qDebug() << "Fluids list init complete.";
 
     /*
       // For the Nusselt List
@@ -420,7 +418,6 @@ void MainWindow::showCorrelations()
 
 }
 
-
 void MainWindow::on_comboBoxNu_activated(const QString &arg1)
 {
     if (arg1 == "Add new"){
@@ -632,13 +629,11 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
     ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 }
 
-
 void MainWindow::on_plotButton_clicked()
 {
     QModelIndex ind = ui->tableView->selectionModel()->currentIndex();
     on_tableView_doubleClicked(ind);
 }
-
 
 void MainWindow::on_prInputButton_clicked()
 {
@@ -757,9 +752,6 @@ void MainWindow::on_deleteButton_clicked()
     }
 }
 
-
-
-
 void MainWindow::on_importResults_clicked()
 {
     // Import data results and show options on QTableView
@@ -776,7 +768,6 @@ void MainWindow::on_importResults_clicked()
         // Lists to store each item separate by ";"
         QStringList headerList;
         QString header = file.readLine(); // To eliminate the header (first line)
-        header = header.toUtf8();
         headerList = header.split(';');
 
         file.close();   // Close file
@@ -787,7 +778,7 @@ void MainWindow::on_importResults_clicked()
             QStandardItem *itemCheckBox = new QStandardItem(true);
             itemCheckBox->setCheckable(true);
             itemCheckBox->setCheckState(Qt::Unchecked);
-            itemCheckBox->setText(headerList[i+2].toUtf8());
+            itemCheckBox->setText(headerList[i+2]);
             plotModelTable->setItem(i,0,itemCheckBox);
         }
         ui->plotTable->setModel(plotModelTable);
@@ -912,4 +903,168 @@ void MainWindow::on_plotResults_clicked()
     }
 }
 
-// G. F. Hewitt, Process Heat Transfer
+void MainWindow::on_importResultsButton_clicked()
+{
+    // Import data results and show options on QTableView
+    // Get file path - Only .csv are accepted
+    importedFileNameData = QFileDialog::getOpenFileName(this, tr("Import Data"),
+                                                   QDir::homePath(), "CSV File (*.csv)");
+
+    // To make sure the user choose a file
+    if (importedFileNameData != nullptr){
+        // Open file in readOnly mode
+        QFile file(importedFileNameData);
+        if (!file.open(QFile::ReadOnly | QIODevice::Text)){
+            qDebug() << file.errorString();
+        }
+
+        QStringList headerList;
+        QString header;
+        // To ignore all the lines up do 21.
+        // Save .csv in .csv - UTF-8 to work
+        for (int i = 0; i < 21; i++){
+            header = file.readLine();
+        }
+        headerList = header.split(';');
+        file.close();
+
+        // Create options to plot
+        auto plotModelTable = new QStandardItemModel();
+        for (int i = 2; i < headerList.size(); i+=2){   // Take only the useful information
+            QStandardItem *itemCheckBox = new QStandardItem(true);
+            itemCheckBox->setCheckable(true);
+            itemCheckBox->setCheckState(Qt::Unchecked);
+            itemCheckBox->setText(headerList[i]);
+            plotModelTable->setItem(i/2-1,0,itemCheckBox);
+        }
+        ui->plotTable2->setModel(plotModelTable);
+        ui->plotTable2->resizeColumnsToContents();
+    }
+}
+
+void MainWindow::on_plotResultsButton_clicked()
+{
+    // Plot data based on user choosen data on TableView
+    // Verify if there's a selected file
+    if (importedFileNameData != nullptr){
+        QModelIndex indData;
+        QVector<int> choosenData;
+        // Get all the choosen data to be plotted
+        for (int i = 0; i < ui->plotTable2->model()->rowCount(); i++){
+            indData = ui->plotTable2->model()->index(i,0,QModelIndex());
+            if (indData.data(Qt::CheckStateRole) == Qt::Checked){
+                choosenData.push_back(2*i+2); // Correction from not considering the first 2 columns
+            }
+        }
+        if (choosenData.size() > 0){
+            // Open file in readOnly mode
+            QFile file(importedFileNameData);
+            if (!file.open(QFile::ReadOnly | QIODevice::Text)){
+                qDebug() << file.errorString();
+            }
+
+            // Create a data matrix and a row to add to data w/ push_back
+            QVector<QVector<double>> data;
+            QVector<double> row;
+            // Lists to store each item separate by ";"
+            QStringList itemList, headerList;
+            QString header;
+            // To ignore all the lines up do 21.
+            // Save .csv in .csv - UTF-8 to work
+            for (int i = 0; i < 21; i++){
+                header = file.readLine();
+            }
+            headerList = header.split(';');
+            QString line;
+
+            // Read until the end of file
+            while (!file.atEnd()){
+                line = file.readLine();     // Get line
+                itemList = line.split(';'); // Separate by ";"
+                if (itemList.size() > 1){   // To make sure that it's not an empty line
+                    row.clear();            // Clear vector
+                    row.push_back(itemList[0].toDouble()); // Add 'scan' column
+                    for (int i = 0; i < choosenData.size(); i++){  // For all elements in a row
+                        row.push_back(itemList[choosenData[i]].toDouble());  // Add to vector
+                    }
+                    data.push_back(row);    // Add that vector to the matrix
+                }
+            }
+            file.close();   // Close file
+
+            // Clear graphs
+            ui->customPlotData->clearGraphs();
+            ui->customPlotData->replot();
+
+            // Get columns
+            QVector<QVector<double>> dataSet;
+            QVector<double> rowSet;
+            for (int i = 0; i < data[0].size(); i++){
+                rowSet.clear();
+                for (int j = 0; j < data.size(); j++){
+                    rowSet.push_back(data[j][i]);
+                }
+                dataSet.push_back(rowSet);
+            }
+
+            for (int i = 0; i < data.size(); i++){
+                dataSet[0][i] *= 10; // Change after to variable: time interval
+            }
+            data.clear(); // erase from memory
+
+            // Style
+            ui->customPlotData->legend->setVisible(true);
+            ui->customPlotData->legend->setFont(QFont("Helvetica",9));
+            ui->customPlotData->legend->setBrush(QBrush(QColor(255,255,255,230)));
+            ui->customPlotData->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignBottom|Qt::AlignRight);
+
+            // Create graphs
+            QPen pen;
+            for (int i = 0; i < choosenData.size(); i++){
+                if (headerList[choosenData[i]].contains("C", Qt::CaseInsensitive)){
+                    ui->customPlotData->addGraph(); // Default axis
+                }
+                else if (headerList[choosenData[i]].contains("bar", Qt::CaseInsensitive)){
+                    ui->customPlotData->addGraph(ui->customPlotData->xAxis, ui->customPlotData->yAxis2);
+                }
+                else {
+                    ui->customPlotData->addGraph();
+                }
+                pen.setColor(QColor((choosenData.size()-i)*254/choosenData.size(),(i)*254/choosenData.size(), 100, 255));
+                ui->customPlotData->graph(i)->setPen(pen);
+                ui->customPlotData->graph(i)->setLineStyle(QCPGraph::lsLine);
+                ui->customPlotData->graph(i)->setData(dataSet[0],dataSet[i+1]);
+                ui->customPlotData->graph(i)->setName(headerList[choosenData[i]]);
+            }
+
+            // Set Axis labels
+            ui->customPlotData->xAxis->setLabel(headerList[1]);
+            ui->customPlotData->yAxis->setLabel("°C");
+            ui->customPlotData->yAxis2->setLabel("bar");
+
+            // Set Ranges
+            ui->customPlotData->rescaleAxes();
+            // Set opposites axis to be visible
+            ui->customPlotData->xAxis2->setVisible(true);
+            ui->customPlotData->xAxis2->setTickLabels(false);
+            ui->customPlotData->yAxis2->setVisible(true);
+            ui->customPlotData->yAxis2->setTickLabels(true);
+            connect(ui->customPlotData->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlotData->xAxis2, SLOT(setRange(QCPRange)));
+            //connect(ui->customPlotData->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlotData->yAxis2, SLOT(setRange(QCPRange)));
+            ui->customPlotData->replot();
+            ui->customPlotData->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+        }
+        else {
+            QMessageBox::warning(
+                        this,
+                        tr("Attention"),
+                        tr("Please choose something to plot"));
+        }
+    }
+    else {
+        QMessageBox::warning(
+                    this,
+                    tr("Attention"),
+                    tr("You need to import a file first"));
+    }
+}

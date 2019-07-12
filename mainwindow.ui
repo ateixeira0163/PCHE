@@ -21,13 +21,18 @@
     </size>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+    <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>3</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -1518,6 +1523,127 @@ background-repeat: none;
          <widget class="QCustomPlot" name="resultsPlot" native="true"/>
         </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="tab_10">
+       <attribute name="title">
+        <string>Experimental Analysis</string>
+       </attribute>
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>421</width>
+          <height>161</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Parameters</string>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_5">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>180</y>
+          <width>421</width>
+          <height>391</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Plotted Data</string>
+        </property>
+        <widget class="QPushButton" name="importResultsButton">
+         <property name="geometry">
+          <rect>
+           <x>230</x>
+           <y>350</y>
+           <width>80</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Import</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="plotResultsButton">
+         <property name="geometry">
+          <rect>
+           <x>320</x>
+           <y>350</y>
+           <width>80</width>
+           <height>24</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Plot</string>
+         </property>
+        </widget>
+        <widget class="QCustomPlot" name="customPlotData" native="true">
+         <property name="geometry">
+          <rect>
+           <x>159</x>
+           <y>40</y>
+           <width>241</width>
+           <height>291</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QTableView" name="plotTable2">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>40</y>
+           <width>141</width>
+           <height>291</height>
+          </rect>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <attribute name="horizontalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_6">
+        <property name="geometry">
+         <rect>
+          <x>450</x>
+          <y>10</y>
+          <width>591</width>
+          <height>401</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Plotted results</string>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_7">
+        <property name="geometry">
+         <rect>
+          <x>450</x>
+          <y>420</y>
+          <width>591</width>
+          <height>151</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Results</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="libraryTab">
        <attribute name="title">

@@ -79,6 +79,10 @@ private slots:
 
     void on_plotResults_clicked();
 
+    void on_importResultsButton_clicked();
+
+    void on_plotResultsButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     aboutDialog *aboutDialogW;  // To create a pointer to the object -> aboutDialogWindow
@@ -127,6 +131,7 @@ private:
 
     // Plot results
     QString importedFileName = nullptr;
+    QString importedFileNameData = nullptr;
 
 
 };

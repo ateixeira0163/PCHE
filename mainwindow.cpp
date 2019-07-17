@@ -438,6 +438,7 @@ void MainWindow::calculateResults()
 
     // Means
     QVector<double> meansVector;
+    /*
     double meanTwout1 = mean(indTi, indTf, importedData[1]); // T_water_out1
     double meanTwout2 = mean(indTi, indTf, importedData[2]); // T_water_out2
     double meanTwout = (meanTwout1 + meanTwout2)/2;         // T_water_out
@@ -452,6 +453,7 @@ void MainWindow::calculateResults()
     double meanTaout = mean(indTi, indTf, importedData[10]);
     double meanPwin = mean(indTi, indTf, importedData[11]);
     double meanPwout = mean(indTi, indTf, importedData[12]);
+    */
 
     // LMTD
     QVector<double> logDiffT;
@@ -467,8 +469,16 @@ void MainWindow::calculateResults()
     meansVector.push_back(mean(0,logDiffT.size(),logDiffT)); // [0]
     resultsMatrix.push_back(logDiffT); // [0]
 
+    // Perda de carga
+    QVector<double> pressureDrop;
+    for (int i = indTi; i < indTf; i++){
+        pressureDrop.push_back(importedData[6][i] - importedData[8][i]);
+    }
+    meansVector.push_back(mean(0,pressureDrop.size(),pressureDrop)); // [1]
+    resultsMatrix.push_back(pressureDrop);
+
     // Add options to plot results after
-    QVector<QString> optionsForTable3 = {"LMTD"};
+    QVector<QString> optionsForTable3 = {"LMTD", "Pressure Drop"};
     auto plotModelTable3 = new QStandardItemModel();
 
     for (int i = 0; i < optionsForTable3.size(); i++){
@@ -1072,64 +1082,36 @@ void MainWindow::on_plotResultsButton_clicked()
         for (int i = 0; i < ui->plotTable2->model()->rowCount(); i++){
             indData = ui->plotTable2->model()->index(i,0,QModelIndex());
             if (indData.data(Qt::CheckStateRole) == Qt::Checked){
-                choosenData.push_back(2*i+2); // Correction from not considering the first 2 columns
+                //choosenData.push_back(2*i+2); // Correction from not considering the first 2 columns
+                choosenData.push_back(i+1);
             }
         }
         if (choosenData.size() > 0){
+
             // Open file in readOnly mode
             QFile file(importedFileNameData);
             if (!file.open(QFile::ReadOnly | QIODevice::Text)){
                 qDebug() << file.errorString();
             }
 
-            // Create a data matrix and a row to add to data w/ push_back
-            QVector<QVector<double>> data;
-            QVector<double> row;
             // Lists to store each item separate by ";"
-            QStringList itemList, headerList;
+            QStringList  headerList1, headerList;
             QString header;
             // To ignore all the lines up do 21.
             // Save .csv in .csv - UTF-8 to work properly
             for (int i = 0; i < 21; i++){
                 header = file.readLine();
             }
-            headerList = header.split(';');
-            QString line;
-
-            // Read until the end of file
-            while (!file.atEnd()){
-                line = file.readLine();     // Get line
-                itemList = line.split(';'); // Separate by ";"
-                if (itemList.size() > 1){   // To make sure that it's not an empty line
-                    row.clear();            // Clear vector
-                    row.push_back(itemList[0].toDouble()); // Add 'scan' column
-                    for (int i = 0; i < choosenData.size(); i++){  // For all elements in a row
-                        row.push_back(itemList[choosenData[i]].toDouble());  // Add to vector
-                    }
-                    data.push_back(row);    // Add that vector to the matrix
-                }
+            headerList1 = header.split(';');
+            for (int i = 0; i < headerList1.size(); i+=2){
+                headerList.push_back(headerList1[i]);
             }
+
             file.close();   // Close file
 
             // Clear graphs
             ui->customPlotData->clearGraphs();
             ui->customPlotData->replot();
-
-            // Get columns
-            QVector<QVector<double>> dataSet;
-            QVector<double> rowSet;
-            for (int i = 0; i < data[0].size(); i++){
-                rowSet.clear();
-                for (int j = 0; j < data.size(); j++){
-                    rowSet.push_back(data[j][i]);
-                }
-                dataSet.push_back(rowSet);
-            }
-
-            for (int i = 0; i < data.size(); i++){
-                dataSet[0][i] *= ui->timeIntervalBox->value(); // Change after to variable: time interval
-            }
-            data.clear(); // erase from memory
 
             // Style
             ui->customPlotData->legend->setVisible(true);
@@ -1140,24 +1122,27 @@ void MainWindow::on_plotResultsButton_clicked()
             // Create graphs
             QPen pen;
             for (int i = 0; i < choosenData.size(); i++){
-                if (headerList[choosenData[i]].contains("C", Qt::CaseInsensitive)){
+                if (headerList[choosenData[i]].contains("(C)", Qt::CaseInsensitive)){
                     ui->customPlotData->addGraph(); // Default axis
+                    qDebug() << "C";
                 }
-                else if (headerList[choosenData[i]].contains("bar", Qt::CaseInsensitive)){
+                else if (headerList[choosenData[i]].contains("(ADC)", Qt::CaseInsensitive)){
                     ui->customPlotData->addGraph(ui->customPlotData->xAxis, ui->customPlotData->yAxis2);
+                    qDebug() << "bar";
                 }
                 else {
                     ui->customPlotData->addGraph();
+                    qDebug() << "else";
                 }
                 pen.setColor(QColor((choosenData.size()-i)*254/choosenData.size(),(i)*254/choosenData.size(), 100, 255));
                 ui->customPlotData->graph(i)->setPen(pen);
                 ui->customPlotData->graph(i)->setLineStyle(QCPGraph::lsLine);
-                ui->customPlotData->graph(i)->setData(dataSet[0],dataSet[i+1]);
+                ui->customPlotData->graph(i)->setData(importedData[0],importedData[choosenData[i]]);
                 ui->customPlotData->graph(i)->setName(headerList[choosenData[i]]);
             }
 
             // Set Axis labels
-            ui->customPlotData->xAxis->setLabel(headerList[1]);
+            ui->customPlotData->xAxis->setLabel("s");
             ui->customPlotData->yAxis->setLabel("°C");
             ui->customPlotData->yAxis2->setLabel("bar");
 
@@ -1172,7 +1157,8 @@ void MainWindow::on_plotResultsButton_clicked()
             //connect(ui->customPlotData->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlotData->yAxis2, SLOT(setRange(QCPRange)));
             ui->customPlotData->replot();
             ui->customPlotData->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
-        }
+
+}
         else {
             QMessageBox::warning(
                         this,
@@ -1221,7 +1207,7 @@ void MainWindow::on_plotResultsButton2_clicked()
             ui->plotResults2->addGraph(); // For now defaut axis
             ui->plotResults2->graph(i)->setLineStyle(QCPGraph::lsLine);
             ui->plotResults2->graph(i)->setData(importedData[0].mid(indTi,resultsMatrix[choosenResults[i]].size()),resultsMatrix[choosenResults[i]]);
-            ui->plotResults2->graph(i)->setName(ui->plotTable3->model()->data(ui->plotTable3->model()->index(i,0)).toString());
+            ui->plotResults2->graph(i)->setName(ui->plotTable3->model()->data(ui->plotTable3->model()->index(choosenResults[i],0)).toString());
         }
 
         ui->plotResults2->xAxis->setLabel("[s]");

@@ -61,6 +61,7 @@ private slots:
     void addCorrelations();
     void showCorrelations();
     double mean(int begin, int end, QVector<double> vector);
+    void calculateResults();
 
 
     void on_tableView_doubleClicked(const QModelIndex &index);
@@ -135,6 +136,7 @@ private:
     // Plot results
     QString importedFileName = nullptr;
     QString importedFileNameData = nullptr;
+    QVector<QVector<double>> resultsMatrix;
 
     // Data
     QVector<QVector<double>> importedData;

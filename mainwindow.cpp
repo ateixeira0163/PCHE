@@ -428,6 +428,69 @@ double MainWindow::mean(int begin, int end, QVector<double> vector)
     return mean;
 }
 
+void MainWindow::calculateResults()
+{
+    // Function that calculates the parameters and stores them
+
+    int indTi = importedData[0].indexOf(ui->tiBox->value());
+    int indTf = importedData[0].indexOf(ui->tfBox->value());
+    resultsMatrix.clear();
+
+    // Means
+    QVector<double> meansVector;
+    double meanTwout1 = mean(indTi, indTf, importedData[1]); // T_water_out1
+    double meanTwout2 = mean(indTi, indTf, importedData[2]); // T_water_out2
+    double meanTwout = (meanTwout1 + meanTwout2)/2;         // T_water_out
+    double meanTwin1 = mean(indTi, indTf, importedData[3]); // T_water_in1
+    double meanTwin2 = mean(indTi, indTf, importedData[4]); // T_water_in2
+    double meanTwin = (meanTwin1 + meanTwin2)/2;
+    double meanTain = mean(indTi, indTf, importedData[5]);
+    double meanPain = mean(indTi, indTf, importedData[6]);
+    double meanQair = mean(indTi, indTf, importedData[7]);
+    double meanPaout = mean(indTi, indTf, importedData[8]);
+    double meanTamb = mean(indTi, indTf, importedData[9]); //T_ambient
+    double meanTaout = mean(indTi, indTf, importedData[10]);
+    double meanPwin = mean(indTi, indTf, importedData[11]);
+    double meanPwout = mean(indTi, indTf, importedData[12]);
+
+    // LMTD
+    QVector<double> logDiffT;
+    double tOutA, tInA, tOutW, tInW;
+    for (int i = indTi; i < indTf; i++){
+        tOutW = (importedData[1][i] + importedData[2][i])/2;
+        tInW = (importedData[3][i] + importedData[4][i])/2;
+        tOutA = importedData[10][i];
+        tInA = importedData[5][i];
+
+        logDiffT.push_back((tOutA - tInW - tInA + tOutW)/log((tOutA - tInW)/(tInA - tOutW)));
+    }
+    meansVector.push_back(mean(0,logDiffT.size(),logDiffT)); // [0]
+    resultsMatrix.push_back(logDiffT); // [0]
+
+    // Add options to plot results after
+    QVector<QString> optionsForTable3 = {"LMTD"};
+    auto plotModelTable3 = new QStandardItemModel();
+
+    for (int i = 0; i < optionsForTable3.size(); i++){
+        QStandardItem *itemCheckBox = new QStandardItem(true);
+        itemCheckBox->setCheckable(true);
+        itemCheckBox->setCheckState(Qt::Unchecked);
+        itemCheckBox->setText(optionsForTable3[i]);
+        plotModelTable3->setItem(i,0,itemCheckBox);
+
+        QStandardItem *itemMean = new QStandardItem(QString("%0").arg(QString::number(meansVector[i])));
+        plotModelTable3->setItem(i,1,itemMean);
+
+    }
+
+    plotModelTable3->setHeaderData(0,Qt::Horizontal,"Result");
+    plotModelTable3->setHeaderData(1,Qt::Horizontal,"Mean");
+    ui->plotTable3->setModel(plotModelTable3);
+    ui->plotTable3->resizeColumnsToContents();
+
+
+}
+
 void MainWindow::on_comboBoxNu_activated(const QString &arg1)
 {
     if (arg1 == "Add new"){
@@ -969,6 +1032,11 @@ void MainWindow::on_importResultsButton_clicked()
 
         for (int i = 0; i < data.size(); i++) {
             importedData[0][i] *= ui->timeIntervalBox->value();
+            importedData[6][i] = 1000*importedData[6][i]*0.75 - 3 + 1.01325; // P_in (air) conversion from mA -> bar
+            importedData[7][i] = 1000*importedData[7][i]*1.05 - 4.2; // Q (air) conversion mA -> kg/m^3
+            importedData[8][i] = 1000*importedData[8][i]*0.75 - 3 + 1.01325; // P_out (air)
+            importedData[11][i] = 1000*importedData[11][i]*0.25 - 0.1 + 1.01325; // P_in (water)
+            importedData[12][i] = 1000*importedData[12][i]*0.25 - 0.1 + 1.01325; // P_out (water)
         }
 
         data.clear();
@@ -987,6 +1055,9 @@ void MainWindow::on_importResultsButton_clicked()
         }
         ui->plotTable2->setModel(plotModelTable);
         ui->plotTable2->resizeColumnsToContents();
+
+        // Calculate results:
+        calculateResults();
     }
 }
 
@@ -1127,37 +1198,15 @@ void MainWindow::on_plotResultsButton2_clicked()
         int indTi = importedData[0].indexOf(ui->tiBox->value());
         int indTf = importedData[0].indexOf(ui->tfBox->value());
 
-        // Means
-        double meanTwout1 = mean(indTi, indTf, importedData[1]); // T_water_out1
-        double meanTwout2 = mean(indTi, indTf, importedData[2]); // T_water_out2
-        double meanTwout = (meanTwout1 + meanTwout2)/2;     // T_water_out
-        double meanTwin1 = mean(indTi, indTf, importedData[3]); // T_water_in1
-        double meanTwin2 = mean(indTi, indTf, importedData[4]); // T_water_in2
-        double meanTwin = (meanTwin1 + meanTwin2)/2;
-        double meanTain = mean(indTi, indTf, importedData[5]);
-        //double meanPain = mean(indTi, indTf, importedData[6]);
-        //double meanQair = mean(indTi, indTf, importedData[7]);
-        //double meanPaout = mean(indTi, indTf, importedData[8]);
-        double meanTamb = mean(indTi, indTf, importedData[9]); //T_ambient
-        double meanTaout = mean(indTi, indTf, importedData[10]);
-        // double meanPwin = mean(indTi, indTf, importedData[11]);
-        // double meanPwout = mean(indTi, indTf, importedData[12]);
-
-        // Convert from mA to [bar] or [kg/m3]
-        // Create function convertmAtoBar(vector,expression);
-
-        // LMTD
-        QVector<double> logDiffT;
-        double tOutA, tInA, tOutW, tInW;
-        for (int i = indTi; i < indTf; i++){
-            tOutW = (importedData[1][i] + importedData[2][i])/2;
-            tInW = (importedData[3][i] + importedData[4][i])/2;
-            tOutA = importedData[10][i];
-            tInA = importedData[5][i];
-
-            logDiffT.push_back((tOutA - tInW - tInA + tOutW)/log((tOutA - tInW)/(tInA - tOutW)));
+        // Get all choosen results to be plotted
+        QModelIndex indResults;
+        QVector<int> choosenResults;
+        for (int i = 0; i < ui->plotTable3->model()->rowCount(); i++){
+            indResults = ui->plotTable3->model()->index(i,0,QModelIndex());
+            if (indResults.data(Qt::CheckStateRole) == Qt::Checked){
+                choosenResults.push_back(i);
+            }
         }
-
 
         // Plot results
         ui->plotResults2->clearGraphs();
@@ -1168,10 +1217,12 @@ void MainWindow::on_plotResultsButton2_clicked()
         ui->plotResults2->legend->setBrush(QBrush(QColor(255,255,255,230)));
         ui->plotResults2->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignBottom|Qt::AlignRight);
 
-        ui->plotResults2->addGraph();
-        ui->plotResults2->graph(0)->setLineStyle(QCPGraph::lsLine);
-        ui->plotResults2->graph(0)->setData(importedData[0].mid(indTi,logDiffT.size()),logDiffT);
-        ui->plotResults2->graph(0)->setName("LMTD");
+        for (int i = 0; i < choosenResults.size(); i++){
+            ui->plotResults2->addGraph(); // For now defaut axis
+            ui->plotResults2->graph(i)->setLineStyle(QCPGraph::lsLine);
+            ui->plotResults2->graph(i)->setData(importedData[0].mid(indTi,resultsMatrix[choosenResults[i]].size()),resultsMatrix[choosenResults[i]]);
+            ui->plotResults2->graph(i)->setName(ui->plotTable3->model()->data(ui->plotTable3->model()->index(i,0)).toString());
+        }
 
         ui->plotResults2->xAxis->setLabel("[s]");
         ui->plotResults2->yAxis->setLabel("ºC");

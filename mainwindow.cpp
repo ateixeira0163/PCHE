@@ -53,6 +53,34 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     reRangeStatement = true;
     alreadySearched = false;
 
+    // Model parameters input as default for now // CHANGE LATER
+    modelParameters["chNb"] = 10;       // channels number
+    modelParameters["wTh"] = 0.0005;    // wall thickness [m]
+    modelParameters["chWidth"] = 0.002; // channels width [m]
+    modelParameters["chHeight"] = 0.001;// channels height [m]
+    modelParameters["strLenght"] = 0.04;// straight lenght [m]
+    modelParameters["zzNb"] = 4;        // zigzag number in straight lenght
+    modelParameters["zzAngle"] = 35;    // zigzag angle [º]
+    modelParameters["heatTransferArea"] = modelParameters["chWidth"] * (modelParameters["strLenght"]/(modelParameters["zzNb"]*2*qCos(qDegreesToRadians(modelParameters["zzAngle"]))))*
+            2*modelParameters["zzNb"]*modelParameters["chNb"];  // Heat Transfer Area [m]
+    modelParameters["dH"] = 2*modelParameters["chWidth"]*modelParameters["chHeight"]/(modelParameters["chWidth"] + modelParameters["chHeight"]); // hidraulic Diameter   2*a*b/(a+b) for rectangle
+
+
+    QVector<int> muT = {260, 280, 300, 320, 340, 360, 380, 400};
+    QVector<double> mu1bar = {16.55e-6, 17.56e-6, 18.54e-6, 19.49e-6, 20.41e-6, 21.32e-6, 22.20e-6, 23.06e-6};
+    QVector<double> mu5bar = {16.62e-6, 17.62e-6, 18.60e-6, 19.54e-6, 20.47e-6, 21.37e-6, 22.24e-6, 23.10e-6};
+    QVector<double> mu10bar = {16.70e-6, 17.70e-6, 18.67e-6, 19.62e-6, 20.54e-6, 21.43e-6, 22.31e-6, 23.16e-6};
+    for (int i = 0; i < muT.size(); i++){;
+        muAir[1].append(qMakePair(muT[i], mu1bar[i]));
+        muAir[5].append(qMakePair(muT[i], mu5bar[i]));
+        muAir[10].append(qMakePair(muT[i], mu10bar[i]));
+    }
+
+    interpolate(390, 7.5, muAir);
+    interpolate(290,5,muAir);
+    interpolate(290,2,muAir);
+    interpolate(290,10,muAir);
+
 }
 
 MainWindow::~MainWindow()   // Class MainWindow destructor
@@ -428,12 +456,52 @@ double MainWindow::mean(int begin, int end, QVector<double> vector)
     return mean;
 }
 
+double MainWindow::interpolate(double T, double P, QMap<int, QVector<QPair<int, double> > > prop)
+{
+    // First we assure that  T and P are in the range of data
+    if (P < prop.firstKey() || P > prop.lastKey() || T < prop.first()[0].first || T > prop.first()[prop.first().size() - 1].first){
+        qDebug() << "Out of range";
+    }
+    else{
+        QVector<double> xInf(2), xSup(2);     // xInf -> x inferior pressure, xSup -> x superior pressure
+        // First we interpolate with constant pressure
+
+        int i = 0; // prop.value(prop.uniqueKeys()[i]) indicates the lower bound
+        while (i != prop.uniqueKeys().size()){
+            if (P <= prop.uniqueKeys()[i]){
+                if (P < prop.uniqueKeys()[i]) --i;
+                break;
+            } ++i;
+        }
+
+        // In this case the pressure inputed exists so no need for interpolation
+        if (P == prop.uniqueKeys()[i]){
+            //
+        }
+
+
+    }
+
+
+    return 0;
+}
+
 void MainWindow::calculateResults()
 {
     // Function that calculates the parameters and stores them
 
     int indTi = importedData[0].indexOf(ui->tiBox->value());
     int indTf = importedData[0].indexOf(ui->tfBox->value());
+
+    if ( indTi == -1 || indTi > indTf ){
+        indTi = 0;
+        ui->tiBox->setValue(importedData[0][0]);
+    }
+    if ( indTf == -1 ){
+        indTf = importedData[0].size() - 1;
+        ui->tfBox->setValue(importedData[0][importedData[0].size() - 1]);
+    }
+
     resultsMatrix.clear();
 
     // Means
@@ -447,7 +515,7 @@ void MainWindow::calculateResults()
     double meanTwin = (meanTwin1 + meanTwin2)/2;
     double meanTain = mean(indTi, indTf, importedData[5]);
     double meanPain = mean(indTi, indTf, importedData[6]);
-    double meanQair = mean(indTi, indTf, importedData[7]);
+    double meanQair = mean(indTi, indTf, importedData[7]); // [m^3/h]
     double meanPaout = mean(indTi, indTf, importedData[8]);
     double meanTamb = mean(indTi, indTf, importedData[9]); //T_ambient
     double meanTaout = mean(indTi, indTf, importedData[10]);
@@ -455,36 +523,75 @@ void MainWindow::calculateResults()
     double meanPwout = mean(indTi, indTf, importedData[12]);
     */
 
-    // LMTD
-    QVector<double> logDiffT;
-    double tOutA, tInA, tOutW, tInW;
+
+
+    // LMTD / Pressure Drop / Air Velocity
+    QVector<double> logDiffT, pressureDrop, uAir;
+    double tOutA, tInA, tOutW, tInW, lmtd;
     for (int i = indTi; i < indTf; i++){
+        // LMTD
         tOutW = (importedData[1][i] + importedData[2][i])/2;
         tInW = (importedData[3][i] + importedData[4][i])/2;
         tOutA = importedData[10][i];
         tInA = importedData[5][i];
+        lmtd = (isnan((tOutA - tInW - tInA + tOutW)/log((tOutA - tInW)/(tInA - tOutW))) ? 0 : (tOutA - tInW - tInA + tOutW)/log((tOutA - tInW)/(tInA - tOutW)));
+        logDiffT.push_back(lmtd);
 
-        logDiffT.push_back((tOutA - tInW - tInA + tOutW)/log((tOutA - tInW)/(tInA - tOutW)));
-    }
-    meansVector.push_back(mean(0,logDiffT.size(),logDiffT)); // [0]
-    resultsMatrix.push_back(logDiffT); // [0]
-
-    // Perda de carga
-    QVector<double> pressureDrop;
-    for (int i = indTi; i < indTf; i++){
+        // Pressure Drop
         pressureDrop.push_back(importedData[6][i] - importedData[8][i]);
+
+        // Air velocity
+        uAir.push_back(importedData[7][i]/(3600*modelParameters["chNb"]*modelParameters["chWidth"]*modelParameters["chHeight"]));    // 3600: h->s
+
+        // Reynolds number
     }
+
+    meansVector.push_back(mean(0,logDiffT.size(),logDiffT)); // [0]
     meansVector.push_back(mean(0,pressureDrop.size(),pressureDrop)); // [1]
-    resultsMatrix.push_back(pressureDrop);
+    meansVector.push_back(mean(0,uAir.size(),uAir)); // [2]
+    resultsMatrix.push_back(logDiffT); // [0]
+    resultsMatrix.push_back(pressureDrop); // [1]
+    resultsMatrix.push_back(uAir); // [2]
+
+    // Get all choosen results to be plotted
+    QModelIndex indResults;
+    QVector<bool> choosenResults;
+
+    // In order to store the already marked cases
+    if (initImport == true){
+        for (int i = 0; i < ui->plotTable3->model()->rowCount(); i++){
+            indResults = ui->plotTable3->model()->index(i,0,QModelIndex());
+            if (indResults.data(Qt::CheckStateRole) == Qt::Checked){
+                choosenResults.push_back(true);
+            }
+            else{
+                choosenResults.push_back(false);
+            }
+        }
+
+    }
+
 
     // Add options to plot results after
-    QVector<QString> optionsForTable3 = {"LMTD", "Pressure Drop"};
+    QVector<QString> optionsForTable3 = {"LMTD", "Pressure Drop", "Air Velocity"};
     auto plotModelTable3 = new QStandardItemModel();
+
 
     for (int i = 0; i < optionsForTable3.size(); i++){
         QStandardItem *itemCheckBox = new QStandardItem(true);
         itemCheckBox->setCheckable(true);
-        itemCheckBox->setCheckState(Qt::Unchecked);
+
+        if (!initImport){
+            itemCheckBox->setCheckState(Qt::Unchecked);
+        }
+        else{
+            if (choosenResults[i]){
+                itemCheckBox->setCheckState(Qt::Checked);
+            }
+            else{
+                itemCheckBox->setCheckState(Qt::Unchecked);
+            }
+        }
         itemCheckBox->setText(optionsForTable3[i]);
         plotModelTable3->setItem(i,0,itemCheckBox);
 
@@ -497,8 +604,6 @@ void MainWindow::calculateResults()
     plotModelTable3->setHeaderData(1,Qt::Horizontal,"Mean");
     ui->plotTable3->setModel(plotModelTable3);
     ui->plotTable3->resizeColumnsToContents();
-
-
 }
 
 void MainWindow::on_comboBoxNu_activated(const QString &arg1)
@@ -1068,6 +1173,7 @@ void MainWindow::on_importResultsButton_clicked()
 
         // Calculate results:
         calculateResults();
+        initImport = true;
     }
 }
 
@@ -1082,7 +1188,6 @@ void MainWindow::on_plotResultsButton_clicked()
         for (int i = 0; i < ui->plotTable2->model()->rowCount(); i++){
             indData = ui->plotTable2->model()->index(i,0,QModelIndex());
             if (indData.data(Qt::CheckStateRole) == Qt::Checked){
-                //choosenData.push_back(2*i+2); // Correction from not considering the first 2 columns
                 choosenData.push_back(i+1);
             }
         }
@@ -1118,21 +1223,22 @@ void MainWindow::on_plotResultsButton_clicked()
             ui->customPlotData->legend->setFont(QFont("Helvetica",9));
             ui->customPlotData->legend->setBrush(QBrush(QColor(255,255,255,230)));
             ui->customPlotData->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignBottom|Qt::AlignRight);
+            //ui->customPlotData->axisRect()->addAxis(QCPAxis::atRight)->setLabel("Q"); //Find way to add another axis for flow rate
 
             // Create graphs
             QPen pen;
             for (int i = 0; i < choosenData.size(); i++){
                 if (headerList[choosenData[i]].contains("(C)", Qt::CaseInsensitive)){
                     ui->customPlotData->addGraph(); // Default axis
-                    qDebug() << "C";
+                    //qDebug() << "C";
                 }
                 else if (headerList[choosenData[i]].contains("(ADC)", Qt::CaseInsensitive)){
                     ui->customPlotData->addGraph(ui->customPlotData->xAxis, ui->customPlotData->yAxis2);
-                    qDebug() << "bar";
+                    //qDebug() << "bar";
                 }
                 else {
                     ui->customPlotData->addGraph();
-                    qDebug() << "else";
+                    //qDebug() << "else";
                 }
                 pen.setColor(QColor((choosenData.size()-i)*254/choosenData.size(),(i)*254/choosenData.size(), 100, 255));
                 ui->customPlotData->graph(i)->setPen(pen);
@@ -1141,8 +1247,26 @@ void MainWindow::on_plotResultsButton_clicked()
                 ui->customPlotData->graph(i)->setName(headerList[choosenData[i]]);
             }
 
+            /*
+             * To add Errors bars afterwards
+             * Search how to do only in some points
+            QCPErrorBars *errorBars = new QCPErrorBars(ui->customPlotData->xAxis, ui->customPlotData->yAxis);
+            errorBars->removeFromLegend();
+            errorBars->setAntialiased(false);
+            errorBars->setDataPlottable(ui->customPlotData->graph(0));
+            errorBars->setPen(QPen(QColor(180,180,180)));
+
+            QVector<double> e(importedData[0].size());
+            for (int i = 0; i < e.size(); i++){
+                e[i] = 1;
+            }
+
+            errorBars->setData(e);
+            */
+
+
             // Set Axis labels
-            ui->customPlotData->xAxis->setLabel("s");
+            ui->customPlotData->xAxis->setLabel("[s]");
             ui->customPlotData->yAxis->setLabel("°C");
             ui->customPlotData->yAxis2->setLabel("bar");
 
@@ -1156,7 +1280,11 @@ void MainWindow::on_plotResultsButton_clicked()
             connect(ui->customPlotData->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlotData->xAxis2, SLOT(setRange(QCPRange)));
             //connect(ui->customPlotData->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlotData->yAxis2, SLOT(setRange(QCPRange)));
             ui->customPlotData->replot();
-            ui->customPlotData->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+            ui->customPlotData->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
+            // Addind a context menu to hide/move legend
+            ui->customPlotData->setContextMenuPolicy(Qt::CustomContextMenu);
+            connect(ui->customPlotData, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenuRequest(QPoint)));
 
 }
         else {
@@ -1174,12 +1302,65 @@ void MainWindow::on_plotResultsButton_clicked()
     }
 }
 
+void MainWindow::contextMenuRequest(QPoint pos)
+{
+    QMenu *menu = new QMenu(this);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+
+    if (ui->customPlotData->legend->selectTest(pos, false) >= 0 && ui->customPlotData->legend->visible()){ // Verify if clicked on legend
+        menu->addAction("Move to top left", this, SLOT(moveLegend()))->setData((int)(Qt::AlignTop|Qt::AlignLeft));
+        menu->addAction("Move to top center", this, SLOT(moveLegend()))->setData((int)(Qt::AlignTop|Qt::AlignHCenter));
+        menu->addAction("Move to top right", this, SLOT(moveLegend()))->setData((int)(Qt::AlignTop|Qt::AlignRight));
+        menu->addAction("Move to bottom right", this, SLOT(moveLegend()))->setData((int)(Qt::AlignBottom|Qt::AlignRight));
+        menu->addAction("Move to bottom left", this, SLOT(moveLegend()))->setData((int)(Qt::AlignBottom|Qt::AlignLeft));
+        menu->addSeparator();
+        menu->addAction("Hide", this, SLOT(hideLegend()))->setData((bool)(true));
+    }
+    else{
+        if (!ui->customPlotData->legend->visible()){
+            menu->addAction("Show legend", this, SLOT(hideLegend()))->setData((bool)(false));
+        }
+    }
+    menu->popup(ui->customPlotData->mapToGlobal(pos));
+}
+
+void MainWindow::moveLegend()
+{
+    if (QAction* contextAction = qobject_cast<QAction*>(sender())) // make sure this slot is really called by a context menu action, so it carries the data we need
+    {
+        bool ok;
+        int dataInt = contextAction->data().toInt(&ok);
+        if (ok)
+        {
+            ui->customPlotData->axisRect()->insetLayout()->setInsetAlignment(0, (Qt::Alignment)dataInt);
+            ui->customPlotData->replot();
+        }
+    }
+}
+
+void MainWindow::hideLegend()
+{
+    if (QAction* contextAction = qobject_cast<QAction*>(sender())){
+        bool dataBool = contextAction->data().toBool();
+
+        if (dataBool){ // if it's being shown
+            ui->customPlotData->legend->setVisible(false);
+        }
+        else{
+            ui->customPlotData->legend->setVisible(true);
+        }
+        ui->customPlotData->replot();
+    }
+}
+
+
 void MainWindow::on_plotResultsButton2_clicked()
 {
-    // Function to calculate the results
     // Verify if there's a selected file already
     if (importedFileNameData != nullptr){
         // use importedData variable to access the data already imported
+        calculateResults();
+
 
         int indTi = importedData[0].indexOf(ui->tiBox->value());
         int indTf = importedData[0].indexOf(ui->tfBox->value());

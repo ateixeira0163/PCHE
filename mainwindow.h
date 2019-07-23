@@ -25,6 +25,8 @@
 #include <cstring>
 #include <sstream>
 #include <QtScript/QScriptEngine>
+#include "qcustomplot.h"
+#include <QtMath>
 
 namespace Ui {
 class MainWindow;
@@ -61,6 +63,7 @@ private slots:
     void addCorrelations();
     void showCorrelations();
     double mean(int begin, int end, QVector<double> vector);
+    double interpolate(double T, double P, QMap<int, QVector<QPair<int,double>>> prop);
     void calculateResults();
 
 
@@ -80,6 +83,9 @@ private slots:
     void on_importResults_clicked();
 
     void on_plotResults_clicked();
+    void contextMenuRequest(QPoint pos);
+    void moveLegend();
+    void hideLegend();
 
     void on_importResultsButton_clicked();
 
@@ -137,9 +143,14 @@ private:
     QString importedFileName = nullptr;
     QString importedFileNameData = nullptr;
     QVector<QVector<double>> resultsMatrix;
+    bool initImport = false;
 
     // Data
     QVector<QVector<double>> importedData;
+
+    // Parameters for the model
+    QMap<QString, double> modelParameters;
+    QMap<int, QVector<QPair<int,double>>> muAir;
 
 
 };

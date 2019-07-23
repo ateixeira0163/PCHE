@@ -1529,364 +1529,420 @@ background-repeat: none;
         <string>Experimental Analysis</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_8">
-        <item row="1" column="0">
-         <widget class="QGroupBox" name="groupBox_7">
-          <property name="minimumSize">
-           <size>
-            <width>300</width>
-            <height>300</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Results</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QGroupBox" name="groupBox_5">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>330</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Plotted Data</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_7">
-           <item row="0" column="0">
-            <widget class="QTableView" name="plotTable2">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>250</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>200</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <attribute name="horizontalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="verticalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <layout class="QGridLayout" name="gridLayout_6">
-             <item row="0" column="0">
-              <spacer name="horizontalSpacer_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>468</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="0" column="1">
-              <widget class="QPushButton" name="importResultsButton">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>25</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Import</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QPushButton" name="plotResultsButton">
-               <property name="text">
-                <string>Plot</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="0" column="1">
-            <widget class="QCustomPlot" name="customPlotData" native="true">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>250</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
         <item row="0" column="0">
-         <widget class="QGroupBox" name="groupBox_3">
-          <property name="minimumSize">
-           <size>
-            <width>300</width>
-            <height>300</height>
-           </size>
+         <widget class="QSplitter" name="splitter_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
-          <property name="title">
-           <string>Parameters</string>
-          </property>
-          <widget class="QSpinBox" name="timeIntervalBox">
-           <property name="geometry">
-            <rect>
-             <x>150</x>
-             <y>40</y>
-             <width>111</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="suffix">
-            <string> s</string>
-           </property>
-           <property name="maximum">
-            <number>999999</number>
-           </property>
-           <property name="value">
-            <number>10</number>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_7">
-           <property name="geometry">
-            <rect>
-             <x>30</x>
-             <y>40</y>
-             <width>81</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Time interval</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_19">
-           <property name="geometry">
-            <rect>
-             <x>30</x>
-             <y>70</y>
-             <width>111</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Mass flow - water*</string>
-           </property>
-          </widget>
-          <widget class="QDoubleSpinBox" name="massFlowBox">
-           <property name="geometry">
-            <rect>
-             <x>150</x>
-             <y>70</y>
-             <width>111</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="suffix">
-            <string> g/s</string>
-           </property>
-           <property name="value">
-            <double>3.120000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDoubleSpinBox" name="areaBox">
-           <property name="geometry">
-            <rect>
-             <x>150</x>
-             <y>100</y>
-             <width>111</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="prefix">
-            <string/>
-           </property>
-           <property name="suffix">
-            <string> m2</string>
-           </property>
-           <property name="decimals">
-            <number>8</number>
-           </property>
-           <property name="value">
-            <double>0.000976000000000</double>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_24">
-           <property name="geometry">
-            <rect>
-             <x>30</x>
-             <y>100</y>
-             <width>111</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Area</string>
-           </property>
-          </widget>
-          <widget class="QSpinBox" name="tfBox">
-           <property name="geometry">
-            <rect>
-             <x>110</x>
-             <y>160</y>
-             <width>71</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="suffix">
-            <string> s</string>
-           </property>
-           <property name="maximum">
-            <number>999999</number>
-           </property>
-           <property name="value">
-            <number>13230</number>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_10">
-           <property name="geometry">
-            <rect>
-             <x>30</x>
-             <y>160</y>
-             <width>81</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>t_f</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_8">
-           <property name="geometry">
-            <rect>
-             <x>30</x>
-             <y>130</y>
-             <width>81</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>t_i</string>
-           </property>
-          </widget>
-          <widget class="QSpinBox" name="tiBox">
-           <property name="geometry">
-            <rect>
-             <x>110</x>
-             <y>130</y>
-             <width>71</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="suffix">
-            <string> s</string>
-           </property>
-           <property name="maximum">
-            <number>999999</number>
-           </property>
-           <property name="value">
-            <number>9560</number>
-           </property>
-          </widget>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QGroupBox" name="groupBox_6">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>330</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Plotted results</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_9">
-           <item row="0" column="0">
-            <widget class="QTableView" name="plotTable3">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>250</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>200</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QCustomPlot" name="plotResults2" native="true">
-             <property name="minimumSize">
-              <size>
-               <width>500</width>
-               <height>250</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <spacer name="horizontalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+          <widget class="QWidget" name="">
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QGroupBox" name="groupBox_3">
+              <property name="minimumSize">
+               <size>
+                <width>300</width>
+                <height>300</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Parameters</string>
+              </property>
+              <widget class="QSpinBox" name="timeIntervalBox">
+               <property name="geometry">
+                <rect>
+                 <x>150</x>
+                 <y>40</y>
+                 <width>111</width>
+                 <height>22</height>
+                </rect>
                </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>578</width>
-                 <height>20</height>
-                </size>
+               <property name="suffix">
+                <string> s</string>
                </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="plotResultsButton2">
-               <property name="text">
-                <string>Plot</string>
+               <property name="maximum">
+                <number>999999</number>
+               </property>
+               <property name="value">
+                <number>10</number>
                </property>
               </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
+              <widget class="QLabel" name="label_7">
+               <property name="geometry">
+                <rect>
+                 <x>30</x>
+                 <y>40</y>
+                 <width>81</width>
+                 <height>16</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Time interval</string>
+               </property>
+              </widget>
+              <widget class="QLabel" name="label_19">
+               <property name="geometry">
+                <rect>
+                 <x>30</x>
+                 <y>70</y>
+                 <width>111</width>
+                 <height>16</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Mass flow - water*</string>
+               </property>
+              </widget>
+              <widget class="QDoubleSpinBox" name="massFlowBox">
+               <property name="geometry">
+                <rect>
+                 <x>150</x>
+                 <y>70</y>
+                 <width>111</width>
+                 <height>22</height>
+                </rect>
+               </property>
+               <property name="suffix">
+                <string> g/s</string>
+               </property>
+               <property name="value">
+                <double>3.120000000000000</double>
+               </property>
+              </widget>
+              <widget class="QDoubleSpinBox" name="areaBox">
+               <property name="geometry">
+                <rect>
+                 <x>150</x>
+                 <y>100</y>
+                 <width>111</width>
+                 <height>22</height>
+                </rect>
+               </property>
+               <property name="prefix">
+                <string/>
+               </property>
+               <property name="suffix">
+                <string> m2</string>
+               </property>
+               <property name="decimals">
+                <number>8</number>
+               </property>
+               <property name="value">
+                <double>0.000976000000000</double>
+               </property>
+              </widget>
+              <widget class="QLabel" name="label_24">
+               <property name="geometry">
+                <rect>
+                 <x>30</x>
+                 <y>100</y>
+                 <width>111</width>
+                 <height>16</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Area</string>
+               </property>
+              </widget>
+              <widget class="QWidget" name="">
+               <property name="geometry">
+                <rect>
+                 <x>10</x>
+                 <y>130</y>
+                 <width>272</width>
+                 <height>29</height>
+                </rect>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_5">
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_3">
+                  <item>
+                   <widget class="QLabel" name="label_8">
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>t_i</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="tiBox">
+                    <property name="suffix">
+                     <string> s</string>
+                    </property>
+                    <property name="maximum">
+                     <number>999999</number>
+                    </property>
+                    <property name="value">
+                     <number>9560</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>13</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_4">
+                  <item>
+                   <widget class="QLabel" name="label_10">
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>t_f</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="tfBox">
+                    <property name="suffix">
+                     <string> s</string>
+                    </property>
+                    <property name="maximum">
+                     <number>999999</number>
+                    </property>
+                    <property name="value">
+                     <number>13230</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton">
+                  <property name="maximumSize">
+                   <size>
+                    <width>25</width>
+                    <height>25</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Candara</family>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Refresh calculated values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="text">
+                   <string>⟳</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_5">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>330</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Plotted Data</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_7">
+               <item row="0" column="0">
+                <widget class="QSplitter" name="splitter">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <widget class="QTableView" name="plotTable2">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>250</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <attribute name="horizontalHeaderVisible">
+                   <bool>false</bool>
+                  </attribute>
+                  <attribute name="verticalHeaderVisible">
+                   <bool>false</bool>
+                  </attribute>
+                 </widget>
+                 <widget class="QCustomPlot" name="customPlotData" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>500</width>
+                    <height>250</height>
+                   </size>
+                  </property>
+                 </widget>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <layout class="QGridLayout" name="gridLayout_6">
+                 <item row="0" column="0">
+                  <spacer name="horizontalSpacer_3">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>468</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QPushButton" name="importResultsButton">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Import</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="QPushButton" name="plotResultsButton">
+                   <property name="text">
+                    <string>Plot</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="">
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QGroupBox" name="groupBox_7">
+              <property name="minimumSize">
+               <size>
+                <width>300</width>
+                <height>300</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Results</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_6">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>330</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Plotted results</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_9">
+               <item row="0" column="0">
+                <widget class="QSplitter" name="splitter_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <widget class="QTableView" name="plotTable3">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>250</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>500</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                 <widget class="QCustomPlot" name="plotResults2" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>500</width>
+                    <height>250</height>
+                   </size>
+                  </property>
+                 </widget>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <spacer name="horizontalSpacer_4">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>578</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="plotResultsButton2">
+                   <property name="text">
+                    <string>Plot</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>

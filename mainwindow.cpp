@@ -482,7 +482,6 @@ double MainWindow::interpolate(double T, double P, QMap<int, QVector<QPair<int, 
 
     }
 
-
     return 0;
 }
 
@@ -506,24 +505,6 @@ void MainWindow::calculateResults()
 
     // Means
     QVector<double> meansVector;
-    /*
-    double meanTwout1 = mean(indTi, indTf, importedData[1]); // T_water_out1
-    double meanTwout2 = mean(indTi, indTf, importedData[2]); // T_water_out2
-    double meanTwout = (meanTwout1 + meanTwout2)/2;         // T_water_out
-    double meanTwin1 = mean(indTi, indTf, importedData[3]); // T_water_in1
-    double meanTwin2 = mean(indTi, indTf, importedData[4]); // T_water_in2
-    double meanTwin = (meanTwin1 + meanTwin2)/2;
-    double meanTain = mean(indTi, indTf, importedData[5]);
-    double meanPain = mean(indTi, indTf, importedData[6]);
-    double meanQair = mean(indTi, indTf, importedData[7]); // [m^3/h]
-    double meanPaout = mean(indTi, indTf, importedData[8]);
-    double meanTamb = mean(indTi, indTf, importedData[9]); //T_ambient
-    double meanTaout = mean(indTi, indTf, importedData[10]);
-    double meanPwin = mean(indTi, indTf, importedData[11]);
-    double meanPwout = mean(indTi, indTf, importedData[12]);
-    */
-
-
 
     // LMTD / Pressure Drop / Air Velocity
     QVector<double> logDiffT, pressureDrop, uAir;
@@ -544,6 +525,7 @@ void MainWindow::calculateResults()
         uAir.push_back(importedData[7][i]/(3600*modelParameters["chNb"]*modelParameters["chWidth"]*modelParameters["chHeight"]));    // 3600: h->s
 
         // Reynolds number
+
     }
 
     meansVector.push_back(mean(0,logDiffT.size(),logDiffT)); // [0]
@@ -568,9 +550,7 @@ void MainWindow::calculateResults()
                 choosenResults.push_back(false);
             }
         }
-
     }
-
 
     // Add options to plot results after
     QVector<QString> optionsForTable3 = {"LMTD", "Pressure Drop", "Air Velocity"};
@@ -597,13 +577,52 @@ void MainWindow::calculateResults()
 
         QStandardItem *itemMean = new QStandardItem(QString("%0").arg(QString::number(meansVector[i])));
         plotModelTable3->setItem(i,1,itemMean);
-
     }
 
     plotModelTable3->setHeaderData(0,Qt::Horizontal,"Result");
     plotModelTable3->setHeaderData(1,Qt::Horizontal,"Mean");
     ui->plotTable3->setModel(plotModelTable3);
     ui->plotTable3->resizeColumnsToContents();
+
+    // Add means to plot 1
+
+    QModelIndex indPlots;
+    QVector<bool> choosenPlots;
+
+    // To store the already marked plots
+    if (initImport == true){ // Verify if table is not empty
+        for (int i = 0; i < ui->plotTable2->model()->rowCount(); i++){
+            indPlots = ui->plotTable2->model()->index(i,0,QModelIndex());
+            if (indPlots.data(Qt::CheckStateRole) == Qt::Checked) choosenPlots.push_back(true);
+            else choosenPlots.push_back(false);
+        }
+    }
+
+    auto plotModelTable2 = new QStandardItemModel();
+
+    for (int i = 0; i < headerListPlot.size()/2 - 1; i++){
+        QStandardItem *itemCheckBoxPlot = new QStandardItem(true);
+        itemCheckBoxPlot->setCheckable(true);
+        if (!initImport) itemCheckBoxPlot->setCheckState(Qt::Unchecked);
+        else{
+            if (choosenPlots[i]) itemCheckBoxPlot->setCheckState(Qt::Checked);
+            else itemCheckBoxPlot->setCheckState(Qt::Unchecked);
+        }
+        itemCheckBoxPlot->setText(headerListPlot[(i*2) + 2]);
+        plotModelTable2->setItem(i,0,itemCheckBoxPlot);
+
+        QStandardItem *plotMean = new QStandardItem(QString("%0").arg(QString::number(mean(indTi,indTf,importedData[i+1]))));
+        plotModelTable2->setItem(i,1,plotMean);
+    }
+
+    plotModelTable2->setHeaderData(0, Qt::Horizontal, "Data");
+    plotModelTable2->setHeaderData(1, Qt::Horizontal, "Mean");
+    ui->plotTable2->setModel(plotModelTable2);
+    ui->plotTable2->resizeColumnsToContents();
+    ui->plotTable2->horizontalHeader()->show();
+    ui->plotTable2->verticalHeader()->show();
+
+
 }
 
 void MainWindow::on_comboBoxNu_activated(const QString &arg1)
@@ -1106,14 +1125,15 @@ void MainWindow::on_importResultsButton_clicked()
             qDebug() << file.errorString();
         }
 
-        QStringList headerList;
+        //QStringList headerListPlot;
+        headerListPlot.clear();
         QString header;
         // To ignore all the lines up do 21.
         // Save .csv in .csv - UTF-8 to work
         for (int i = 0; i < 21; i++){
             header = file.readLine();
         }
-        headerList = header.split(';');
+        headerListPlot = header.split(';');
 
         // --- Add data to variable importedData to be used later
         importedData.clear(); // Clear data if there's any
@@ -1158,18 +1178,6 @@ void MainWindow::on_importResultsButton_clicked()
 
         // --- Data have been imported to importedData.
         file.close();
-
-        // Create options to plot
-        auto plotModelTable = new QStandardItemModel();
-        for (int i = 2; i < headerList.size(); i+=2){   // Take only the useful information
-            QStandardItem *itemCheckBox = new QStandardItem(true);
-            itemCheckBox->setCheckable(true);
-            itemCheckBox->setCheckState(Qt::Unchecked);
-            itemCheckBox->setText(headerList[i]);
-            plotModelTable->setItem(i/2-1,0,itemCheckBox);
-        }
-        ui->plotTable2->setModel(plotModelTable);
-        ui->plotTable2->resizeColumnsToContents();
 
         // Calculate results:
         calculateResults();
@@ -1353,7 +1361,6 @@ void MainWindow::hideLegend()
     }
 }
 
-
 void MainWindow::on_plotResultsButton2_clicked()
 {
     // Verify if there's a selected file already
@@ -1415,25 +1422,7 @@ void MainWindow::on_plotResultsButton2_clicked()
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void MainWindow::on_pushButton_clicked()
+{
+    calculateResults();
+}

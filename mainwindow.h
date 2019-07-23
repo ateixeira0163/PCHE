@@ -65,33 +65,21 @@ private slots:
     double mean(int begin, int end, QVector<double> vector);
     double interpolate(double T, double P, QMap<int, QVector<QPair<int,double>>> prop);
     void calculateResults();
-
-
     void on_tableView_doubleClicked(const QModelIndex &index);
-
-
     void on_prInputButton_clicked();
-
     void on_reInputButton_clicked();
-
     void on_deleteButton_clicked();
-
-
-
     void on_plotButton_clicked();
-
     void on_importResults_clicked();
-
     void on_plotResults_clicked();
     void contextMenuRequest(QPoint pos);
     void moveLegend();
     void hideLegend();
-
     void on_importResultsButton_clicked();
-
     void on_plotResultsButton_clicked();
-
     void on_plotResultsButton2_clicked();
+
+    void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -144,6 +132,7 @@ private:
     QString importedFileNameData = nullptr;
     QVector<QVector<double>> resultsMatrix;
     bool initImport = false;
+    QStringList headerListPlot;
 
     // Data
     QVector<QVector<double>> importedData;

@@ -32,7 +32,8 @@ SOURCES += \
         mainwindow.cpp \
     aboutdialog.cpp \
     addnewfluidwindow.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    ctkrangeslider.cpp
 
 HEADERS += \
     addcorrelation.h \
@@ -40,7 +41,8 @@ HEADERS += \
         mainwindow.h \
     aboutdialog.h \
     addnewfluidwindow.h \
-    qcustomplot.h
+    qcustomplot.h \
+    ctkrangeslider.h
 
 FORMS += \
     addcorrelation.ui \

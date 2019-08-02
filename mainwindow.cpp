@@ -76,11 +76,14 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
         muAir[10].append(qMakePair(muT[i], mu10bar[i]));
     }
 
+    /* For testing puporses
     interpolate(390, 7.5, muAir);
     interpolate(290,5,muAir);
     interpolate(290,2,muAir);
-    interpolate(290,10,muAir);
+    interpolate(335,10,muAir);
+    interpolate(320,10,muAir); */
 
+    rangeRect = new QCPItemRect(ui->customPlotData);
 }
 
 MainWindow::~MainWindow()   // Class MainWindow destructor
@@ -460,26 +463,48 @@ double MainWindow::interpolate(double T, double P, QMap<int, QVector<QPair<int, 
 {
     // First we assure that  T and P are in the range of data
     if (P < prop.firstKey() || P > prop.lastKey() || T < prop.first()[0].first || T > prop.first()[prop.first().size() - 1].first){
-        qDebug() << "Out of range";
+        //qDebug() << "Out of range";
+        return 0;
     }
     else{
         QVector<double> xInf(2), xSup(2);     // xInf -> x inferior pressure, xSup -> x superior pressure
-        // First we interpolate with constant pressure
+        QList<int> keysList = prop.uniqueKeys();    // keys (Pressure) organized in ascending order
 
-        int i = 0; // prop.value(prop.uniqueKeys()[i]) indicates the lower bound
-        while (i != prop.uniqueKeys().size()){
-            if (P <= prop.uniqueKeys()[i]){
-                if (P < prop.uniqueKeys()[i]) --i;
+        // First we find the lower bound value for pressure
+        int lP = 0, uP; // prop.value(prop.uniqueKeys()[lB]) indicates the lower bound
+        while (lP != keysList.size()){
+            if (P <= keysList[lP]){
+                if (P < keysList[lP]) --lP;
                 break;
-            } ++i;
+            } ++lP;
         }
+
+        // Now to find the temperature lower bound
+        int lT = 0, uT;
+        while (lT != prop.first().size()){
+            if (T <= prop.first()[lT].first){
+                if (T < prop.first()[lT].first) --lT;
+                break;
+            }
+            ++lT;
+        }
+
+        // Now we interpolate
 
         // In this case the pressure inputed exists so no need for interpolation
-        if (P == prop.uniqueKeys()[i]){
-            //
-        }
+        uP = (P == keysList[lP] ? lP : lP + 1);
+        uT = (T == prop.first()[lT].first ? lT : lT + 1);
 
+        xInf = {prop[keysList[lP]][lT].second, prop[keysList[uP]][lT].second};
+        xSup = {prop[keysList[lP]][uT].second, prop[keysList[uP]][uT].second};
 
+        // Interpolating inferior bound
+        double propInf, propSup, propResult;
+        propInf = xInf[0] + ((xInf[1] - xInf[0])/(lP == uP ? 1 : keysList[uP] - keysList[lP]))*(P - keysList[lP]);
+        propSup = xSup[0] + ((xSup[1] - xSup[0])/(lP == uP ? 1 : keysList[uP] - keysList[lP]))*(P - keysList[lP]);
+        propResult = propInf + ((propSup - propInf)/(lT == uT ? 1 : prop.first()[uT].first - prop.first()[lT].first))*(T - prop.first()[lT].first);
+
+        return propResult;
     }
 
     return 0;
@@ -507,8 +532,8 @@ void MainWindow::calculateResults()
     QVector<double> meansVector;
 
     // LMTD / Pressure Drop / Air Velocity
-    QVector<double> logDiffT, pressureDrop, uAir;
-    double tOutA, tInA, tOutW, tInW, lmtd;
+    QVector<double> logDiffT, pressureDrop, uAir, reAir, qW;
+    double tOutA, tInA, tOutW, tInW, lmtd, pOutA, pInA, uA, muA;
     for (int i = indTi; i < indTf; i++){
         // LMTD
         tOutW = (importedData[1][i] + importedData[2][i])/2;
@@ -522,18 +547,28 @@ void MainWindow::calculateResults()
         pressureDrop.push_back(importedData[6][i] - importedData[8][i]);
 
         // Air velocity
-        uAir.push_back(importedData[7][i]/(3600*modelParameters["chNb"]*modelParameters["chWidth"]*modelParameters["chHeight"]));    // 3600: h->s
+        uA = importedData[7][i]/(3600*modelParameters["chNb"]*modelParameters["chWidth"]*modelParameters["chHeight"]); // 3600: h->s
+        uAir.push_back(uA);
 
         // Reynolds number
+        pOutA = importedData[8][i];
+        pInA = importedData[6][i];
+        muA = interpolate(((tOutA + tInA)/2)+273.15, (pOutA + pInA)/2, muAir);
+        if (muA != 0) reAir.push_back( ((((pOutA + pInA)/2)*1e+05)/(287.058 * (((tOutA + tInA)/2) + 273.15)))*(uA/muA)*modelParameters["dH"]);
+        else reAir.push_back(0);
 
+        // qW
+        // Add CPW data to do interpolation
     }
 
     meansVector.push_back(mean(0,logDiffT.size(),logDiffT)); // [0]
     meansVector.push_back(mean(0,pressureDrop.size(),pressureDrop)); // [1]
     meansVector.push_back(mean(0,uAir.size(),uAir)); // [2]
+    meansVector.push_back(mean(0,reAir.size(),reAir)); // [3]
     resultsMatrix.push_back(logDiffT); // [0]
     resultsMatrix.push_back(pressureDrop); // [1]
     resultsMatrix.push_back(uAir); // [2]
+    resultsMatrix.push_back(reAir); // [3]
 
     // Get all choosen results to be plotted
     QModelIndex indResults;
@@ -553,7 +588,7 @@ void MainWindow::calculateResults()
     }
 
     // Add options to plot results after
-    QVector<QString> optionsForTable3 = {"LMTD", "Pressure Drop", "Air Velocity"};
+    QVector<QString> optionsForTable3 = {"LMTD", "Pressure Drop", "Air Velocity", "Reynolds Nb (Air)"};
     auto plotModelTable3 = new QStandardItemModel();
 
 
@@ -1226,6 +1261,14 @@ void MainWindow::on_plotResultsButton_clicked()
             ui->customPlotData->clearGraphs();
             ui->customPlotData->replot();
 
+            // Add rectangle for permanent range
+
+            rangeRect->setVisible(true);
+            rangeRect->setPen(QPen(Qt::transparent));
+            rangeRect->setBrush(QBrush(QColor(255, 0, 0, 20)));
+            rangeRect->topLeft->setCoords(ui->tiBox->value(),300);
+            rangeRect->bottomRight->setCoords(ui->tfBox->value(),0);
+
             // Style
             ui->customPlotData->legend->setVisible(true);
             ui->customPlotData->legend->setFont(QFont("Helvetica",9));
@@ -1255,23 +1298,60 @@ void MainWindow::on_plotResultsButton_clicked()
                 ui->customPlotData->graph(i)->setName(headerList[choosenData[i]]);
             }
 
-            /*
-             * To add Errors bars afterwards
-             * Search how to do only in some points
-            QCPErrorBars *errorBars = new QCPErrorBars(ui->customPlotData->xAxis, ui->customPlotData->yAxis);
-            errorBars->removeFromLegend();
-            errorBars->setAntialiased(false);
-            errorBars->setDataPlottable(ui->customPlotData->graph(0));
-            errorBars->setPen(QPen(QColor(180,180,180)));
+            // Create error bars graphs
 
-            QVector<double> e(importedData[0].size());
-            for (int i = 0; i < e.size(); i++){
-                e[i] = 1;
+            QVector<double> eXData;                                        // Create list for X axis that jumps 'eSpacing' points
+            int eSpacing = 10;  // Change this parameter to change how many points show the error bar
+            for (int i = 0; i < importedData[0].size(); i += eSpacing){
+                eXData.push_back(importedData[0][i]);
             }
 
-            errorBars->setData(e);
-            */
+            QVector<double> e(eXData.size());
+            QVector<double>* eYData;
+            errorVector.clear();
 
+            for (int i = 0; i < choosenData.size(); i++){   // Create a matrix for y axis that jumps 'eSpacing' points
+                eYData = new QVector<double>;
+                for (int j = 0; j < importedData[0].size(); j += eSpacing){
+                    eYData->push_back(importedData[choosenData[i]][j]);
+                }
+
+                QCPErrorBars* errorBars;
+                if (headerList[choosenData[i]].contains("(C)", Qt::CaseInsensitive)){
+                    ui->customPlotData->addGraph(); // Default axis
+                    errorBars = new QCPErrorBars(ui->customPlotData->xAxis, ui->customPlotData->yAxis);
+                }
+                else if (headerList[choosenData[i]].contains("(ADC)", Qt::CaseInsensitive)){
+                    ui->customPlotData->addGraph(ui->customPlotData->xAxis, ui->customPlotData->yAxis2);
+                    errorBars = new QCPErrorBars(ui->customPlotData->xAxis, ui->customPlotData->yAxis2);
+                }
+                else {
+                    ui->customPlotData->addGraph();
+                    errorBars = new QCPErrorBars(ui->customPlotData->xAxis, ui->customPlotData->yAxis);
+                }
+
+                pen.setColor(QColor((choosenData.size()-i)*254/choosenData.size(),(i)*254/choosenData.size(), 100, 255));
+                ui->customPlotData->graph(choosenData.size() + i)->setData(eXData, *eYData);
+                ui->customPlotData->graph(choosenData.size() + i)->setVisible(false);
+                ui->customPlotData->graph(choosenData.size() + i)->removeFromLegend();
+                ui->customPlotData->graph(choosenData.size() + i)->setSelectable(QCP::SelectionType::stNone);
+
+
+                // error element
+
+                //errorBars->setVisible(false);
+                errorBars->removeFromLegend();
+                errorBars->setAntialiased(false);
+                errorBars->setDataPlottable(ui->customPlotData->graph(choosenData.size() + i));
+                errorBars->setPen(pen);
+                errorBars->setSelectable(QCP::SelectionType::stNone);
+
+                for (int k = 0; k < e.size(); k++){
+                    e[k] = 1;
+                }
+                errorBars->setData(e);
+                errorVector.push_back(errorBars);
+            }
 
             // Set Axis labels
             ui->customPlotData->xAxis->setLabel("[s]");
@@ -1288,11 +1368,18 @@ void MainWindow::on_plotResultsButton_clicked()
             connect(ui->customPlotData->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlotData->xAxis2, SLOT(setRange(QCPRange)));
             //connect(ui->customPlotData->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlotData->yAxis2, SLOT(setRange(QCPRange)));
             ui->customPlotData->replot();
-            ui->customPlotData->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+            ui->customPlotData->setInteractions(QCP::iSelectPlottables);
+            //connect(ui->customPlotData, SIGNAL(selectionChangedByUser()), this, SLOT(graphSelectionChanged()));
+            //ui->customPlotData->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 
-            // Addind a context menu to hide/move legend
+            // Adding a context menu to hide/move legend
             ui->customPlotData->setContextMenuPolicy(Qt::CustomContextMenu);
             connect(ui->customPlotData, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenuRequest(QPoint)));
+
+            // Adding rangeSlider connection
+            ui->plotRangeSlider->setEnabled(true);
+            //ui->plotRangeSlider->setTracking(false); // To change only after let go the button
+            connect(ui->plotRangeSlider, SIGNAL(valuesChanged(int, int)), this, SLOT(refreshRange(int, int)));
 
 }
         else {
@@ -1310,6 +1397,16 @@ void MainWindow::on_plotResultsButton_clicked()
     }
 }
 
+void MainWindow::refreshRange(int minValue, int maxValue)
+{
+    ui->tiBox->setValue(importedData[0][minValue*importedData[0].size()/100]);
+    ui->tfBox->setValue(importedData[0][maxValue*importedData[0].size()/100]);
+    calculateResults();
+    rangeRect->topLeft->setCoords(ui->tiBox->value(),300);
+    rangeRect->bottomRight->setCoords(ui->tfBox->value(),0);
+    ui->customPlotData->replot();
+}
+
 void MainWindow::contextMenuRequest(QPoint pos)
 {
     QMenu *menu = new QMenu(this);
@@ -1322,14 +1419,70 @@ void MainWindow::contextMenuRequest(QPoint pos)
         menu->addAction("Move to bottom right", this, SLOT(moveLegend()))->setData((int)(Qt::AlignBottom|Qt::AlignRight));
         menu->addAction("Move to bottom left", this, SLOT(moveLegend()))->setData((int)(Qt::AlignBottom|Qt::AlignLeft));
         menu->addSeparator();
-        menu->addAction("Hide", this, SLOT(hideLegend()))->setData((bool)(true));
+        menu->addAction("Hide", this, SLOT(hideLegend()))->setData(true);
     }
     else{
         if (!ui->customPlotData->legend->visible()){
-            menu->addAction("Show legend", this, SLOT(hideLegend()))->setData((bool)(false));
+            menu->addAction("Show legend", this, SLOT(hideLegend()))->setData(false);
+        }
+        if (ui->customPlotData->selectedGraphs().size() > 0){
+            menu->addAction("Show confidence details", this, SLOT(showConfidenceDetails()));
+
+            for (int i = 0; i < ui->customPlotData->graphCount()/2; i++){ // Pass through every graph except graphs added to error bars
+                if (ui->customPlotData->selectedGraphs().first() == ui->customPlotData->graph(i) && errorVector[i]->visible() == true){
+                    menu->addAction("Hide error bar", this, SLOT(hideErrorBar()))->setData(false);
+                }
+                else if (ui->customPlotData->selectedGraphs().first() == ui->customPlotData->graph(i) && errorVector[i]->visible() == false){
+                    menu->addAction("Show error bar", this, SLOT(hideErrorBar()))->setData(true);
+                }
+            }
+        }
+        else{
+            menu->addAction("Show all error bars", this, SLOT(hideAllErrorBars()))->setData(true);
+            menu->addAction("Hide all error bars", this, SLOT(hideAllErrorBars()))->setData(false);
         }
     }
     menu->popup(ui->customPlotData->mapToGlobal(pos));
+}
+
+void MainWindow::hideAllErrorBars()
+{
+    // Function that shows/hides all error bars from the graph
+    if (QAction* contextAction = qobject_cast<QAction*>(sender())){
+        bool dataBool = contextAction->data().toBool();
+        for (int i = 0; i < ui->customPlotData->graphCount()/2; i++){ // Pass through every graph except graphs added to error bars
+                errorVector[i]->setVisible(dataBool);
+        }
+        ui->customPlotData->replot();
+    }
+}
+
+void MainWindow::hideErrorBar()
+{
+    // Find a way to hide and show after replotting
+    if (QAction* contextAction = qobject_cast<QAction*>(sender())){
+        bool dataBool = contextAction->data().toBool();
+        for (int i = 0; i < ui->customPlotData->graphCount()/2; i++){ // Pass through every graph except graphs added to error bars
+            if (ui->customPlotData->selectedGraphs().first() == ui->customPlotData->graph(i)){
+                errorVector[i]->setVisible(dataBool);
+            }
+        }
+        ui->customPlotData->replot();
+    }
+}
+
+void MainWindow::showConfidenceDetails()
+{
+    // Function to open window showing confidence details
+    if (ui->customPlotData->selectedGraphs().size() > 0){
+        for (int i = 0; i < ui->customPlotData->graphCount()/2; i++){ // Pass through every graph except graphs added to error bars
+            if (ui->customPlotData->selectedGraphs().first() == ui->customPlotData->graph(i)){
+                qDebug() << "same" << i;
+                // Add call here for opening window showing confidence details
+
+            }
+        }
+    }
 }
 
 void MainWindow::moveLegend()
@@ -1424,5 +1577,7 @@ void MainWindow::on_plotResultsButton2_clicked()
 
 void MainWindow::on_pushButton_clicked()
 {
+    ui->plotRangeSlider->setValues((ui->tiBox->value()/ui->timeIntervalBox->value())*100/importedData[0].size(),
+            (ui->tfBox->value()/ui->timeIntervalBox->value())*100/importedData[0].size());
     calculateResults();
 }

@@ -72,7 +72,11 @@ private slots:
     void on_plotButton_clicked();
     void on_importResults_clicked();
     void on_plotResults_clicked();
+    void refreshRange(int minValue, int maxValue);
     void contextMenuRequest(QPoint pos);
+    void hideAllErrorBars();
+    void hideErrorBar();
+    void showConfidenceDetails();
     void moveLegend();
     void hideLegend();
     void on_importResultsButton_clicked();
@@ -133,6 +137,8 @@ private:
     QVector<QVector<double>> resultsMatrix;
     bool initImport = false;
     QStringList headerListPlot;
+    QCPItemRect* rangeRect;
+    QVector<QCPErrorBars*> errorVector;
 
     // Data
     QVector<QVector<double>> importedData;

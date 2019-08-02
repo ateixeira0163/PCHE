@@ -502,7 +502,7 @@
           </rect>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="tab_6">
           <attribute name="title">
@@ -1806,7 +1806,7 @@ background-repeat: none;
                    <bool>false</bool>
                   </attribute>
                  </widget>
-                 <widget class="QWidget" name="">
+                 <widget class="QWidget" name="layoutWidget">
                   <layout class="QVBoxLayout" name="verticalLayout_2">
                    <item>
                     <widget class="QCustomPlot" name="customPlotData" native="true">

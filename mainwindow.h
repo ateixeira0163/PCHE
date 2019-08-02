@@ -63,8 +63,9 @@ private slots:
     void addCorrelations();
     void showCorrelations();
     double mean(int begin, int end, QVector<double> vector);
-    double interpolate(double T, double P, QMap<int, QVector<QPair<int,double>>> prop);
+    double interpolate(double T, double P, QMap<int, QVector<QPair<double,double>>> prop);
     void calculateResults();
+
     void on_tableView_doubleClicked(const QModelIndex &index);
     void on_prInputButton_clicked();
     void on_reInputButton_clicked();
@@ -84,6 +85,8 @@ private slots:
     void on_plotResultsButton2_clicked();
 
     void on_pushButton_clicked();
+
+    void cellBoxChanged(QStandardItem* cell);
 
 private:
     Ui::MainWindow *ui;
@@ -138,6 +141,7 @@ private:
     bool initImport = false;
     QStringList headerListPlot;
     QCPItemRect* rangeRect;
+    QList<QStandardItem*> plot3CheckBoxes;
     QVector<QCPErrorBars*> errorVector;
 
     // Data
@@ -145,7 +149,8 @@ private:
 
     // Parameters for the model
     QMap<QString, double> modelParameters;
-    QMap<int, QVector<QPair<int,double>>> muAir;
+    QMap<int, QVector<QPair<double,double>>> muAir, cpW, cpAir;
+
 
 
 };

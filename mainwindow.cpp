@@ -66,15 +66,30 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     modelParameters["dH"] = 2*modelParameters["chWidth"]*modelParameters["chHeight"]/(modelParameters["chWidth"] + modelParameters["chHeight"]); // hidraulic Diameter   2*a*b/(a+b) for rectangle
 
 
-    QVector<int> muT = {260, 280, 300, 320, 340, 360, 380, 400};
+    QVector<double> muT = {260, 280, 300, 320, 340, 360, 380, 400};
     QVector<double> mu1bar = {16.55e-6, 17.56e-6, 18.54e-6, 19.49e-6, 20.41e-6, 21.32e-6, 22.20e-6, 23.06e-6};
     QVector<double> mu5bar = {16.62e-6, 17.62e-6, 18.60e-6, 19.54e-6, 20.47e-6, 21.37e-6, 22.24e-6, 23.10e-6};
     QVector<double> mu10bar = {16.70e-6, 17.70e-6, 18.67e-6, 19.62e-6, 20.54e-6, 21.43e-6, 22.31e-6, 23.16e-6};
-    for (int i = 0; i < muT.size(); i++){;
+    for (int i = 0; i < muT.size(); i++){
         muAir[1].append(qMakePair(muT[i], mu1bar[i]));
         muAir[5].append(qMakePair(muT[i], mu5bar[i]));
         muAir[10].append(qMakePair(muT[i], mu10bar[i]));
     }
+
+    QVector<double> cpWT = {0.01, 10, 20, 25, 30, 40, 50, 60, 70, 80, 90, 99.606};
+    QVector<double> cpW1 = {4.2194e+3, 4.1952e+3, 4.1841e+3, 4.1813e+3, 4.1798e+3, 4.1794e+3, 4.1813e+3, 4.1850e+3, 4.1901e+3, 4.1968e+3, 4.2052e+3, 4.2152e+3};
+    for (int i = 0; i < cpWT.size(); i++) cpW[1].append(qMakePair(cpWT[i], cpW1[i]));   // In this case, (simple interpolation) use only P = 1
+
+    QVector<double> cpAirT = {260, 280, 300, 320, 340, 360, 380, 400};
+    QVector<double> cpAir1bar = {1.006e+3, 1.006e+3, 1.007e+3, 1.007e+3, 1.009e+3, 1.010e+3, 1.012e+3, 1.014e+3};
+    QVector<double> cpAir5bar = {1.015e+3, 1.014e+3, 1.013e+3, 1.013e+3, 1.013e+3, 1.014e+3, 1.016e+3, 1.018e+3};
+    QVector<double> cpAir10bar = {1.026e+3, 1.023e+3, 1.021e+3, 1.020e+3, 1.019e+3, 1.019e+3, 1.020e+3, 1.022e+3};
+    for (int i = 0; i < cpAirT.size(); i++){
+        cpAir[1].append(qMakePair(cpAirT[i], cpAir1bar[i]));
+        cpAir[5].append(qMakePair(cpAirT[i], cpAir5bar[i]));
+        cpAir[10].append(qMakePair(cpAirT[i], cpAir10bar[i]));
+    }
+
 
     /* For testing puporses
     interpolate(390, 7.5, muAir);
@@ -459,7 +474,7 @@ double MainWindow::mean(int begin, int end, QVector<double> vector)
     return mean;
 }
 
-double MainWindow::interpolate(double T, double P, QMap<int, QVector<QPair<int, double> > > prop)
+double MainWindow::interpolate(double T, double P, QMap<int, QVector<QPair<double, double> > > prop)
 {
     // First we assure that  T and P are in the range of data
     if (P < prop.firstKey() || P > prop.lastKey() || T < prop.first()[0].first || T > prop.first()[prop.first().size() - 1].first){
@@ -506,8 +521,6 @@ double MainWindow::interpolate(double T, double P, QMap<int, QVector<QPair<int, 
 
         return propResult;
     }
-
-    return 0;
 }
 
 void MainWindow::calculateResults()
@@ -516,6 +529,7 @@ void MainWindow::calculateResults()
 
     int indTi = importedData[0].indexOf(ui->tiBox->value());
     int indTf = importedData[0].indexOf(ui->tfBox->value());
+    double mw = ui->massFlowBox->value();
 
     if ( indTi == -1 || indTi > indTf ){
         indTi = 0;
@@ -532,8 +546,8 @@ void MainWindow::calculateResults()
     QVector<double> meansVector;
 
     // LMTD / Pressure Drop / Air Velocity
-    QVector<double> logDiffT, pressureDrop, uAir, reAir, qW;
-    double tOutA, tInA, tOutW, tInW, lmtd, pOutA, pInA, uA, muA;
+    QVector<double> logDiffT, pressureDrop, uAir, reAir, qW, qAir, qLosses, globalU;
+    double tOutA, tInA, tOutW, tInW, lmtd, pOutA, pInA, uA, muA, cpA, mAir;
     for (int i = indTi; i < indTf; i++){
         // LMTD
         tOutW = (importedData[1][i] + importedData[2][i])/2;
@@ -558,17 +572,39 @@ void MainWindow::calculateResults()
         else reAir.push_back(0);
 
         // qW
-        // Add CPW data to do interpolation
+        // P for cpW = 1
+        qW.push_back(mw*1e-3 * interpolate((tOutW + tInW)/2, 1, cpW)*(tOutW - tInW));
+
+        // qAir
+        cpA = interpolate(((tOutA + tInA)/2)+273.15, (pOutA + pInA)/2, cpAir);
+        mAir = pOutA*1e+5*importedData[7][i] / (287.058*(tOutA + 273.15)*3600); // Mass flow rate of air
+        if (int(cpA) != 0) qAir.push_back(mAir*cpA*(tInA - tOutA));
+        else qAir.push_back(0);
+
+        // heat losses
+        qLosses.push_back(mAir*cpA*(tInA - tOutA) - mw*1e-3 * interpolate((tOutW + tInW)/2, 1, cpW)*(tOutW - tInW));
+
+        // U global heat transfer coefficient
+        globalU.push_back(qW[i-indTi]/(modelParameters["heatTransferArea"]*(int(lmtd) == 0 ? 1 : lmtd)));
     }
+
 
     meansVector.push_back(mean(0,logDiffT.size(),logDiffT)); // [0]
     meansVector.push_back(mean(0,pressureDrop.size(),pressureDrop)); // [1]
     meansVector.push_back(mean(0,uAir.size(),uAir)); // [2]
     meansVector.push_back(mean(0,reAir.size(),reAir)); // [3]
+    meansVector.push_back(mean(0, qW.size(), qW)); // [4]
+    meansVector.push_back(mean(0, qAir.size(), qAir)); // [5]
+    meansVector.push_back(mean(0, qLosses.size(), qLosses)); // [6]
+    meansVector.push_back(mean(0, globalU.size(), globalU)); // [7]
     resultsMatrix.push_back(logDiffT); // [0]
     resultsMatrix.push_back(pressureDrop); // [1]
     resultsMatrix.push_back(uAir); // [2]
     resultsMatrix.push_back(reAir); // [3]
+    resultsMatrix.push_back(qW);
+    resultsMatrix.push_back(qAir);
+    resultsMatrix.push_back(qLosses);
+    resultsMatrix.push_back(globalU);
 
     // Get all choosen results to be plotted
     QModelIndex indResults;
@@ -588,10 +624,13 @@ void MainWindow::calculateResults()
     }
 
     // Add options to plot results after
-    QVector<QString> optionsForTable3 = {"LMTD", "Pressure Drop", "Air Velocity", "Reynolds Nb (Air)"};
+    QVector<QString> optionsForTable3;
+    optionsForTable3 = {"LMTD", "Pressure Drop", "Air Velocity", "Reynolds Nb (Air)",
+                                         "Heat transfered to water", "Heat lost from Air", "Lost heat",
+                                        "Global heat transfer coefficient"};
     auto plotModelTable3 = new QStandardItemModel();
 
-
+    plot3CheckBoxes.clear();
     for (int i = 0; i < optionsForTable3.size(); i++){
         QStandardItem *itemCheckBox = new QStandardItem(true);
         itemCheckBox->setCheckable(true);
@@ -609,11 +648,13 @@ void MainWindow::calculateResults()
         }
         itemCheckBox->setText(optionsForTable3[i]);
         plotModelTable3->setItem(i,0,itemCheckBox);
-
+        plot3CheckBoxes.push_back(itemCheckBox); // Copy the adress for later use
         QStandardItem *itemMean = new QStandardItem(QString("%0").arg(QString::number(meansVector[i])));
         plotModelTable3->setItem(i,1,itemMean);
+
     }
 
+    connect(plotModelTable3, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(cellBoxChanged(QStandardItem*)));
     plotModelTable3->setHeaderData(0,Qt::Horizontal,"Result");
     plotModelTable3->setHeaderData(1,Qt::Horizontal,"Mean");
     ui->plotTable3->setModel(plotModelTable3);
@@ -658,6 +699,51 @@ void MainWindow::calculateResults()
     ui->plotTable2->verticalHeader()->show();
 
 
+}
+
+void MainWindow::cellBoxChanged(QStandardItem* cell)
+{
+    //! Function that let the user only check boxes that have the same unit for comparison
+    //! Because if not, there'll be to many different axis to plot
+    /* Just to remember:
+     * [0] LMTD
+     * [1] Pressure Drop
+     * [2] Air velocity
+     * [3] Reynolds nb (Air)
+     * [4] Heat transfered to water
+     * [5] Heat lost from air
+     * [6] Heat losses
+     * [7] U
+     * So different axis are:
+     * [0] °C
+     * [1] bar
+     * [2] m/s
+     * [3] --
+     * [4][5][6] J
+     * [7] W/(m2*K)
+     * */
+
+    //qDebug() << "here" << cell->index().row();
+
+    QModelIndex indResults;
+
+    // In order to store the already marked cases
+    for (int i = 0; i < ui->plotTable3->model()->rowCount(); i++){
+        indResults = ui->plotTable3->model()->index(i,0,QModelIndex());
+    /* PROBLEM WITH FUNCTION CALLING ITSELF WHEN CHANGING CHECKSTATE
+        qDebug() << "\n cellrow: " << cell->index().row() <<
+                    "\n i: " << i <<
+                    "\n Check state: " << (indResults.data(Qt::CheckStateRole) == Qt::Checked ? "Checked" : "Unchecked");
+
+        if ((cell->index().row() == 4 || cell->index().row() == 5 || cell->index().row() == 6)
+                && (i == 4 || i == 5 || i == 6)){
+            if (indResults.data(Qt::CheckStateRole) == Qt::Checked) plot3CheckBoxes[i]->setCheckable(Qt::Checked);
+            else plot3CheckBoxes[i]->setCheckable(Qt::Unchecked);
+        }
+        else if (cell->index().row() == i) plot3CheckBoxes[i]->setCheckable(Qt::Checked);
+        else plot3CheckBoxes[i]->setCheckable(Qt::Unchecked);
+        */
+    }
 }
 
 void MainWindow::on_comboBoxNu_activated(const QString &arg1)
@@ -1523,7 +1609,7 @@ void MainWindow::on_plotResultsButton2_clicked()
 
 
         int indTi = importedData[0].indexOf(ui->tiBox->value());
-        int indTf = importedData[0].indexOf(ui->tfBox->value());
+        //int indTf = importedData[0].indexOf(ui->tfBox->value());
 
         // Get all choosen results to be plotted
         QModelIndex indResults;
@@ -1552,7 +1638,7 @@ void MainWindow::on_plotResultsButton2_clicked()
         }
 
         ui->plotResults2->xAxis->setLabel("[s]");
-        ui->plotResults2->yAxis->setLabel("ºC");
+        ui->plotResults2->yAxis->setLabel("ºC"); // Change that to only make possible to select data that have the same unit
 
         // Set Ranges
         ui->plotResults2->rescaleAxes();

@@ -24,6 +24,7 @@ private slots:
 
 private:
     Ui::AddCorrelation *ui;
+    bool verifyInputValues();
 
 signals:
     void sendNewSignal();

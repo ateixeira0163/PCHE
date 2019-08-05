@@ -42,6 +42,8 @@ public:
 
 
 private slots:
+    // ============ Input Tab methods ========== //
+
     void on_actionAbout_triggered();
     void on_rectangleButton_clicked();
     void on_circularButton_clicked();
@@ -53,26 +55,34 @@ private slots:
     void on_comboBoxHotFluid_activated(const QString &arg1);
     void on_comboBoxColdFluid_activated(const QString &arg1);
     void on_comboBoxNu_activated(const QString &arg1);
-    void on_searchButton_clicked();
-    void on_addNewButton_clicked();
-
     void initList();
     void addNewFluid();
     void addNewNusselt();
+
+    // =========== Correlations Tab methods ======= //
+
     void loadCorrelations();
+    void on_addNewButton_clicked();
     void addCorrelations();
     void showCorrelations();
-    double mean(int begin, int end, QVector<double> vector);
-    double interpolate(double T, double P, QMap<int, QVector<QPair<double,double>>> prop);
-    void calculateResults();
-
-    void on_tableView_doubleClicked(const QModelIndex &index);
+    void on_searchButton_clicked();
     void on_prInputButton_clicked();
     void on_reInputButton_clicked();
     void on_deleteButton_clicked();
+    void on_tableView_doubleClicked(const QModelIndex &index);
     void on_plotButton_clicked();
+
+    // =========== Results Tab methods ============ //
+
     void on_importResults_clicked();
     void on_plotResults_clicked();
+
+    // =========== Experimental Analysis methods === //
+
+    void calculateResults();
+    void cellBoxChanged(QStandardItem* cell);
+    void on_importResultsButton_clicked();
+    void on_plotResultsButton_clicked();
     void refreshRange(int minValue, int maxValue);
     void contextMenuRequest(QPoint pos);
     void hideAllErrorBars();
@@ -80,13 +90,13 @@ private slots:
     void showConfidenceDetails();
     void moveLegend();
     void hideLegend();
-    void on_importResultsButton_clicked();
-    void on_plotResultsButton_clicked();
     void on_plotResultsButton2_clicked();
-
     void on_pushButton_clicked();
 
-    void cellBoxChanged(QStandardItem* cell);
+    // ========== Other functions ============== //
+
+    double mean(int begin, int end, QVector<double> vector);
+    double interpolate(double T, double P, QMap<int, QVector<QPair<double,double>>> prop);
 
 private:
     Ui::MainWindow *ui;

@@ -32,7 +32,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -908,361 +908,6 @@ background-repeat: none;
         <string>Correlations</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_5">
-        <item row="0" column="0">
-         <widget class="QGroupBox" name="groupBox">
-          <property name="minimumSize">
-           <size>
-            <width>351</width>
-            <height>271</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Test section</string>
-          </property>
-          <widget class="QLabel" name="label_2">
-           <property name="geometry">
-            <rect>
-             <x>30</x>
-             <y>30</y>
-             <width>51</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Reynolds</string>
-           </property>
-          </widget>
-          <widget class="QSpinBox" name="reMinBox">
-           <property name="geometry">
-            <rect>
-             <x>100</x>
-             <y>30</y>
-             <width>71</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="maximum">
-            <number>999999</number>
-           </property>
-          </widget>
-          <widget class="QSpinBox" name="reMaxBox">
-           <property name="geometry">
-            <rect>
-             <x>180</x>
-             <y>30</y>
-             <width>71</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="maximum">
-            <number>9999999</number>
-           </property>
-          </widget>
-          <widget class="QLabel" name="reMinLabel">
-           <property name="geometry">
-            <rect>
-             <x>100</x>
-             <y>15</y>
-             <width>21</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>min</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="reMaxLabel">
-           <property name="geometry">
-            <rect>
-             <x>180</x>
-             <y>15</y>
-             <width>24</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>max</string>
-           </property>
-          </widget>
-          <widget class="QDoubleSpinBox" name="prMaxBox">
-           <property name="geometry">
-            <rect>
-             <x>180</x>
-             <y>70</y>
-             <width>71</width>
-             <height>22</height>
-            </rect>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_9">
-           <property name="geometry">
-            <rect>
-             <x>30</x>
-             <y>70</y>
-             <width>51</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Prandtl</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="prMinLabel">
-           <property name="geometry">
-            <rect>
-             <x>100</x>
-             <y>55</y>
-             <width>21</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>min</string>
-           </property>
-          </widget>
-          <widget class="QDoubleSpinBox" name="prMinBox">
-           <property name="geometry">
-            <rect>
-             <x>100</x>
-             <y>70</y>
-             <width>71</width>
-             <height>22</height>
-            </rect>
-           </property>
-          </widget>
-          <widget class="QLabel" name="prMaxLabel">
-           <property name="geometry">
-            <rect>
-             <x>180</x>
-             <y>55</y>
-             <width>24</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>max</string>
-           </property>
-          </widget>
-          <widget class="QPushButton" name="searchButton">
-           <property name="geometry">
-            <rect>
-             <x>260</x>
-             <y>200</y>
-             <width>75</width>
-             <height>23</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Search</string>
-           </property>
-           <property name="autoDefault">
-            <bool>true</bool>
-           </property>
-           <property name="default">
-            <bool>true</bool>
-           </property>
-          </widget>
-          <widget class="QComboBox" name="fluidBox">
-           <property name="geometry">
-            <rect>
-             <x>100</x>
-             <y>100</y>
-             <width>221</width>
-             <height>21</height>
-            </rect>
-           </property>
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_20">
-           <property name="geometry">
-            <rect>
-             <x>30</x>
-             <y>100</y>
-             <width>51</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Fluid</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_21">
-           <property name="geometry">
-            <rect>
-             <x>30</x>
-             <y>130</y>
-             <width>51</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Section</string>
-           </property>
-          </widget>
-          <widget class="QComboBox" name="sectionBox">
-           <property name="geometry">
-            <rect>
-             <x>100</x>
-             <y>130</y>
-             <width>101</width>
-             <height>21</height>
-            </rect>
-           </property>
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_22">
-           <property name="geometry">
-            <rect>
-             <x>30</x>
-             <y>160</y>
-             <width>51</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Border</string>
-           </property>
-          </widget>
-          <widget class="QComboBox" name="borderBox">
-           <property name="geometry">
-            <rect>
-             <x>100</x>
-             <y>160</y>
-             <width>221</width>
-             <height>21</height>
-            </rect>
-           </property>
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_23">
-           <property name="geometry">
-            <rect>
-             <x>210</x>
-             <y>130</y>
-             <width>51</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Angle</string>
-           </property>
-          </widget>
-          <widget class="QDoubleSpinBox" name="angleBox">
-           <property name="geometry">
-            <rect>
-             <x>250</x>
-             <y>130</y>
-             <width>71</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="suffix">
-            <string>°</string>
-           </property>
-           <property name="maximum">
-            <double>360.000000000000000</double>
-           </property>
-          </widget>
-          <widget class="QPushButton" name="addNewButton">
-           <property name="geometry">
-            <rect>
-             <x>170</x>
-             <y>200</y>
-             <width>80</width>
-             <height>23</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Add new</string>
-           </property>
-           <property name="autoDefault">
-            <bool>true</bool>
-           </property>
-          </widget>
-          <widget class="QPushButton" name="prInputButton">
-           <property name="geometry">
-            <rect>
-             <x>260</x>
-             <y>70</y>
-             <width>59</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Range</string>
-           </property>
-          </widget>
-          <widget class="QPushButton" name="reInputButton">
-           <property name="geometry">
-            <rect>
-             <x>260</x>
-             <y>30</y>
-             <width>59</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Range</string>
-           </property>
-          </widget>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="QGroupBox" name="groupBox_4">
           <property name="minimumSize">
@@ -1277,8 +922,8 @@ background-repeat: none;
           <layout class="QFormLayout" name="formLayout">
            <item row="0" column="0">
             <layout class="QGridLayout" name="gridLayout_4">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_26">
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_27">
                <property name="maximumSize">
                 <size>
                  <width>70</width>
@@ -1291,10 +936,7 @@ background-repeat: none;
                 </font>
                </property>
                <property name="text">
-                <string>Expression</string>
-               </property>
-               <property name="wordWrap">
-                <bool>true</bool>
+                <string>Reference</string>
                </property>
               </widget>
              </item>
@@ -1320,8 +962,21 @@ background-repeat: none;
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_27">
+             <item row="2" column="1">
+              <widget class="QPlainTextEdit" name="notesBoxInfo">
+               <property name="maximumSize">
+                <size>
+                 <width>150</width>
+                 <height>150</height>
+                </size>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_26">
                <property name="maximumSize">
                 <size>
                  <width>70</width>
@@ -1334,19 +989,9 @@ background-repeat: none;
                 </font>
                </property>
                <property name="text">
-                <string>Reference</string>
+                <string>Expression</string>
                </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPlainTextEdit" name="referenceBoxInfo">
-               <property name="maximumSize">
-                <size>
-                 <width>150</width>
-                 <height>150</height>
-                </size>
-               </property>
-               <property name="readOnly">
+               <property name="wordWrap">
                 <bool>true</bool>
                </property>
               </widget>
@@ -1369,8 +1014,8 @@ background-repeat: none;
                </property>
               </widget>
              </item>
-             <item row="2" column="1">
-              <widget class="QPlainTextEdit" name="notesBoxInfo">
+             <item row="1" column="1">
+              <widget class="QPlainTextEdit" name="referenceBoxInfo">
                <property name="maximumSize">
                 <size>
                  <width>150</width>
@@ -1461,6 +1106,710 @@ background-repeat: none;
             </layout>
            </item>
           </layout>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBox">
+          <property name="minimumSize">
+           <size>
+            <width>351</width>
+            <height>271</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Test section</string>
+          </property>
+          <widget class="QLabel" name="label_2">
+           <property name="geometry">
+            <rect>
+             <x>30</x>
+             <y>30</y>
+             <width>51</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Reynolds</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_9">
+           <property name="geometry">
+            <rect>
+             <x>30</x>
+             <y>70</y>
+             <width>51</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Prandtl</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="searchButton">
+           <property name="geometry">
+            <rect>
+             <x>260</x>
+             <y>340</y>
+             <width>75</width>
+             <height>23</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Search</string>
+           </property>
+           <property name="autoDefault">
+            <bool>true</bool>
+           </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="fluidBox">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>100</y>
+             <width>221</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_20">
+           <property name="geometry">
+            <rect>
+             <x>30</x>
+             <y>100</y>
+             <width>51</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Fluid</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_21">
+           <property name="geometry">
+            <rect>
+             <x>30</x>
+             <y>130</y>
+             <width>51</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Section</string>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="sectionBox">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>130</y>
+             <width>101</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_22">
+           <property name="geometry">
+            <rect>
+             <x>30</x>
+             <y>228</y>
+             <width>51</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Border</string>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="borderBox">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>228</y>
+             <width>221</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_23">
+           <property name="geometry">
+            <rect>
+             <x>30</x>
+             <y>204</y>
+             <width>51</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Angle</string>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="angleBox">
+           <property name="geometry">
+            <rect>
+             <x>90</x>
+             <y>204</y>
+             <width>71</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="suffix">
+            <string>°</string>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="addNewButton">
+           <property name="geometry">
+            <rect>
+             <x>170</x>
+             <y>340</y>
+             <width>80</width>
+             <height>23</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Add new</string>
+           </property>
+           <property name="autoDefault">
+            <bool>true</bool>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="prInputButton">
+           <property name="geometry">
+            <rect>
+             <x>260</x>
+             <y>70</y>
+             <width>59</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Range</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="reInputButton">
+           <property name="geometry">
+            <rect>
+             <x>260</x>
+             <y>30</y>
+             <width>59</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Range</string>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="angleMaxBox">
+           <property name="geometry">
+            <rect>
+             <x>170</x>
+             <y>204</y>
+             <width>71</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="suffix">
+            <string>°</string>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="diamMinBox">
+           <property name="geometry">
+            <rect>
+             <x>90</x>
+             <y>156</y>
+             <width>91</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="suffix">
+            <string> mm</string>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="diamMaxBox">
+           <property name="geometry">
+            <rect>
+             <x>193</x>
+             <y>158</y>
+             <width>101</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="suffix">
+            <string> mm</string>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_25">
+           <property name="geometry">
+            <rect>
+             <x>30</x>
+             <y>158</y>
+             <width>52</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Diameter</string>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="channelBox">
+           <property name="geometry">
+            <rect>
+             <x>120</x>
+             <y>180</y>
+             <width>101</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_29">
+           <property name="geometry">
+            <rect>
+             <x>30</x>
+             <y>180</y>
+             <width>78</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Channel Type</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_30">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>248</y>
+             <width>52</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Length</string>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="lMinBox">
+           <property name="geometry">
+            <rect>
+             <x>80</x>
+             <y>250</y>
+             <width>91</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="suffix">
+            <string> mm</string>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="lMaxBox">
+           <property name="geometry">
+            <rect>
+             <x>183</x>
+             <y>250</y>
+             <width>101</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="suffix">
+            <string> mm</string>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_31">
+           <property name="geometry">
+            <rect>
+             <x>17</x>
+             <y>278</y>
+             <width>49</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Viscosity</string>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="viscMinBox">
+           <property name="geometry">
+            <rect>
+             <x>77</x>
+             <y>280</y>
+             <width>91</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="suffix">
+            <string> mm</string>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="viscMaxBox">
+           <property name="geometry">
+            <rect>
+             <x>180</x>
+             <y>280</y>
+             <width>101</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="suffix">
+            <string> mm</string>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_32">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>310</y>
+             <width>75</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Temperature</string>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="tempMinBox">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>310</y>
+             <width>91</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="suffix">
+            <string> mm</string>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="tempMaxBox">
+           <property name="geometry">
+            <rect>
+             <x>203</x>
+             <y>310</y>
+             <width>101</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="suffix">
+            <string> mm</string>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="moreCorrelationsButton">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>350</y>
+             <width>80</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>+More</string>
+           </property>
+          </widget>
+          <widget class="QCheckBox" name="reCheckBox">
+           <property name="geometry">
+            <rect>
+             <x>320</x>
+             <y>40</y>
+             <width>14</width>
+             <height>15</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+          <widget class="QCheckBox" name="prCheckBox">
+           <property name="geometry">
+            <rect>
+             <x>320</x>
+             <y>80</y>
+             <width>14</width>
+             <height>15</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+          <widget class="QCheckBox" name="dCheckBox">
+           <property name="geometry">
+            <rect>
+             <x>310</x>
+             <y>160</y>
+             <width>14</width>
+             <height>15</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+          <widget class="QCheckBox" name="angleCheckBox">
+           <property name="geometry">
+            <rect>
+             <x>260</x>
+             <y>210</y>
+             <width>14</width>
+             <height>15</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+          <widget class="QCheckBox" name="lCheckBox">
+           <property name="geometry">
+            <rect>
+             <x>290</x>
+             <y>250</y>
+             <width>14</width>
+             <height>15</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+          <widget class="QCheckBox" name="viscCheckBox">
+           <property name="geometry">
+            <rect>
+             <x>290</x>
+             <y>280</y>
+             <width>14</width>
+             <height>15</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+          <widget class="QCheckBox" name="tempCheckBox">
+           <property name="geometry">
+            <rect>
+             <x>310</x>
+             <y>310</y>
+             <width>14</width>
+             <height>15</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+          <widget class="QWidget" name="">
+           <property name="geometry">
+            <rect>
+             <x>180</x>
+             <y>55</y>
+             <width>66</width>
+             <height>49</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <item>
+             <widget class="QLabel" name="prMaxLabel">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>max</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="prMaxBox"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>15</y>
+             <width>76</width>
+             <height>49</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QLabel" name="reMinLabel">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>min</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="reMinBox">
+              <property name="maximum">
+               <number>999999</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>53</y>
+             <width>66</width>
+             <height>51</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <widget class="QLabel" name="prMinLabel">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>min</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="prMinBox"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="">
+           <property name="geometry">
+            <rect>
+             <x>180</x>
+             <y>15</y>
+             <width>83</width>
+             <height>49</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QLabel" name="reMaxLabel">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>max</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="reMaxBox">
+              <property name="maximum">
+               <number>9999999</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>

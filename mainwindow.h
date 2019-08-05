@@ -66,8 +66,8 @@ private slots:
     void addCorrelations();
     void showCorrelations();
     void on_searchButton_clicked();
-    void on_prInputButton_clicked();
-    void on_reInputButton_clicked();
+    //void on_prInputButton_clicked();
+    //void on_reInputButton_clicked();
     void on_deleteButton_clicked();
     void on_tableView_doubleClicked(const QModelIndex &index);
     void on_plotButton_clicked();

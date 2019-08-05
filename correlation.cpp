@@ -16,20 +16,20 @@ Correlation::Correlation(QString inExpr, QString inAuthor,
     // Set the values
 
     // Compare input values to set "" to NULL
-    expr = (inExpr == "" ? nullptr : inExpr);       // If/Else short statement
-    author = (inAuthor == "" ? nullptr : inAuthor); // (condition ? if_true : if_false)
+    expr = (inExpr == "--" ? nullptr : inExpr);       // If/Else short statement
+    author = (inAuthor == "--" ? nullptr : inAuthor); // (condition ? if_true : if_false)
     nuRange = ((inNuRange[0] == 0 && inNuRange[1] == 0) ? QVector<int> {NULL,NULL} : inNuRange);
     reV = reVar;
     prRange = ((inPrRange[0] < 0.00001 && inPrRange[1] < 0.00001) ? QVector<double> {NULL,NULL} : inPrRange);
     prV = prVar;
-    fluid = (inFluid == "" ? nullptr : inFluid);
-    section = (inSection == "" ? nullptr : inSection);
+    fluid = (inFluid == "--" ? nullptr : inFluid);
+    section = (inSection == "--" ? nullptr : inSection);
     diamRange = ((inDiam[0] < 1e-6 && inDiam[1] < 1e-6) ? QVector<double> {NULL,NULL} : inDiam);
     diamV = diamVar;
-    channel = (inChannelType == "" ? nullptr : inChannelType);
+    channel = (inChannelType == "--" ? nullptr : inChannelType);
     angleRange = ((fabs(inAngle[0]) < 1e-6 && fabs(inAngle[1]) < 1e-6) ? QVector<double> {NULL,NULL} : inAngle);
     angleV = angleVar;
-    border = (inBorder == "" ? nullptr : inBorder);
+    border = (inBorder == "--" ? nullptr : inBorder);
     lengthRange = ((inLength[0] < 1e-6 && inLength[1] < 1e-6) ? QVector<double> {NULL,NULL} : inLength);
     lV = lengthVar;
     viscRange = ((inVisc[0] < 1e-6 && inVisc[1] < 1e-6) ? QVector<double> {NULL, NULL} : inVisc);
@@ -155,7 +155,7 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
         //qDebug() << "It's outside Reynolds range";
         results.append(false);
     }
-    if (cReVar == reV){     // -- results[1] ==============================
+    if (cReVar && reV){     // -- results[1] ==============================
         score += 2;
         results.append(true);
     }
@@ -184,7 +184,7 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
         //qDebug() << "It's outside Prandtl range";
         results.append(false);
     }
-    if (cPrVar == prV){     // -- results[3] ==============================
+    if (cPrVar && prV){     // -- results[3] ==============================
         score += 2;
         results.append(true);
     }
@@ -192,7 +192,7 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
 
     // Comparing Fluid    // -- results[4] ==============================
 
-    if (cFluid == "" || fluid == nullptr){
+    if (cFluid == "--" || fluid == nullptr){
         //qDebug() << "Could not compare, since there's no value for Fluid";
         results.append(false);
     }
@@ -208,7 +208,7 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
 
     // Comparing the section  // -- results[5] ==============================
 
-    if (cSection == "" || section == nullptr){
+    if (cSection == "--" || section == nullptr){
         //qDebug() << "Could not compare, since there's no value for Section";
         results.append(false);
     }
@@ -242,7 +242,7 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
     else {
         results.append(false);
     }
-    if (cDVar == diamV){     // -- results[7] ==============================
+    if (cDVar && diamV){     // -- results[7] ==============================
         score += 2;
         results.append(true);
     }
@@ -250,7 +250,7 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
 
     // Comparing the channel type  // -- results[8] ==============================
 
-    if (cChannel == "" || channel == nullptr){
+    if (cChannel == "--" || channel == nullptr){
         results.append(false);
     }
     else if (cChannel == channel){
@@ -282,7 +282,7 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
     else {
         results.append(false);
     }
-    if (cAngVar == angleV){     // -- results[10] ==============================
+    if (cAngVar && angleV){     // -- results[10] ==============================
         score += 2;
         results.append(true);
     }
@@ -290,7 +290,7 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
 
     // Comparing border type // -- results[11] ==============================
 
-    if (cBorder == "" || border == nullptr){
+    if (cBorder == "--" || border == nullptr){
         //qDebug() << "Could not compare, since there's no value for Border type";
         results.append(false);
     }
@@ -324,7 +324,7 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
     else {
         results.append(false);
     }
-    if (cLenVar == lV){     // -- results[13] ==============================
+    if (cLenVar && lV){     // -- results[13] ==============================
         score += 2;
         results.append(true);
     }
@@ -350,7 +350,7 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
     else {
         results.append(false);
     }
-    if (cViscVar == viscV){     // -- results[15] ==============================
+    if (cViscVar && viscV){     // -- results[15] ==============================
         score += 2;
         results.append(true);
     }
@@ -376,7 +376,7 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
     else {
         results.append(false);
     }
-    if (tempVar == tempV){     // -- results[17] ==============================
+    if (tempVar && tempV){     // -- results[17] ==============================
         score += 2;
         results.append(true);
     }

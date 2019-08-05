@@ -9,5 +9,6 @@
         <file>checkmarkRed.png</file>
         <file>checkmarkGreen.png</file>
         <file>checkmarkYellow.png</file>
+        <file>fx.png</file>
     </qresource>
 </RCC>

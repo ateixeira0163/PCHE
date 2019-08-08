@@ -124,3 +124,33 @@ bool AddCorrelation::verifyInputValues()
 
     return true;
 }
+
+void AddCorrelation::on_plusFluidButton_clicked()
+{
+
+    QComboBox* moreFluids = new QComboBox;
+    moreFluids->addItem("Test item");
+
+    ui->verticalFluidLayout->addWidget(moreFluids);
+
+    /*
+    if (firstFluidLayout){
+        QVBoxLayout* layout = new QVBoxLayout;
+        layout->addWidget(ui->fluidBox);
+        layout->addWidget(moreFluids);
+        ui->gridLayout->addLayout(layout, 4, 1);
+        firstFluidLayout = false;
+        ui->fluidBox->setLayout(layout);
+        qDebug() << ui->gridLayout;
+        qDebug() << ui->fluidBox->layout();
+        qDebug() << layout;
+        qDebug() << ui->fluidBox->layoutDirection();
+    }
+    else{
+        ui->gridLayout->addWidget(moreFluids,5,1);
+        qDebug() << ui->gridLayout;
+        qDebug() << ui->fluidBox->layout();
+        qDebug() << ui->fluidBox->layoutDirection();
+    } */
+
+}

@@ -22,9 +22,13 @@ public:
 private slots:
     void on_buttonBox_accepted();
 
+    void on_plusFluidButton_clicked();
+
 private:
     Ui::AddCorrelation *ui;
     bool verifyInputValues();
+    bool firstFluidLayout = true;
+
 
 signals:
     void sendNewSignal();

@@ -56,6 +56,7 @@ protected:
     QVector<double> prRange, diamRange, angleRange, lengthRange, viscRange, tempRange;
     bool reV, prV, diamV, angleV, lV, viscV, tempV;
 
+
 };
 
 #endif // CORRELATION_H

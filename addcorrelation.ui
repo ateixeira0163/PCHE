@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>376</width>
+    <width>398</width>
     <height>635</height>
    </rect>
   </property>
@@ -84,19 +84,6 @@
          </item>
         </layout>
        </item>
-       <item>
-        <widget class="QCheckBox" name="reVarCheck">
-         <property name="maximumSize">
-          <size>
-           <width>14</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
      <item row="3" column="0">
@@ -111,7 +98,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="3" column="1" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout_8">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -165,14 +152,51 @@
       </widget>
      </item>
      <item row="4" column="1">
-      <widget class="QComboBox" name="fluidBox">
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-       <property name="currentText">
-        <string>--</string>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalFluidLayout">
+       <item>
+        <widget class="QComboBox" name="fluidBox">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="currentText">
+          <string>--</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBox"/>
+       </item>
+      </layout>
+     </item>
+     <item row="4" column="2">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QPushButton" name="plusFluidButton">
+         <property name="maximumSize">
+          <size>
+           <width>25</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="plusFluidButton_2">
+         <property name="maximumSize">
+          <size>
+           <width>25</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item row="5" column="0">
       <widget class="QLabel" name="label_6">
@@ -208,7 +232,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="6" column="1" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout_11">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -361,7 +385,7 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="1">
+     <item row="10" column="1" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout_13">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_12">
@@ -417,7 +441,7 @@
        </property>
       </widget>
      </item>
-     <item row="11" column="1">
+     <item row="11" column="1" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout_15">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_14">
@@ -526,7 +550,7 @@
        </property>
       </widget>
      </item>
-     <item row="13" column="1">
+     <item row="13" column="1" colspan="2">
       <widget class="QTextEdit" name="referenceBox">
        <property name="maximumSize">
         <size>
@@ -548,13 +572,26 @@
        </property>
       </widget>
      </item>
-     <item row="14" column="1">
+     <item row="14" column="1" colspan="2">
       <widget class="QTextEdit" name="notesBox">
        <property name="maximumSize">
         <size>
          <width>16777215</width>
          <height>100</height>
         </size>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QCheckBox" name="reVarCheck">
+       <property name="maximumSize">
+        <size>
+         <width>14</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
        </property>
       </widget>
      </item>

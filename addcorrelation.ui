@@ -6,16 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>486</width>
-    <height>687</height>
+    <width>357</width>
+    <height>692</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Add new correlation</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
+  <property name="windowIcon">
+   <iconset resource="images.qrc">
+    <normaloff>:/PCHEIcon.png</normaloff>:/PCHEIcon.png</iconset>
+  </property>
+  <layout class="QGridLayout" name="mainWindowGridLayout">
    <item row="0" column="0">
-    <layout class="QGridLayout" name="gridLayout">
+    <layout class="QGridLayout" name="mainGridLayout">
      <item row="5" column="1">
       <layout class="QVBoxLayout" name="fluidVLayout">
        <property name="spacing">
@@ -70,7 +74,7 @@
       </widget>
      </item>
      <item row="15" column="0">
-      <widget class="QLabel" name="label_14">
+      <widget class="QLabel" name="notesLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -118,7 +122,7 @@
       </widget>
      </item>
      <item row="11" column="0">
-      <widget class="QLabel" name="label_19">
+      <widget class="QLabel" name="lengthLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -173,7 +177,7 @@
       </layout>
      </item>
      <item row="9" column="0">
-      <widget class="QLabel" name="label_7">
+      <widget class="QLabel" name="angleLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -185,7 +189,7 @@
       </widget>
      </item>
      <item row="6" column="0">
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="sectionLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -253,7 +257,7 @@
       </widget>
      </item>
      <item row="14" column="0">
-      <widget class="QLabel" name="label_13">
+      <widget class="QLabel" name="referenceLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -345,7 +349,7 @@
       </widget>
      </item>
      <item row="12" column="0">
-      <widget class="QLabel" name="label_20">
+      <widget class="QLabel" name="viscosityLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -357,7 +361,7 @@
       </widget>
      </item>
      <item row="7" column="0">
-      <widget class="QLabel" name="label_18">
+      <widget class="QLabel" name="diameterLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -435,7 +439,7 @@
       </layout>
      </item>
      <item row="13" column="0">
-      <widget class="QLabel" name="label_21">
+      <widget class="QLabel" name="temperatureLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -447,7 +451,7 @@
       </widget>
      </item>
      <item row="8" column="0">
-      <widget class="QLabel" name="label_15">
+      <widget class="QLabel" name="channelLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -482,7 +486,7 @@
       </widget>
      </item>
      <item row="10" column="0">
-      <widget class="QLabel" name="label_8">
+      <widget class="QLabel" name="borderLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -635,7 +639,7 @@
      <item>
       <widget class="QPushButton" name="moreButton">
        <property name="text">
-        <string>More</string>
+        <string>+ More</string>
        </property>
       </widget>
      </item>
@@ -678,7 +682,9 @@
   <tabstop>angleBox</tabstop>
   <tabstop>borderBox</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="images.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
@@ -687,8 +693,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>475</x>
+     <y>676</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -703,8 +709,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>475</x>
+     <y>676</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

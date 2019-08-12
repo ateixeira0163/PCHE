@@ -14,6 +14,12 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
     ui->hiddenFluidButton_2->hide();
 
 
+    // Hide elements to be shown if user click '+ more' button afterwards
+    moreOptions(true);
+    ui->moreButton->setCheckable(true);
+    ui->moreButton->setChecked(false);
+
+
     /* Order list for the inputed parameters:
      * [0] - Expression
      * [1] - Author
@@ -129,6 +135,75 @@ void AddCorrelation::on_buttonBox_accepted()
 
 }
 
+void AddCorrelation::moreOptions(bool hide)
+{
+    if (hide){
+        ui->sectionBox->hide();
+        ui->sectionLabel->hide();
+        ui->diameterLabel->hide();
+        ui->dMaxBox->hide();
+        ui->dMinBox->hide();
+        ui->dVarCheck->hide();
+        ui->channelLabel->hide();
+        ui->channelTypeBox->hide();
+        ui->angleBox->hide();
+        ui->angleBoxMax->hide();
+        ui->angleLabel->hide();
+        ui->angleVarCheck->hide();
+        ui->borderBox->hide();
+        ui->borderLabel->hide();
+        ui->lengthLabel->hide();
+        ui->lMaxBox->hide();
+        ui->lMinBox->hide();
+        ui->lVarCheck->hide();
+        ui->viscMaxBox->hide();
+        ui->viscMinBox->hide();
+        ui->viscVarCheck->hide();
+        ui->viscosityLabel->hide();
+        ui->tempBoxMax->hide();
+        ui->tempBoxMin->hide();
+        ui->tempVarCheck->hide();
+        ui->temperatureLabel->hide();
+        ui->referenceBox->hide();
+        ui->referenceLabel->hide();
+        ui->notesBox->hide();
+        ui->notesLabel->hide();
+    }
+    else{
+        ui->sectionBox->show();
+        ui->sectionLabel->show();
+        ui->diameterLabel->show();
+        ui->dMaxBox->show();
+        ui->dMinBox->show();
+        ui->dVarCheck->show();
+        ui->channelLabel->show();
+        ui->channelTypeBox->show();
+        ui->angleBox->show();
+        ui->angleBoxMax->show();
+        ui->angleLabel->show();
+        ui->angleVarCheck->show();
+        ui->borderBox->show();
+        ui->borderLabel->show();
+        ui->lengthLabel->show();
+        ui->lMaxBox->show();
+        ui->lMinBox->show();
+        ui->lVarCheck->show();
+        ui->viscMaxBox->show();
+        ui->viscMinBox->show();
+        ui->viscVarCheck->show();
+        ui->viscosityLabel->show();
+        ui->tempBoxMax->show();
+        ui->tempBoxMin->show();
+        ui->tempVarCheck->show();
+        ui->temperatureLabel->show();
+        ui->referenceBox->show();
+        ui->referenceLabel->show();
+        ui->notesBox->show();
+        ui->notesLabel->show();
+    }
+    this->adjustSize();
+}
+
 bool AddCorrelation::verifyInputValues()
 {
     //! Function that verifies all given inputs and highlights if input is invalid
@@ -167,16 +242,29 @@ void AddCorrelation::on_plusFluidButton_clicked()
 
     // Connect newly created items
     connect(moreFluidsButton, SIGNAL(clicked()), this, SLOT(deleteFluidNewOptions()));
+
+    // Adjust window size
+    this->adjustSize();
 }
 
 void AddCorrelation::deleteFluidNewOptions()
 {
+    //! Delete more options to fluids that were added
+    // The idea is to search the sender pointer in the list and erase it
     for (int i = 0; i < newFluidsBoxes.size(); i++){
         if (newFluidsBoxes[i]->newButton == sender()){  // 'i' is the index in 'newFluidsBoxes'
             newFluidsBoxes[i]->newButton->hide();
             newFluidsBoxes[i]->newBox->hide();
             newFluidsBoxes.removeAt(i);
+            this->adjustSize();
             return;
         }
     }
+}
+
+void AddCorrelation::on_moreButton_clicked()
+{
+    moreOptions(!ui->moreButton->isChecked());
+    //ui->mainGridLayout->setGeometry(childrenRect());
+    ui->mainGridLayout->update();
 }

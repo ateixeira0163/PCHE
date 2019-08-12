@@ -27,9 +27,11 @@ public:
 
 private slots:
     void on_buttonBox_accepted();
-
+    void moreOptions(bool hide);
     void on_plusFluidButton_clicked();
     void deleteFluidNewOptions();
+
+    void on_moreButton_clicked();
 
 private:
     Ui::AddCorrelation *ui;

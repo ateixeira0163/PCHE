@@ -10,5 +10,6 @@
         <file>checkmarkGreen.png</file>
         <file>checkmarkYellow.png</file>
         <file>fx.png</file>
+        <file>PCHEIcon.png</file>
     </qresource>
 </RCC>

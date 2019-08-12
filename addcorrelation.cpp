@@ -12,7 +12,18 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
     ui->hiddenFluidButton->hide();
     ui->hiddenFluidBox_2->hide();
     ui->hiddenFluidButton_2->hide();
-
+    ui->hiddenSectionBox->hide();
+    ui->hiddenSectionBox_2->hide();
+    ui->hiddenSectionButton->hide();
+    ui->hiddenSectionButton_2->hide();
+    ui->hiddenChannelBox->hide();
+    ui->hiddenChannelBox_2->hide();
+    ui->hiddenChannelButton->hide();
+    ui->hiddenChannelButton_2->hide();
+    ui->hiddenBorderBox->hide();
+    ui->hiddenBorderBox_2->hide();
+    ui->hiddenBorderButton->hide();
+    ui->hiddenBorderButton_2->hide();
 
     // Hide elements to be shown if user click '+ more' button afterwards
     moreOptions(true);
@@ -76,14 +87,12 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
         }
     }
     file.close();
-    // Add a way to add multiple fluids while input a correlation
 }
 
 AddCorrelation::~AddCorrelation()
 {
     delete ui;
 }
-
 
 void AddCorrelation::on_buttonBox_accepted()
 {
@@ -98,16 +107,45 @@ void AddCorrelation::on_buttonBox_accepted()
     if(verifyInputValues()){ // Add function that verifies all given inputs
         QTextStream out(&file);
 
+        QString fluidsInput = ui->fluidBox->currentText();
+        for (int i = 0; i < newFluidsBoxes.size(); i++){
+            if (newFluidsBoxes[i]->newBox->currentText() != "" && newFluidsBoxes[i]->newBox->currentText() != "--"){
+                fluidsInput += "/";
+                fluidsInput += newFluidsBoxes[i]->newBox->currentText();
+            }
+        }
+        QString sectionInput = ui->sectionBox->currentText();
+        for (int i = 0; i < newSectionBoxes.size(); i++){
+            if (newSectionBoxes[i]->newBox->currentText() != "" && newSectionBoxes[i]->newBox->currentText() != "--"){
+                sectionInput += "/";
+                sectionInput += newSectionBoxes[i]->newBox->currentText();
+            }
+        }
+        QString channelInput = ui->channelTypeBox->currentText();
+        for (int i = 0; i < newSectionBoxes.size(); i++){
+            if (newChannelBoxes[i]->newBox->currentText() != "" && newChannelBoxes[i]->newBox->currentText() != "--"){
+                channelInput += "/";
+                channelInput += newChannelBoxes[i]->newBox->currentText();
+            }
+        }
+        QString borderInput = ui->borderBox->currentText();
+        for (int i = 0; i < newBorderBoxes.size(); i++){
+            if (newBorderBoxes[i]->newBox->currentText() != "" && newBorderBoxes[i]->newBox->currentText() != "--"){
+                borderInput += "/";
+                borderInput += newBorderBoxes[i]->newBox->currentText();
+            }
+        }
+
         out << ui->exprBox->text() << ";"
             << ui->authorBox->text() << ";"
             << ui->reMinBox->value() << "/" << ui->reMaxBox->value() << "/" << ui->reVarCheck->checkState() << ";"
             << ui->prMinBox->value() << "/" << ui->prMaxBox->value() << "/" << ui->prVarCheck->checkState() << ";"
-            << ui->fluidBox->currentText() << ";"
-            << ui->sectionBox->currentText() << ";"
+            << fluidsInput << ";"
+            << sectionInput << ";"
             << ui->dMinBox->value() << "/" << ui->dMaxBox->value() << "/" << ui->dVarCheck->checkState() << ";"
-            << ui->channelTypeBox->currentText() << ";"
+            << channelInput << ";"
             << ui->angleBox->value() << "/" << ui->angleBoxMax->value() << "/" << ui->angleVarCheck->checkState() << ";"
-            << ui->borderBox->currentText() << ";"
+            << borderInput << ";"
             << ui->lMinBox->value() << "/" << ui->lMaxBox->value() << "/" << ui->lVarCheck->checkState() << ";"
             << ui->viscMinBox->value() << "/" << ui->viscMaxBox->value() << "/" << ui->viscVarCheck->checkState() << ";"
             << ui->tempBoxMin->value() << "/" << ui->tempBoxMax->value() << "/" << ui->tempVarCheck->checkState() << ";"
@@ -121,10 +159,6 @@ void AddCorrelation::on_buttonBox_accepted()
                     tr("New correlation"),
                     tr("The new correlation has been added"));
 
-        /* Code to get new fluids
-        for (int i = 0; i < newFluidsBoxes.size(); i++){
-            qDebug() << newFluidsBoxes[i]->newBox->currentText();
-        } */
     }
     else{
         QMessageBox::information(
@@ -140,18 +174,21 @@ void AddCorrelation::moreOptions(bool hide)
     if (hide){
         ui->sectionBox->hide();
         ui->sectionLabel->hide();
+        ui->plusSectionButton->hide();
         ui->diameterLabel->hide();
         ui->dMaxBox->hide();
         ui->dMinBox->hide();
         ui->dVarCheck->hide();
         ui->channelLabel->hide();
         ui->channelTypeBox->hide();
+        ui->plusChannelButton->hide();
         ui->angleBox->hide();
         ui->angleBoxMax->hide();
         ui->angleLabel->hide();
         ui->angleVarCheck->hide();
         ui->borderBox->hide();
         ui->borderLabel->hide();
+        ui->plusBorderButton->hide();
         ui->lengthLabel->hide();
         ui->lMaxBox->hide();
         ui->lMinBox->hide();
@@ -168,22 +205,41 @@ void AddCorrelation::moreOptions(bool hide)
         ui->referenceLabel->hide();
         ui->notesBox->hide();
         ui->notesLabel->hide();
+        for (int i = 0; i < newFluidsBoxes.size(); i++){
+            newFluidsBoxes[i]->newButton->hide();
+            newFluidsBoxes[i]->newBox->hide();
+        }
+        for (int i = 0; i < newSectionBoxes.size(); i++){
+            newSectionBoxes[i]->newButton->hide();
+            newSectionBoxes[i]->newBox->hide();
+        }
+        for (int i = 0; i < newChannelBoxes.size(); i++){
+            newChannelBoxes[i]->newButton->hide();
+            newChannelBoxes[i]->newBox->hide();
+        }
+        for (int i = 0; i < newBorderBoxes.size(); i++){
+            newBorderBoxes[i]->newButton->hide();
+            newBorderBoxes[i]->newBox->hide();
+        }
     }
     else{
         ui->sectionBox->show();
         ui->sectionLabel->show();
+        ui->plusSectionButton->show();
         ui->diameterLabel->show();
         ui->dMaxBox->show();
         ui->dMinBox->show();
         ui->dVarCheck->show();
         ui->channelLabel->show();
         ui->channelTypeBox->show();
+        ui->plusChannelButton->show();
         ui->angleBox->show();
         ui->angleBoxMax->show();
         ui->angleLabel->show();
         ui->angleVarCheck->show();
         ui->borderBox->show();
         ui->borderLabel->show();
+        ui->plusBorderButton->show();
         ui->lengthLabel->show();
         ui->lMaxBox->show();
         ui->lMinBox->show();
@@ -200,8 +256,23 @@ void AddCorrelation::moreOptions(bool hide)
         ui->referenceLabel->show();
         ui->notesBox->show();
         ui->notesLabel->show();
+        for (int i = 0; i < newFluidsBoxes.size(); i++){
+            newFluidsBoxes[i]->newButton->show();
+            newFluidsBoxes[i]->newBox->show();
+        }
+        for (int i = 0; i < newSectionBoxes.size(); i++){
+            newSectionBoxes[i]->newButton->show();
+            newSectionBoxes[i]->newBox->show();
+        }
+        for (int i = 0; i < newChannelBoxes.size(); i++){
+            newChannelBoxes[i]->newButton->show();
+            newChannelBoxes[i]->newBox->show();
+        }
+        for (int i = 0; i < newBorderBoxes.size(); i++){
+            newBorderBoxes[i]->newButton->show();
+            newBorderBoxes[i]->newBox->show();
+        }
     }
-    this->adjustSize();
 }
 
 bool AddCorrelation::verifyInputValues()
@@ -242,9 +313,6 @@ void AddCorrelation::on_plusFluidButton_clicked()
 
     // Connect newly created items
     connect(moreFluidsButton, SIGNAL(clicked()), this, SLOT(deleteFluidNewOptions()));
-
-    // Adjust window size
-    this->adjustSize();
 }
 
 void AddCorrelation::deleteFluidNewOptions()
@@ -256,7 +324,6 @@ void AddCorrelation::deleteFluidNewOptions()
             newFluidsBoxes[i]->newButton->hide();
             newFluidsBoxes[i]->newBox->hide();
             newFluidsBoxes.removeAt(i);
-            this->adjustSize();
             return;
         }
     }
@@ -265,6 +332,142 @@ void AddCorrelation::deleteFluidNewOptions()
 void AddCorrelation::on_moreButton_clicked()
 {
     moreOptions(!ui->moreButton->isChecked());
-    //ui->mainGridLayout->setGeometry(childrenRect());
-    ui->mainGridLayout->update();
+}
+
+void AddCorrelation::on_plusSectionButton_clicked()
+{
+    // Creation of new objects
+    QComboBox* moreSection = new QComboBox;
+    QPushButton* moreSectionButton = new QPushButton;
+    newOptions* newSectionItems = new newOptions;
+
+    // Add then to List to be used later
+    newSectionItems->newBox = moreSection;
+    newSectionItems->newButton = moreSectionButton;
+    newSectionBoxes.push_back(newSectionItems);
+
+    // Add options existing options to it
+    moreSection->addItem("--");
+    moreSection->setCurrentIndex(0);
+    if (comboBoxOptions[1].size() != 0){
+        for (int i = 0; i < comboBoxOptions[1].size(); i++){
+            moreSection->addItem(comboBoxOptions[1][i]);
+        }
+    }
+    moreSection->setEditable(true);
+    moreSectionButton->setText("-");
+    moreSectionButton->setMaximumWidth(25);
+
+    // Add to Vertical Layout
+    ui->sectionVLayout->addWidget(moreSection);
+    ui->sectionVBLayout->addWidget(moreSectionButton);
+
+    // Connect newly created items
+    connect(moreSectionButton, SIGNAL(clicked()), this, SLOT(deleteSectionNewOptions()));
+}
+
+void AddCorrelation::deleteSectionNewOptions()
+{
+    //! Delete more options to sections that were added
+    // The idea is to search the sender pointer in the list and erase it
+    for (int i = 0; i < newSectionBoxes.size(); i++){
+        if (newSectionBoxes[i]->newButton == sender()){  // 'i' is the index in 'newSectionBoxes'
+            newSectionBoxes[i]->newButton->hide();
+            newSectionBoxes[i]->newBox->hide();
+            newSectionBoxes.removeAt(i);
+            return;
+        }
+    }
+}
+
+void AddCorrelation::on_plusBorderButton_clicked()
+{
+    // Creation of new objects
+    QComboBox* moreBorder = new QComboBox;
+    QPushButton* moreBorderButton = new QPushButton;
+    newOptions* newBorderItems = new newOptions;
+
+    // Add then to List to be used later
+    newBorderItems->newBox = moreBorder;
+    newBorderItems->newButton = moreBorderButton;
+    newBorderBoxes.push_back(newBorderItems);
+
+    // Add options existing options to it
+    moreBorder->addItem("--");
+    moreBorder->setCurrentIndex(0);
+    if (comboBoxOptions[3].size() != 0){
+        for (int i = 0; i < comboBoxOptions[3].size(); i++){
+            moreBorder->addItem(comboBoxOptions[3][i]);
+        }
+    }
+    moreBorder->setEditable(true);
+    moreBorderButton->setText("-");
+    moreBorderButton->setMaximumWidth(25);
+
+    // Add to Vertical Layout
+    ui->borderVLayout->addWidget(moreBorder);
+    ui->borderVBLayout->addWidget(moreBorderButton);
+
+    // Connect newly created items
+    connect(moreBorderButton, SIGNAL(clicked()), this, SLOT(deleteBorderNewOptions()));
+}
+
+void AddCorrelation::deleteBorderNewOptions()
+{
+    //! Delete more options to Borders that were added
+    // The idea is to search the sender pointer in the list and erase it
+    for (int i = 0; i < newBorderBoxes.size(); i++){
+        if (newBorderBoxes[i]->newButton == sender()){  // 'i' is the index in 'newBorderBoxes'
+            newBorderBoxes[i]->newButton->hide();
+            newBorderBoxes[i]->newBox->hide();
+            newBorderBoxes.removeAt(i);
+            return;
+        }
+    }
+}
+
+void AddCorrelation::on_plusChannelButton_clicked()
+{
+    // Creation of new objects
+    QComboBox* moreChannel = new QComboBox;
+    QPushButton* moreChannelButton = new QPushButton;
+    newOptions* newChannelItems = new newOptions;
+
+    // Add then to List to be used later
+    newChannelItems->newBox = moreChannel;
+    newChannelItems->newButton = moreChannelButton;
+    newChannelBoxes.push_back(newChannelItems);
+
+    // Add options existing options to it
+    moreChannel->addItem("--");
+    moreChannel->setCurrentIndex(0);
+    if (comboBoxOptions[2].size() != 0){
+        for (int i = 0; i < comboBoxOptions[2].size(); i++){
+            moreChannel->addItem(comboBoxOptions[2][i]);
+        }
+    }
+    moreChannel->setEditable(true);
+    moreChannelButton->setText("-");
+    moreChannelButton->setMaximumWidth(25);
+
+    // Add to Vertical Layout
+    ui->channelVLayout->addWidget(moreChannel);
+    ui->channelVBLayout->addWidget(moreChannelButton);
+
+    // Connect newly created items
+    connect(moreChannelButton, SIGNAL(clicked()), this, SLOT(deleteChannelNewOptions()));
+}
+
+void AddCorrelation::deleteChannelNewOptions()
+{
+    //! Delete more options to Channels that were added
+    // The idea is to search the sender pointer in the list and erase it
+    for (int i = 0; i < newChannelBoxes.size(); i++){
+        if (newChannelBoxes[i]->newButton == sender()){  // 'i' is the index in 'newChannelBoxes'
+            newChannelBoxes[i]->newButton->hide();
+            newChannelBoxes[i]->newBox->hide();
+            newChannelBoxes.removeAt(i);
+            return;
+        }
+    }
 }

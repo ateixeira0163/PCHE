@@ -1,13 +1,13 @@
 #include "correlation.h"
 
 Correlation::Correlation(QString inExpr, QString inAuthor,
-                         QVector<int> inNuRange, bool reVar,
+                         QVector<int> inReRange, bool reVar,
                          QVector<double> inPrRange, bool prVar,
-                         QString inFluid, QString inSection,
+                         QStringList inFluid, QStringList inSection,
                          QVector<double> inDiam, bool diamVar,
-                         QString inChannelType,
+                         QStringList inChannelType,
                          QVector<double> inAngle, bool angleVar,
-                         QString inBorder,
+                         QStringList inBorder,
                          QVector<double> inLength, bool lengthVar,
                          QVector<double> inVisc, bool viscVar,
                          QVector<double> inTemp, bool tempVar,
@@ -16,9 +16,35 @@ Correlation::Correlation(QString inExpr, QString inAuthor,
     // Set the values
 
     // Compare input values to set "" to NULL
+
+
+    expr = inExpr;      // If/Else short statement
+    author = inAuthor; // (condition ? if_true : if_false)
+    reRange = inReRange;
+    reV = reVar;
+    prRange = inPrRange;
+    prV = prVar;
+    fluid = inFluid;
+    section = inSection;
+    diamRange = inDiam;
+    diamV = diamVar;
+    channel = inChannelType;
+    angleRange = inAngle;
+    angleV = angleVar;
+    border = inBorder;
+    lengthRange = inLength;
+    lV = lengthVar;
+    viscRange = inVisc;
+    viscV = viscVar;
+    tempRange = inTemp;
+    tempV = tempVar;
+    reference = inReference;
+    notes = inNotes;
+
+    /*
     expr = (inExpr == "--" ? nullptr : inExpr);       // If/Else short statement
     author = (inAuthor == "--" ? nullptr : inAuthor); // (condition ? if_true : if_false)
-    nuRange = ((inNuRange[0] == 0 && inNuRange[1] == 0) ? QVector<int> {NULL,NULL} : inNuRange);
+    reRange = ((inReRange[0] == 0 && inReRange[1] == 0) ? QVector<int> {NULL,NULL} : inReRange);
     reV = reVar;
     prRange = ((inPrRange[0] < 0.00001 && inPrRange[1] < 0.00001) ? QVector<double> {NULL,NULL} : inPrRange);
     prV = prVar;
@@ -37,7 +63,7 @@ Correlation::Correlation(QString inExpr, QString inAuthor,
     tempRange = ((fabs(inTemp[0]) < 1e-6 && fabs(inTemp[1]) < 1e-6) ? QVector<double> {NULL,NULL} : inTemp);
     tempV = tempVar;
     reference = (inReference == "" ? nullptr : inReference);
-    notes = (inNotes == "" ? nullptr : inNotes);
+    notes = (inNotes == "" ? nullptr : inNotes);*/
 
 }
 
@@ -51,9 +77,9 @@ QString Correlation::getAuthor()
     return author;
 }
 
-QVector<int> Correlation::getNuRange()
+QVector<int> Correlation::getReRange()
 {
-    return nuRange;
+    return reRange;
 }
 
 QVector<double> Correlation::getPrRange()
@@ -61,12 +87,12 @@ QVector<double> Correlation::getPrRange()
     return prRange;
 }
 
-QString Correlation::getFluid()
+QStringList Correlation::getFluid()
 {
     return fluid;
 }
 
-QString Correlation::getSection()
+QStringList Correlation::getSection()
 {
     return section;
 }
@@ -76,7 +102,7 @@ QVector<double> Correlation::getDiam()
     return diamRange;
 }
 
-QString Correlation::getChannel()
+QStringList Correlation::getChannel()
 {
     return channel;
 }
@@ -86,7 +112,7 @@ QVector<double> Correlation::getAngle()
     return angleRange;
 }
 
-QString Correlation::getBorder()
+QStringList Correlation::getBorder()
 {
     return border;
 }
@@ -116,14 +142,14 @@ QString Correlation::getNotes()
     return notes;
 }
 
-QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
+QPair<int, QList<bool>> Correlation::compare(QVector<int> cReRange, bool cReVar,
                                              QVector<double> cPrRange, bool cPrVar,
-                                             QString cFluid,
-                                             QString cSection,
+                                             QStringList cFluid,
+                                             QStringList cSection,
                                              QVector<double> cDiam, bool cDVar,
-                                             QString cChannel,
+                                             QStringList cChannel,
                                              QVector<double> cAngle, bool cAngVar,
-                                             QString cBorder,
+                                             QStringList cBorder,
                                              QVector<double> cLength, bool cLenVar,
                                              QVector<double> cVisc, bool cViscVar,
                                              QVector<double> cTemp, bool tempVar)
@@ -133,21 +159,41 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cNuRange, bool cReVar,
     QList<bool> results;
     double e = 1e-6;
 
+    QList<QVector<double>*> rangesInput = {&cPrRange, &cDiam, &cAngle, &cLength, &cVisc, &cTemp};
+    QList<QVector<double>*> ranges = {&prRange, &diamRange, &angleRange, &lengthRange, &viscRange, &tempRange};
+
+    QList<QStringList*> stringListsInput = {&cFluid, &cSection, &cChannel, &cBorder};
+    QList<QStringList*> stringLists = {&fluid, &section, &channel, &border};
+
+    QList<bool*> varsInput = {&cPrVar, &cDVar, &cAngVar, &cLenVar, &cViscVar, &tempVar};
+    QList<bool*> vars = {&prV, &diamV, &angleV, &lV, &viscV, &tempV};
+
+    // Comparing Ranges
+    for (int i = 0; i < ranges.size(); i++) {
+        if (*rangesInput[i] == QVector<double> {0,0} || *ranges[i] == QVector<double> {0,0}){
+            // Could not compare since there's no value
+            results.append(false);
+        }
+        else if (*rangesInput[i] >= *ranges[0] && *rangesInput[i][0] <= *reRange[1]){
+            // STOPPED HERE //////////////////////
+        }
+    }
+
     // Comparing Re range   // -- results[0] ==============================
-    if ((cNuRange[0] == 0 && cNuRange[1] == 0) || (nuRange[0] == NULL && nuRange[1] == NULL)) {
+    if ((cReRange[0] == 0 && cReRange[1] == 0) || (reRange[0] == NULL && reRange[1] == NULL)) {
         //qDebug() << "Could not compare, since there's no value for Re domain";
         results.append(false);
     }
-    else if (cNuRange[0] >= nuRange[0] && cNuRange[1] <= nuRange[1]){
+    else if (cReRange[0] >= reRange[0] && cReRange[1] <= reRange[1]){
         //qDebug() << "It's inside Reynolds range";
         score += 2;
         results.append(true);
     }
-    else if (cNuRange[1] >= nuRange[0] && nuRange[0] >= cNuRange[0]){
+    else if (cReRange[1] >= reRange[0] && reRange[0] >= cReRange[0]){
         score += 1;
         results.append(false);
     }
-    else if (cNuRange[1] >= nuRange[1] && nuRange[1] >= cNuRange[0]){
+    else if (cReRange[1] >= reRange[1] && reRange[1] >= cReRange[0]){
         score += 1;
         results.append(false);
     }

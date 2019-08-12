@@ -8,51 +8,52 @@ class Correlation
 {
 public:
     // Inputs to the constructor - add more later
-    Correlation(QString inExpr = nullptr, QString inAuthor = nullptr,
-                QVector<int> inNuRange = {NULL,NULL}, bool reVar = true,
-                QVector<double> inPrRange = {NULL,NULL}, bool prVar = false,
-                QString inFluid = nullptr, QString inSection = nullptr,
-                QVector<double> inDiam = {NULL, NULL}, bool diamVar = false,
-                QString inChannelType = nullptr,
-                QVector<double> inAngle = {NULL, NULL}, bool angleVar = false,
-                QString inBorder = nullptr,
-                QVector<double> inLength = {NULL, NULL}, bool lengthVar = false,
-                QVector<double> inVisc = {NULL, NULL}, bool viscVar = false,
-                QVector<double> inTemp = {NULL, NULL}, bool tempVar = false,
-                QString inReference = nullptr, QString inNotes = nullptr);
+    Correlation(QString inExpr = "--", QString inAuthor = "--",
+                QVector<int> inReRange = {0,0}, bool reVar = true,
+                QVector<double> inPrRange = {0,0}, bool prVar = false,
+                QStringList inFluid = {"--"}, QStringList inSection = {"--"},
+                QVector<double> inDiam = {0, 0}, bool diamVar = false,
+                QStringList inChannelType = {"--"},
+                QVector<double> inAngle = {0, 0}, bool angleVar = false,
+                QString inBorder = {"--"},
+                QVector<double> inLength = {0, 0}, bool lengthVar = false,
+                QVector<double> inVisc = {0, 0}, bool viscVar = false,
+                QVector<double> inTemp = {0, 0}, bool tempVar = false,
+                QString inReference = "--", QString inNotes = "--");
 
     QString getExpr();
     QString getAuthor();
-    QVector<int> getNuRange();
+    QVector<int> getReRange();
     QVector<double> getPrRange();
-    QString getFluid();
-    QString getSection();
+    QStringList getFluid();
+    QStringList getSection();
     QVector<double> getDiam();
-    QString getChannel();
+    QStringList getChannel();
     QVector<double> getAngle();
     QVector<double> getLength();
     QVector<double> getVisc();
     QVector<double> getTemp();
-    QString getBorder();
+    QStringList getBorder();
     QString getReference();
     QString getNotes();
 
 
-    QPair<int, QList<bool>> compare(QVector<int> cNuRange, bool cReVar,
+    QPair<int, QList<bool>> compare(QVector<int> cReRange, bool cReVar,
                                     QVector<double> cPrRange, bool cPrVar,
-                                    QString cFluid,
-                                    QString cSection,
+                                    QStringList cFluid,
+                                    QStringList cSection,
                                     QVector<double> cDiam, bool cDVar,
-                                    QString cChannel,
+                                    QStringList cChannel,
                                     QVector<double> cAngle, bool cAngVar,
-                                    QString cBorder,
+                                    QStringList cBorder,
                                     QVector<double> cLength, bool cLenVar,
                                     QVector<double> cVisc, bool cViscVar,
                                     QVector<double> cTemp, bool tempVar);
 
 protected:
-    QString expr, author, fluid, section, channel, border, reference, notes;                               // Values of the class
-    QVector<int> nuRange;
+    QString expr, author, reference, notes;  // Values of the class
+    QStringList fluid, section, channel, border;
+    QVector<int> reRange;
     QVector<double> prRange, diamRange, angleRange, lengthRange, viscRange, tempRange;
     bool reV, prV, diamV, angleV, lV, viscV, tempV;
 

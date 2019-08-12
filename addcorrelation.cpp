@@ -7,6 +7,13 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // The idea is to hide these elements in order to already have a vbox layout placed beforehand
+    ui->hiddenFluidBox->hide();
+    ui->hiddenFluidButton->hide();
+    ui->hiddenFluidBox_2->hide();
+    ui->hiddenFluidButton_2->hide();
+
+
     /* Order list for the inputed parameters:
      * [0] - Expression
      * [1] - Author
@@ -57,13 +64,13 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
             for (int i = 0; i < 4; i++){
                 if (listOptions[i]->findText(wordList[opt[i]]) == -1 && wordList[opt[i]] != "--"){
                     listOptions[i]->addItem(wordList[opt[i]]);
+                    comboBoxOptions[i].push_back(wordList[opt[i]]);
                 }
             }
         }
     }
     file.close();
     // Add a way to add multiple fluids while input a correlation
-
 }
 
 AddCorrelation::~AddCorrelation()
@@ -107,6 +114,11 @@ void AddCorrelation::on_buttonBox_accepted()
                     this,
                     tr("New correlation"),
                     tr("The new correlation has been added"));
+
+        /* Code to get new fluids
+        for (int i = 0; i < newFluidsBoxes.size(); i++){
+            qDebug() << newFluidsBoxes[i]->newBox->currentText();
+        } */
     }
     else{
         QMessageBox::information(
@@ -127,30 +139,44 @@ bool AddCorrelation::verifyInputValues()
 
 void AddCorrelation::on_plusFluidButton_clicked()
 {
-
+    // Creation of new objects
     QComboBox* moreFluids = new QComboBox;
-    moreFluids->addItem("Test item");
+    QPushButton* moreFluidsButton = new QPushButton;
+    newOptions* newFluidItems = new newOptions;
 
-    ui->verticalFluidLayout->addWidget(moreFluids);
+    // Add then to List to be used later
+    newFluidItems->newBox = moreFluids;
+    newFluidItems->newButton = moreFluidsButton;
+    newFluidsBoxes.push_back(newFluidItems);
 
-    /*
-    if (firstFluidLayout){
-        QVBoxLayout* layout = new QVBoxLayout;
-        layout->addWidget(ui->fluidBox);
-        layout->addWidget(moreFluids);
-        ui->gridLayout->addLayout(layout, 4, 1);
-        firstFluidLayout = false;
-        ui->fluidBox->setLayout(layout);
-        qDebug() << ui->gridLayout;
-        qDebug() << ui->fluidBox->layout();
-        qDebug() << layout;
-        qDebug() << ui->fluidBox->layoutDirection();
+    // Add options existing options to it
+    moreFluids->addItem("--");
+    moreFluids->setCurrentIndex(0);
+    if (comboBoxOptions[0].size() != 0){
+        for (int i = 0; i < comboBoxOptions[0].size(); i++){
+            moreFluids->addItem(comboBoxOptions[0][i]);
+        }
     }
-    else{
-        ui->gridLayout->addWidget(moreFluids,5,1);
-        qDebug() << ui->gridLayout;
-        qDebug() << ui->fluidBox->layout();
-        qDebug() << ui->fluidBox->layoutDirection();
-    } */
+    moreFluids->setEditable(true);
+    moreFluidsButton->setText("-");
+    moreFluidsButton->setMaximumWidth(25);
 
+    // Add to Vertical Layout
+    ui->fluidVLayout->addWidget(moreFluids);
+    ui->fluidVBLayout->addWidget(moreFluidsButton);
+
+    // Connect newly created items
+    connect(moreFluidsButton, SIGNAL(clicked()), this, SLOT(deleteFluidNewOptions()));
+}
+
+void AddCorrelation::deleteFluidNewOptions()
+{
+    for (int i = 0; i < newFluidsBoxes.size(); i++){
+        if (newFluidsBoxes[i]->newButton == sender()){  // 'i' is the index in 'newFluidsBoxes'
+            newFluidsBoxes[i]->newButton->hide();
+            newFluidsBoxes[i]->newBox->hide();
+            newFluidsBoxes.removeAt(i);
+            return;
+        }
+    }
 }

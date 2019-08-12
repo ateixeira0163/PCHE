@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
+#include <QComboBox>
 
 namespace Ui {
 class AddCorrelation;
@@ -15,6 +16,11 @@ class AddCorrelation : public QDialog
 {
     Q_OBJECT
 
+    struct newOptions{
+        QComboBox* newBox;
+        QPushButton* newButton;
+    };
+
 public:
     explicit AddCorrelation(QWidget *parent = nullptr);
     ~AddCorrelation();
@@ -23,11 +29,13 @@ private slots:
     void on_buttonBox_accepted();
 
     void on_plusFluidButton_clicked();
+    void deleteFluidNewOptions();
 
 private:
     Ui::AddCorrelation *ui;
     bool verifyInputValues();
-    bool firstFluidLayout = true;
+    QList<QString> comboBoxOptions[4];
+    QList<newOptions*> newFluidsBoxes;
 
 
 signals:

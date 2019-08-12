@@ -402,8 +402,8 @@ void MainWindow::on_searchButton_clicked()
         else modelTable->setData(coincidenceIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
 
         //(condition ? if_true : if_false) -> print NuRange into TableView
-        QString printNuRange = ((corList[rankList[i].second.first].getNuRange()[0] == NULL && corList[rankList[i].second.first].getNuRange()[1] == NULL) ?
-                    "--": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getNuRange()[0])).arg(QString::number(corList[rankList[i].second.first].getNuRange()[1])));
+        QString printNuRange = ((corList[rankList[i].second.first].getReRange()[0] == NULL && corList[rankList[i].second.first].getReRange()[1] == NULL) ?
+                    "--": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getReRange()[0])).arg(QString::number(corList[rankList[i].second.first].getReRange()[1])));
         QStandardItem *itemNuRange = new QStandardItem(printNuRange);
         modelTable->setItem(i,2,itemNuRange);
         QModelIndex nuRangeIndex = modelTable->index(i,2);

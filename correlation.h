@@ -15,11 +15,11 @@ public:
                 QVector<double> inDiam = {0, 0}, bool diamVar = false,
                 QStringList inChannelType = {"--"},
                 QVector<double> inAngle = {0, 0}, bool angleVar = false,
-                QString inBorder = {"--"},
+                QStringList inBorder = {"--"},
                 QVector<double> inLength = {0, 0}, bool lengthVar = false,
                 QVector<double> inVisc = {0, 0}, bool viscVar = false,
                 QVector<double> inTemp = {0, 0}, bool tempVar = false,
-                QString inReference = "--", QString inNotes = "--");
+                QString inReference = "", QString inNotes = "");
 
     QString getExpr();
     QString getAuthor();
@@ -40,12 +40,12 @@ public:
 
     QPair<int, QList<bool>> compare(QVector<int> cReRange, bool cReVar,
                                     QVector<double> cPrRange, bool cPrVar,
-                                    QStringList cFluid,
-                                    QStringList cSection,
+                                    QString cFluid,
+                                    QString cSection,
                                     QVector<double> cDiam, bool cDVar,
-                                    QStringList cChannel,
+                                    QString cChannel,
                                     QVector<double> cAngle, bool cAngVar,
-                                    QStringList cBorder,
+                                    QString cBorder,
                                     QVector<double> cLength, bool cLenVar,
                                     QVector<double> cVisc, bool cViscVar,
                                     QVector<double> cTemp, bool tempVar);

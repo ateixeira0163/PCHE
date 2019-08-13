@@ -85,7 +85,6 @@ void MainWindow::loadCorrelations()
     ui->channelBox->addItem("--");
     ui->channelBox->setCurrentIndex(0);
 
-
     QFile file("..//PCHEThermalEfficiency//correlations.csv");  // Declare file
     if (!file.open(QFile::ReadOnly | QIODevice::Text)){         // Check if open was succesful
         qDebug() << file.errorString();                         // if not = return string of error
@@ -94,27 +93,35 @@ void MainWindow::loadCorrelations()
     QStringList itemList;  // List of string to store the information for each line
     int rangeValues[] = {2, 3, 6, 8, 10, 11, 12}; // Index for all parameters that have multiple data separated by '/'
     QList<QStringList> rangeParam;
+    int stringListsValues[] = {4, 5, 7, 9}; //
+    QList<QStringList> stringLists;         //
+    QList<QComboBox*> boxesList = {ui->fluidBox, ui->sectionBox, ui->channelBox, ui->borderBox};
 
     while (!file.atEnd()){                      // Until the end
         QString line = file.readLine();         // Read each line
         itemList = line.split(';');             // define separator
         if (itemList.size() > 1){               // Certify that is not a empty line
+
             rangeParam.clear();
             for (int i = 0; i < 7; i++){
                 rangeParam.push_back(itemList[rangeValues[i]].split('/'));
+            }
+            stringLists.clear();    //
+            for (int i = 0; i < 4; i++){
+                stringLists.push_back(itemList[stringListsValues[i]].split('/'));
             }
 
             // The object is created
             Correlation temp(itemList[0],    //[0] - Expression
                         itemList[1],         //[1] - Author
                         {rangeParam[0][0].toInt(),rangeParam[0][1].toInt()}, QVariant(rangeParam[0][2]).toBool(),   // [2] - Reynolds
-                        {rangeParam[1][0].toDouble(), rangeParam[1][1].toDouble()}, QVariant(rangeParam[1][2]).toBool(),    // [3] - Prandtl
-                        itemList[4],    //[4] - Fluid
-                        itemList[5],    //[5] - Section
+                        {rangeParam[1][0].toDouble(), rangeParam[1][1].toDouble()}, QVariant(rangeParam[1][2]).toBool(),    // [3] - Prandtl         
+                        stringLists[0], //[4] - Fluid
+                        stringLists[1],   //[5] - Section
                         {rangeParam[2][0].toDouble(), rangeParam[2][1].toDouble()}, QVariant(rangeParam[2][2]).toBool(),    // [6] - Diameter
-                        itemList[7],    //[7] - Channel type
+                        stringLists[2],    //[7] - Channel type
                         {rangeParam[3][0].toDouble(), rangeParam[3][1].toDouble()}, QVariant(rangeParam[3][2]).toBool(),    // [8] - Angle
-                        itemList[9],    // [9] - Border type
+                        stringLists[3],  // [9] - Border type
                         {rangeParam[4][0].toDouble(), rangeParam[4][1].toDouble()}, QVariant(rangeParam[4][2]).toBool(),    //[10] - Length
                         {rangeParam[5][0].toDouble(), rangeParam[5][1].toDouble()}, QVariant(rangeParam[5][2]).toBool(),    //[11] - Viscosity
                         {rangeParam[6][0].toDouble(), rangeParam[6][1].toDouble()}, QVariant(rangeParam[6][2]).toBool(),    // [12] - Temperature
@@ -123,22 +130,31 @@ void MainWindow::loadCorrelations()
             corList.push_back(temp);            // We add to the list
 
             // Add the already existing to the options
-            if (ui->fluidBox->findText(itemList[4]) == -1 && itemList[4] != "--"){ // not found yet
-                ui->fluidBox->addItem(itemList[4]);
-            }
-            if (ui->sectionBox->findText(itemList[5]) == -1 && itemList[5] != "--"){
-                ui->sectionBox->addItem(itemList[5]);
-            }
-            if (ui->channelBox->findText(itemList[7]) == -1 && itemList[7] != "--"){
-                ui->channelBox->addItem(itemList[7]);
-            }
-            if (ui->borderBox->findText(itemList[9]) == -1 && itemList[9] != "--"){
-                ui->borderBox->addItem(itemList[9]);
+            for (int i = 0; i < stringLists.size(); i++){
+                for (int j = 0; j < stringLists[i].size(); j++){
+                    if (boxesList[i]->findText(stringLists[i][j]) == -1 && stringLists[i][j] != "--"){
+                        boxesList[i]->addItem(stringLists[i][j]);
+                    }
+                }
             }
         }
     }
 
     file.close(); // Close file
+
+    qDebug() << corList[1].compare(QVector<int> {0,0}, true,
+                                   QVector<double> {0,0}, false,
+                                   "CO",
+                                   "hh",
+                                   QVector<double> {0,0}, false,
+                                   "--",
+                                   QVector<double> {0,0}, false,
+                                   "--",
+                                   QVector<double> {0,0}, false,
+                                   QVector<double> {0,0}, false,
+                                   QVector<double> {0,0}, false);
+
+    // CONTINUE FROM HERE
 
 }
 
@@ -151,6 +167,7 @@ void MainWindow::on_addNewButton_clicked()
 
 void MainWindow::addCorrelations()
 {
+    /*
     QFile file("..//PCHEThermalEfficiency//correlations.csv");  // Declare file
     if (!file.open(QFile::ReadOnly | QIODevice::Text)){         // Check if open was succesful
         qDebug() << file.errorString();                         // if not = return string of error
@@ -201,11 +218,12 @@ void MainWindow::addCorrelations()
 
     file.close(); // Close file
     if (alreadySearched) on_searchButton_clicked();
-    else showCorrelations();
+    else showCorrelations(); */
 }
 
 void MainWindow::showCorrelations()
 {
+    /*
     // Function to show all the existant correlations without any comparison
 
     auto modelTable = new QStandardItemModel();
@@ -295,11 +313,12 @@ void MainWindow::showCorrelations()
     modelTable->setHeaderData(11,Qt::Horizontal,"Temperature");
     ui->tableView->setModel(modelTable);    // Set model for tableView
     ui->tableView->horizontalHeader()->show(); // show horizontal header
-
+    */
 }
 
 void MainWindow::on_searchButton_clicked()
 {
+
     // Get all the input from the ui
     /*
     QVector<int> nuRange = (reRangeStatement ?
@@ -309,6 +328,8 @@ void MainWindow::on_searchButton_clicked()
                                    QVector<double> {ui->prMinBox->value(), ui->prMaxBox->value()} :
                                    QVector<double> {ui->prMinBox->value(), ui->prMinBox->value()});
     */
+
+    /*
     QVector<int> nuRange = {ui->reMinBox->value(), ui->reMaxBox->value()};
     QVector<double> prRange = {ui->prMinBox->value(), ui->prMaxBox->value()};
     QString fluid = ui->fluidBox->currentText();
@@ -575,6 +596,7 @@ void MainWindow::on_searchButton_clicked()
     ui->tableView->resizeColumnsToContents();
 
     alreadySearched = true;
+    */
 }
 
 /*void MainWindow::on_prInputButton_clicked()
@@ -626,6 +648,7 @@ void MainWindow::on_reInputButton_clicked()
 
 void MainWindow::on_deleteButton_clicked()
 {
+    /*
     // Open message box to be sure of the deletion
     QMessageBox::StandardButton verify;
     verify = QMessageBox::question(this, "Confirmation", "Are you sure?",
@@ -707,10 +730,12 @@ void MainWindow::on_deleteButton_clicked()
         if (alreadySearched) on_searchButton_clicked();
         else showCorrelations();
     }
+    */
 }
 
 void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
+    /*
     // Adequate index if list is order by search
     int ind = (alreadySearched ?
                  rankList[index.row()].second.first :
@@ -773,12 +798,15 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
     connect(ui->customPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlot->yAxis2, SLOT(setRange(QCPRange)));
     ui->customPlot->replot();
     ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+    */
 }
 
 void MainWindow::on_plotButton_clicked()
 {
+    /*
     QModelIndex ind = ui->tableView->selectionModel()->currentIndex();
     on_tableView_doubleClicked(ind);
+    */
 }
 
 

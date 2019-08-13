@@ -30,6 +30,22 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
     ui->moreButton->setCheckable(true);
     ui->moreButton->setChecked(false);
 
+    // Set range buttons to be checkable
+    ui->reInputTypeButton->setCheckable(true);
+    ui->reInputTypeButton->setChecked(false);
+    ui->prInputTypeButton->setCheckable(true);
+    ui->prInputTypeButton->setChecked(false);
+    ui->angleInputTypeButton->setCheckable(true);
+    ui->angleInputTypeButton->setChecked(false);
+    ui->dInputTypeButton->setCheckable(true);
+    ui->dInputTypeButton->setChecked(false);
+    ui->lenInputTypeButton->setCheckable(true);
+    ui->lenInputTypeButton->setChecked(false);
+    ui->tempInputTypeButton->setCheckable(true);
+    ui->tempInputTypeButton->setChecked(false);
+    ui->viscInputTypeButton->setCheckable(true);
+    ui->viscInputTypeButton->setChecked(false);
+
 
     /* Order list for the inputed parameters:
      * [0] - Expression
@@ -122,7 +138,7 @@ void AddCorrelation::on_buttonBox_accepted()
             }
         }
         QString channelInput = ui->channelTypeBox->currentText();
-        for (int i = 0; i < newSectionBoxes.size(); i++){
+        for (int i = 0; i < newChannelBoxes.size(); i++){
             if (newChannelBoxes[i]->newBox->currentText() != "" && newChannelBoxes[i]->newBox->currentText() != "--"){
                 channelInput += "/";
                 channelInput += newChannelBoxes[i]->newBox->currentText();
@@ -138,17 +154,17 @@ void AddCorrelation::on_buttonBox_accepted()
 
         out << ui->exprBox->text() << ";"
             << ui->authorBox->text() << ";"
-            << ui->reMinBox->value() << "/" << ui->reMaxBox->value() << "/" << ui->reVarCheck->checkState() << ";"
-            << ui->prMinBox->value() << "/" << ui->prMaxBox->value() << "/" << ui->prVarCheck->checkState() << ";"
+            << ui->reMinBox->value() << "/" << ((ui->reInputTypeButton->isChecked() || ui->reMaxBox->value() == 0) ? ui->reMinBox->value() : ui->reMaxBox->value()) << "/" << ui->reVarCheck->checkState() << ";"
+            << ui->prMinBox->value() << "/" << ((ui->prInputTypeButton->isChecked() || fabs(ui->prMaxBox->value()) < 1e-10) ? ui->prMinBox->value() : ui->prMaxBox->value()) << "/" << ui->prVarCheck->checkState() << ";"
             << fluidsInput << ";"
             << sectionInput << ";"
-            << ui->dMinBox->value() << "/" << ui->dMaxBox->value() << "/" << ui->dVarCheck->checkState() << ";"
+            << ui->dMinBox->value() << "/" << ((ui->dInputTypeButton->isChecked() || fabs(ui->dMaxBox->value()) < 1e-10) ? ui->dMinBox->value() : ui->dMaxBox->value()) << "/" << ui->dVarCheck->checkState() << ";"
             << channelInput << ";"
-            << ui->angleBox->value() << "/" << ui->angleBoxMax->value() << "/" << ui->angleVarCheck->checkState() << ";"
+            << ui->angleBox->value() << "/" << ((ui->angleInputTypeButton->isChecked() || fabs(ui->angleBoxMax->value()) < 1e-10) ? ui->angleBox->value() : ui->angleBoxMax->value()) << "/" << ui->angleVarCheck->checkState() << ";"
             << borderInput << ";"
-            << ui->lMinBox->value() << "/" << ui->lMaxBox->value() << "/" << ui->lVarCheck->checkState() << ";"
-            << ui->viscMinBox->value() << "/" << ui->viscMaxBox->value() << "/" << ui->viscVarCheck->checkState() << ";"
-            << ui->tempBoxMin->value() << "/" << ui->tempBoxMax->value() << "/" << ui->tempVarCheck->checkState() << ";"
+            << ui->lMinBox->value() << "/" << ((ui->lenInputTypeButton->isChecked() || fabs(ui->lMaxBox->value()) < 1e-10) ? ui->lMinBox->value() : ui->lMaxBox->value()) << "/" << ui->lVarCheck->checkState() << ";"
+            << ui->viscMinBox->value() << "/" << ((ui->viscInputTypeButton->isChecked() || fabs(ui->viscMaxBox->value()) < 1e-10) ? ui->viscMinBox->value() : ui->viscMaxBox->value()) << "/" << ui->viscVarCheck->checkState() << ";"
+            << ui->tempBoxMin->value() << "/" << ((ui->tempInputTypeButton->isChecked() || fabs(ui->tempBoxMax->value()) < 1e-10) ? ui->tempBoxMin->value() : ui->tempBoxMax->value()) << "/" << ui->tempVarCheck->checkState() << ";"
             << ui->referenceBox->toPlainText() << ";"
             << ui->notesBox->toPlainText() << ";\n";
         file.close();
@@ -179,6 +195,7 @@ void AddCorrelation::moreOptions(bool hide)
         ui->dMaxBox->hide();
         ui->dMinBox->hide();
         ui->dVarCheck->hide();
+        ui->dInputTypeButton->hide();
         ui->channelLabel->hide();
         ui->channelTypeBox->hide();
         ui->plusChannelButton->hide();
@@ -186,6 +203,7 @@ void AddCorrelation::moreOptions(bool hide)
         ui->angleBoxMax->hide();
         ui->angleLabel->hide();
         ui->angleVarCheck->hide();
+        ui->angleInputTypeButton->hide();
         ui->borderBox->hide();
         ui->borderLabel->hide();
         ui->plusBorderButton->hide();
@@ -193,14 +211,17 @@ void AddCorrelation::moreOptions(bool hide)
         ui->lMaxBox->hide();
         ui->lMinBox->hide();
         ui->lVarCheck->hide();
+        ui->lenInputTypeButton->hide();
         ui->viscMaxBox->hide();
         ui->viscMinBox->hide();
         ui->viscVarCheck->hide();
         ui->viscosityLabel->hide();
+        ui->viscInputTypeButton->hide();
         ui->tempBoxMax->hide();
         ui->tempBoxMin->hide();
         ui->tempVarCheck->hide();
         ui->temperatureLabel->hide();
+        ui->tempInputTypeButton->hide();
         ui->referenceBox->hide();
         ui->referenceLabel->hide();
         ui->notesBox->hide();
@@ -230,6 +251,7 @@ void AddCorrelation::moreOptions(bool hide)
         ui->dMaxBox->show();
         ui->dMinBox->show();
         ui->dVarCheck->show();
+        ui->dInputTypeButton->show();
         ui->channelLabel->show();
         ui->channelTypeBox->show();
         ui->plusChannelButton->show();
@@ -237,6 +259,7 @@ void AddCorrelation::moreOptions(bool hide)
         ui->angleBoxMax->show();
         ui->angleLabel->show();
         ui->angleVarCheck->show();
+        ui->angleInputTypeButton->show();
         ui->borderBox->show();
         ui->borderLabel->show();
         ui->plusBorderButton->show();
@@ -244,14 +267,17 @@ void AddCorrelation::moreOptions(bool hide)
         ui->lMaxBox->show();
         ui->lMinBox->show();
         ui->lVarCheck->show();
+        ui->lenInputTypeButton->show();
         ui->viscMaxBox->show();
         ui->viscMinBox->show();
         ui->viscVarCheck->show();
         ui->viscosityLabel->show();
+        ui->viscInputTypeButton->show();
         ui->tempBoxMax->show();
         ui->tempBoxMin->show();
         ui->tempVarCheck->show();
         ui->temperatureLabel->show();
+        ui->tempInputTypeButton->show();
         ui->referenceBox->show();
         ui->referenceLabel->show();
         ui->notesBox->show();
@@ -305,7 +331,7 @@ void AddCorrelation::on_plusFluidButton_clicked()
     }
     moreFluids->setEditable(true);
     moreFluidsButton->setText("-");
-    moreFluidsButton->setMaximumWidth(25);
+    moreFluidsButton->setMaximumWidth(30);
 
     // Add to Vertical Layout
     ui->fluidVLayout->addWidget(moreFluids);
@@ -356,7 +382,7 @@ void AddCorrelation::on_plusSectionButton_clicked()
     }
     moreSection->setEditable(true);
     moreSectionButton->setText("-");
-    moreSectionButton->setMaximumWidth(25);
+    moreSectionButton->setMaximumWidth(30);
 
     // Add to Vertical Layout
     ui->sectionVLayout->addWidget(moreSection);
@@ -402,7 +428,7 @@ void AddCorrelation::on_plusBorderButton_clicked()
     }
     moreBorder->setEditable(true);
     moreBorderButton->setText("-");
-    moreBorderButton->setMaximumWidth(25);
+    moreBorderButton->setMaximumWidth(30);
 
     // Add to Vertical Layout
     ui->borderVLayout->addWidget(moreBorder);
@@ -448,7 +474,7 @@ void AddCorrelation::on_plusChannelButton_clicked()
     }
     moreChannel->setEditable(true);
     moreChannelButton->setText("-");
-    moreChannelButton->setMaximumWidth(25);
+    moreChannelButton->setMaximumWidth(30);
 
     // Add to Vertical Layout
     ui->channelVLayout->addWidget(moreChannel);
@@ -469,5 +495,103 @@ void AddCorrelation::deleteChannelNewOptions()
             newChannelBoxes.removeAt(i);
             return;
         }
+    }
+}
+
+void AddCorrelation::on_reInputTypeButton_clicked()
+{
+    if (ui->reInputTypeButton->isChecked()){
+        ui->reInputTypeButton->setText("[*,*]");
+        ui->reMaxBox->hide();
+        ui->reMinBox->setSpecialValueText("");
+    }
+    else{
+        ui->reInputTypeButton->setText("[*]");
+        ui->reMaxBox->show();
+        ui->reMinBox->setSpecialValueText("min");
+    }
+}
+
+void AddCorrelation::on_prInputTypeButton_clicked()
+{
+    if (ui->prInputTypeButton->isChecked()){
+        ui->prInputTypeButton->setText("[*,*]");
+        ui->prMaxBox->hide();
+        ui->prMinBox->setSpecialValueText("");
+    }
+    else{
+        ui->prInputTypeButton->setText("[*]");
+        ui->prMaxBox->show();
+        ui->prMinBox->setSpecialValueText("min");
+    }
+}
+
+void AddCorrelation::on_dInputTypeButton_clicked()
+{
+    if (ui->dInputTypeButton->isChecked()){
+        ui->dInputTypeButton->setText("[*,*]");
+        ui->dMaxBox->hide();
+        ui->dMinBox->setSpecialValueText("");
+    }
+    else{
+        ui->dInputTypeButton->setText("[*]");
+        ui->dMaxBox->show();
+        ui->dMinBox->setSpecialValueText("min");
+    }
+}
+
+void AddCorrelation::on_angleInputTypeButton_clicked()
+{
+    if (ui->angleInputTypeButton->isChecked()){
+        ui->angleInputTypeButton->setText("[*,*]");
+        ui->angleBoxMax->hide();
+        ui->angleBox->setSpecialValueText("");
+    }
+    else{
+        ui->angleInputTypeButton->setText("[*]");
+        ui->angleBoxMax->show();
+        ui->angleBox->setSpecialValueText("min");
+    }
+}
+
+void AddCorrelation::on_lenInputTypeButton_clicked()
+{
+    if (ui->lenInputTypeButton->isChecked()){
+        ui->lenInputTypeButton->setText("[*,*]");
+        ui->lMaxBox->hide();
+        ui->lMinBox->setSpecialValueText("");
+    }
+    else{
+        ui->lenInputTypeButton->setText("[*]");
+        ui->lMaxBox->show();
+        ui->lMinBox->setSpecialValueText("min");
+    }
+}
+
+void AddCorrelation::on_viscInputTypeButton_clicked()
+{
+    if (ui->viscInputTypeButton->isChecked()){
+        ui->viscInputTypeButton->setText("[*,*]");
+        ui->viscMaxBox->hide();
+        ui->viscMinBox->setSpecialValueText("");
+    }
+    else{
+        ui->viscInputTypeButton->setText("[*]");
+        ui->viscMaxBox->show();
+        ui->viscMinBox->setSpecialValueText("min");
+    }
+}
+
+void AddCorrelation::on_tempInputTypeButton_clicked()
+{
+    if (ui->tempInputTypeButton->isChecked()){
+        ui->tempInputTypeButton->setText("[*,*]");
+        ui->tempBoxMax->hide();
+        ui->tempBoxMin->setSpecialValueText("");
+    }
+    else{
+        ui->tempInputTypeButton->setText("[*]");
+        ui->tempBoxMax->show();
+        ui->tempBoxMin->setSpecialValueText("min");
     }
 }

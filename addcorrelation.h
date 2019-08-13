@@ -38,6 +38,20 @@ private slots:
     void on_plusBorderButton_clicked();
     void deleteBorderNewOptions();
 
+    void on_reInputTypeButton_clicked();
+
+    void on_prInputTypeButton_clicked();
+
+    void on_dInputTypeButton_clicked();
+
+    void on_angleInputTypeButton_clicked();
+
+    void on_lenInputTypeButton_clicked();
+
+    void on_viscInputTypeButton_clicked();
+
+    void on_tempInputTypeButton_clicked();
+
 private:
     Ui::AddCorrelation *ui;
     bool verifyInputValues();

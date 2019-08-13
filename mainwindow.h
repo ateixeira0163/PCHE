@@ -47,14 +47,18 @@ private slots:
 
     void loadCorrelations();
     void on_addNewButton_clicked();
-    void addCorrelations();
     void showCorrelations();
     void on_searchButton_clicked();
-    //void on_prInputButton_clicked();
-    //void on_reInputButton_clicked();
     void on_deleteButton_clicked();
     void on_tableView_doubleClicked(const QModelIndex &index);
     void on_plotButton_clicked();
+    void on_reRangeButton_clicked();
+    void on_prRangeButton_clicked();
+    void on_dRangeButton_clicked();
+    void on_aRangeButton_clicked();
+    void on_lRangeButton_clicked();
+    void on_viscRangeButton_clicked();
+    void on_tempRangeButton_clicked();
 
     // =========== Results Tab methods ============ //
 
@@ -82,6 +86,8 @@ private slots:
     double mean(int begin, int end, QVector<double> vector);
     double interpolate(double T, double P, QMap<int, QVector<QPair<double,double>>> prop);
 
+
+
 private:
     Ui::MainWindow *ui;
     aboutDialog *aboutDialogW;  // To create a pointer to the object -> aboutDialogWindow
@@ -94,7 +100,7 @@ private:
     // Correlation
     QVector<Correlation> corList;
     QList<QPair<int, QPair<int,QString> > > rankList;
-    bool prRangeStatement, reRangeStatement, alreadySearched;
+    bool alreadySearched;
 
     // Plot results
     QString importedFileName = nullptr;

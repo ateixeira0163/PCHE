@@ -14,8 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     showCorrelations();
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    prRangeStatement = true;
-    reRangeStatement = true;
     alreadySearched = false;
 
     // Model parameters input as default for now // CHANGE LATER
@@ -76,14 +74,16 @@ MainWindow::~MainWindow()   // Class MainWindow destructor
 
 void MainWindow::loadCorrelations()
 {
-    ui->fluidBox->addItem("--");          // Add empty options as defaut
-    ui->fluidBox->setCurrentIndex(0);
-    ui->sectionBox->addItem("--");
-    ui->sectionBox->setCurrentIndex(0);
-    ui->borderBox->addItem("--");
-    ui->borderBox->setCurrentIndex(0);
-    ui->channelBox->addItem("--");
-    ui->channelBox->setCurrentIndex(0);
+    if (!alreadySearched){
+        ui->fluidBox->addItem("--");          // Add empty options as defaut
+        ui->fluidBox->setCurrentIndex(0);
+        ui->sectionBox->addItem("--");
+        ui->sectionBox->setCurrentIndex(0);
+        ui->borderBox->addItem("--");
+        ui->borderBox->setCurrentIndex(0);
+        ui->channelBox->addItem("--");
+        ui->channelBox->setCurrentIndex(0);
+    }
 
     QFile file("..//PCHEThermalEfficiency//correlations.csv");  // Declare file
     if (!file.open(QFile::ReadOnly | QIODevice::Text)){         // Check if open was succesful
@@ -96,6 +96,7 @@ void MainWindow::loadCorrelations()
     int stringListsValues[] = {4, 5, 7, 9}; //
     QList<QStringList> stringLists;         //
     QList<QComboBox*> boxesList = {ui->fluidBox, ui->sectionBox, ui->channelBox, ui->borderBox};
+    corList.clear();
 
     while (!file.atEnd()){                      // Until the end
         QString line = file.readLine();         // Read each line
@@ -142,205 +143,138 @@ void MainWindow::loadCorrelations()
 
     file.close(); // Close file
 
-    qDebug() << corList[1].compare(QVector<int> {0,0}, true,
-                                   QVector<double> {0,0}, false,
-                                   "CO",
-                                   "hh",
-                                   QVector<double> {0,0}, false,
-                                   "--",
-                                   QVector<double> {0,0}, false,
-                                   "--",
-                                   QVector<double> {0,0}, false,
-                                   QVector<double> {0,0}, false,
-                                   QVector<double> {0,0}, false);
+    if (alreadySearched) on_searchButton_clicked();
+    else showCorrelations();
 
-    // CONTINUE FROM HERE
+    //Test purpose
+    /*
+    QPair<int, QList<bool>> r = corList[1].compare(QVector<int> {0,0}, true,
+                                                   QVector<double> {0,0}, false,
+                                                   "CO",
+                                                   "hh",
+                                                   QVector<double> {0,0}, false,
+                                                   "--",
+                                                   QVector<double> {0,0}, false,
+                                                   "--",
+                                                   QVector<double> {0,0}, false,
+                                                   QVector<double> {0,0}, false,
+                                                   QVector<double> {0,0}, false);
+
+    qDebug() << r << r.second.size();*/
 
 }
 
 void MainWindow::on_addNewButton_clicked()
 {
     AddCorrelation addCorrelationWindow;
-    connect(&addCorrelationWindow, &AddCorrelation::sendNewSignal, this, &MainWindow::addCorrelations);
+    connect(&addCorrelationWindow, &AddCorrelation::sendNewSignal, this, &MainWindow::loadCorrelations);
     addCorrelationWindow.exec();
-}
-
-void MainWindow::addCorrelations()
-{
-    /*
-    QFile file("..//PCHEThermalEfficiency//correlations.csv");  // Declare file
-    if (!file.open(QFile::ReadOnly | QIODevice::Text)){         // Check if open was succesful
-        qDebug() << file.errorString();                         // if not = return string of error
-    }
-
-    QStringList itemList;                       // List of string to store the information for each line
-    QString line;
-    int rangeValues[] = {2, 3, 6, 8, 10, 11, 12}; // Index for all parameters that have multiple data separated by '/'
-    QList<QStringList> rangeParam;
-    int opt[] = {4, 5, 7, 9};
-    QComboBox* listOptions[] = {ui->fluidBox, ui->sectionBox, ui->channelBox, ui->borderBox};
-    corList.clear();
-
-    while (!file.atEnd()){                      // Until the end
-        line = file.readLine();         // Read each line
-        itemList = line.split(';');             // define separator
-        if (itemList.size() > 1){               // Certify that is not a empty line
-            rangeParam.clear();
-            for (int i = 0; i < 7; i++){
-                rangeParam.push_back(itemList[rangeValues[i]].split('/'));
-            }
-
-            Correlation temp(itemList[0],    //[0] - Expression
-                        itemList[1],         //[1] - Author
-                        {rangeParam[0][0].toInt(),rangeParam[0][1].toInt()}, QVariant(rangeParam[0][2]).toBool(),   // [2] - Reynolds
-                        {rangeParam[1][0].toDouble(), rangeParam[1][1].toDouble()}, QVariant(rangeParam[1][2]).toBool(),    // [3] - Prandtl
-                        itemList[4],    //[4] - Fluid
-                        itemList[5],    //[5] - Section
-                        {rangeParam[2][0].toDouble(), rangeParam[2][1].toDouble()}, QVariant(rangeParam[2][2]).toBool(),    // [6] - Diameter
-                        itemList[7],    //[7] - Channel type
-                        {rangeParam[3][0].toDouble(), rangeParam[3][1].toDouble()}, QVariant(rangeParam[3][2]).toBool(),    // [8] - Angle
-                        itemList[9],    // [9] - Border type
-                        {rangeParam[4][0].toDouble(), rangeParam[4][1].toDouble()}, QVariant(rangeParam[4][2]).toBool(),    //[10] - Length
-                        {rangeParam[5][0].toDouble(), rangeParam[5][1].toDouble()}, QVariant(rangeParam[5][2]).toBool(),    //[11] - Viscosity
-                        {rangeParam[6][0].toDouble(), rangeParam[6][1].toDouble()}, QVariant(rangeParam[6][2]).toBool(),    // [12] - Temperature
-                        itemList[13],
-                        itemList[14]);
-            corList.push_back(temp);            // We add to the list
-
-            // Add the already existing to the options
-            for (int i = 0; i < 4; i++){
-                if (listOptions[i]->findText(itemList[opt[i]]) == -1 && itemList[opt[i]] != "--"){
-                    listOptions[i]->addItem(itemList[opt[i]]);
-                }
-            }
-        }
-    }
-
-    file.close(); // Close file
-    if (alreadySearched) on_searchButton_clicked();
-    else showCorrelations(); */
 }
 
 void MainWindow::showCorrelations()
 {
-    /*
+
     // Function to show all the existant correlations without any comparison
 
     auto modelTable = new QStandardItemModel();
+    QList<QVector<double> > allRanges;
+    QList<bool> allVars;
+    QList<QStringList> allStringLists;
+    int allRangesTableOrder[] = {1, 3, 7, 10, 13, 15, 17};
+    int allStringsTableOrder[] = {5, 6, 9, 12};
+
     for (int i = 0; i < corList.size(); i++){
         // Add author
         modelTable->appendRow(new QStandardItem(corList[i].getAuthor()));
 
-        // Add Re Range
-        QString printNuRange = ((corList[i].getNuRange()[0] == NULL && corList[i].getNuRange()[1] == NULL) ?
-                    "--": QString("[%0,%1]").arg(QString::number(corList[i].getNuRange()[0])).arg(QString::number(corList[i].getNuRange()[1])));
-        QStandardItem *itemNuRange = new QStandardItem(printNuRange);
-        modelTable->setItem(i,1,itemNuRange);
+        allRanges.clear();
+        allRanges = corList[i].getAllRanges();
+        allVars.clear();
+        allVars = corList[i].getAllVars();
+        allStringLists.clear();
+        allStringLists = corList[i].getAllStringLists();
 
-        // Add Pr Range
-        QString printPrRange = ((corList[i].getPrRange()[0] == NULL && corList[i].getPrRange()[1] == NULL) ?
-                    "--": QString("[%0,%1]").arg(QString::number(corList[i].getPrRange()[0])).arg(QString::number(corList[i].getPrRange()[1])));
-        QStandardItem *itemPrRange = new QStandardItem(printPrRange);
-        modelTable->setItem(i,2,itemPrRange);
+        for (int k = 0; k < allRanges.size(); k++){
+            QString *kRangeString = new QString((allRanges[k] == QVector<double> {0,0} ?
+                                                "--" : (fabs(allRanges[k][0] - allRanges[k][1]) < 1e-8 ?
+                                                        QString("[%0]").arg(QString::number(allRanges[k][0])) :
+                                                        QString("[%0,%1]").arg(QString::number(allRanges[k][0])).arg(QString::number(allRanges[k][1])))));
+            QStandardItem *itemRange = new QStandardItem(*kRangeString);
+            delete kRangeString;
+            modelTable->setItem(i,allRangesTableOrder[k],itemRange);
 
-        // Add fluid
-        QString printFluid = (corList[i].getFluid() == nullptr ?
-                    "--": corList[i].getFluid());
-        QStandardItem *itemFluid = new QStandardItem(printFluid);
-        modelTable->setItem(i,3,itemFluid);
+            QStandardItem *itemVar = new QStandardItem("");
+            modelTable->setItem(i,allRangesTableOrder[k]+1,itemVar);
+            QModelIndex varIndex = modelTable->index(i,allRangesTableOrder[k]+1);
+            if (allVars[k]) modelTable->setData(varIndex,QIcon(":/fx.png"),Qt::DecorationRole);
+        }
 
-        // Add section type
-        QString printSection = (corList[i].getSection() == nullptr ?
-                    "--": corList[i].getSection());
-        QStandardItem *itemSection = new QStandardItem(printSection);
-        modelTable->setItem(i,4,itemSection);
+        for (int k = 0; k < allStringLists.size(); k++){
+            QString kStringListsString;
+            for (int n = 0; n < allStringLists[k].size(); n++){
+                kStringListsString += allStringLists[k][n];
+                if (n != allStringLists[k].size() - 1) kStringListsString += " \n";
+            }
+            QStandardItem *itemString = new QStandardItem(kStringListsString);
+            modelTable->setItem(i,allStringsTableOrder[k],itemString);
+        }
 
-        // Add Diameter
-        QString printDiam = ((corList[i].getDiam()[0] == NULL && corList[i].getDiam()[1] == NULL) ?
-                    "--": QString("%0°").arg(QString::number(corList[i].getDiam()[0])));
-        QStandardItem *itemDiam = new QStandardItem(printDiam);
-        modelTable->setItem(i,5,itemDiam);
-
-        // Add Channel type
-        QString printChannel = (corList[i].getChannel() == nullptr ?
-                    "--": corList[i].getChannel());
-        QStandardItem *itemChannel = new QStandardItem(printChannel);
-        modelTable->setItem(i,6,itemChannel);
-
-        // Add angle
-        QString printAngle = ((corList[i].getAngle()[0] == NULL && corList[i].getAngle()[1] == NULL) ?
-                    "--": QString("%0°").arg(QString::number(corList[i].getAngle()[0])));
-        QStandardItem *itemAngle = new QStandardItem(printAngle);
-        modelTable->setItem(i,7,itemAngle);
-
-        // Add border
-        QString printBorder = (corList[i].getBorder() == nullptr ?
-                    "--": corList[i].getBorder());
-        QStandardItem *itemBorder = new QStandardItem(printBorder);
-        modelTable->setItem(i,8,itemBorder);
-
-        // Add Length
-        QString printLength = ((corList[i].getLength()[0] == NULL && corList[i].getLength()[1] == NULL) ?
-                    "--": QString("%0°").arg(QString::number(corList[i].getLength()[0])));
-        QStandardItem *itemLength = new QStandardItem(printLength);
-        modelTable->setItem(i,9,itemLength);
-
-        // Add Viscosity
-        QString printVisc = ((corList[i].getVisc()[0] == NULL && corList[i].getVisc()[1] == NULL) ?
-                    "--": QString("%0°").arg(QString::number(corList[i].getVisc()[0])));
-        QStandardItem *itemVisc = new QStandardItem(printVisc);
-        modelTable->setItem(i,10,itemVisc);
-
-        // Add Length
-        QString printTemp = ((corList[i].getTemp()[0] == NULL && corList[i].getTemp()[1] == NULL) ?
-                    "--": QString("%0°").arg(QString::number(corList[i].getTemp()[0])));
-        QStandardItem *itemTemp = new QStandardItem(printTemp);
-        modelTable->setItem(i,11,itemTemp);
     }
 
     // Set all horizontal header
     modelTable->setHeaderData(0,Qt::Horizontal,"Author");
     modelTable->setHeaderData(1,Qt::Horizontal,"Re - Range");
-    modelTable->setHeaderData(2,Qt::Horizontal,"Pr - Range");
-    modelTable->setHeaderData(3,Qt::Horizontal,"Fluid");
-    modelTable->setHeaderData(4,Qt::Horizontal,"Section");
-    modelTable->setHeaderData(5,Qt::Horizontal,"Diameter");
-    modelTable->setHeaderData(6,Qt::Horizontal,"Channel");
-    modelTable->setHeaderData(7,Qt::Horizontal,"Angle");
-    modelTable->setHeaderData(8,Qt::Horizontal,"Border");
-    modelTable->setHeaderData(9,Qt::Horizontal,"Length");
-    modelTable->setHeaderData(10,Qt::Horizontal,"Viscosity");
-    modelTable->setHeaderData(11,Qt::Horizontal,"Temperature");
+    modelTable->setHeaderData(2,Qt::Horizontal,"");
+    modelTable->setHeaderData(3,Qt::Horizontal,"Pr - Range");
+    modelTable->setHeaderData(4,Qt::Horizontal,"");
+    modelTable->setHeaderData(5,Qt::Horizontal,"Fluid");
+    modelTable->setHeaderData(6,Qt::Horizontal,"Section");
+    modelTable->setHeaderData(7,Qt::Horizontal,"Diameter");
+    modelTable->setHeaderData(8,Qt::Horizontal,"");
+    modelTable->setHeaderData(9,Qt::Horizontal,"Channel");
+    modelTable->setHeaderData(10,Qt::Horizontal,"Angle");
+    modelTable->setHeaderData(11,Qt::Horizontal,"");
+    modelTable->setHeaderData(12,Qt::Horizontal,"Border");
+    modelTable->setHeaderData(13,Qt::Horizontal,"Length");
+    modelTable->setHeaderData(14,Qt::Horizontal,"");
+    modelTable->setHeaderData(15,Qt::Horizontal,"Viscosity");
+    modelTable->setHeaderData(16,Qt::Horizontal,"");
+    modelTable->setHeaderData(17,Qt::Horizontal,"Temperature");
+    modelTable->setHeaderData(18,Qt::Horizontal,"");
     ui->tableView->setModel(modelTable);    // Set model for tableView
     ui->tableView->horizontalHeader()->show(); // show horizontal header
-    */
+    ui->tableView->resizeColumnsToContents();
+    ui->tableView->resizeRowsToContents();
+
 }
 
 void MainWindow::on_searchButton_clicked()
 {
-
+    //! Function that gets inputed values, search and classify correlations based on database
     // Get all the input from the ui
-    /*
-    QVector<int> nuRange = (reRangeStatement ?
-                                QVector<int> {ui->reMinBox->value(), ui->reMaxBox->value()} :
-                                QVector<int> {ui->reMinBox->value(), ui->reMinBox->value()});
-    QVector<double> prRange = (prRangeStatement ?
-                                   QVector<double> {ui->prMinBox->value(), ui->prMaxBox->value()} :
-                                   QVector<double> {ui->prMinBox->value(), ui->prMinBox->value()});
-    */
 
-    /*
-    QVector<int> nuRange = {ui->reMinBox->value(), ui->reMaxBox->value()};
-    QVector<double> prRange = {ui->prMinBox->value(), ui->prMaxBox->value()};
+    QList<QDoubleSpinBox*> minBoxes = {ui->prMinBox, ui->diamMinBox, ui->angleBox, ui->lMinBox, ui->viscMinBox, ui->tempMinBox};
+    QList<QDoubleSpinBox*> maxBoxes = {ui->prMaxBox, ui->diamMaxBox, ui->angleMaxBox, ui->lMaxBox, ui->viscMaxBox, ui->tempMaxBox};
+    QList<QPushButton*> rangeButtons = {ui->prRangeButton, ui->dRangeButton, ui->aRangeButton, ui->lRangeButton, ui->viscRangeButton, ui->tempRangeButton};
+    QList<QVector<double>> rangeValues;
+
+    for (int i = 0; i < rangeButtons.size(); i++){
+        rangeValues.append(rangeButtons[i]->isChecked() ?
+                               QVector<double> {minBoxes[i]->value(), minBoxes[i]->value()} :
+                               QVector<double> {minBoxes[i]->value(), (fabs(maxBoxes[i]->value()) < 1e-8 ?
+                                                                           minBoxes[i]->value() :
+                                                                           maxBoxes[i]->value())});
+    }
+
+    QVector<int> reRange = (ui->reRangeButton->isChecked() ?
+                                QVector<int> {ui->reMinBox->value(), ui->reMinBox->value()} :
+                                QVector<int> {ui->reMinBox->value(), (ui->reMaxBox->value() == 0 ?
+                                                                          ui->reMinBox->value() :
+                                                                          ui->reMaxBox->value())});
     QString fluid = ui->fluidBox->currentText();
     QString section = ui->sectionBox->currentText();
-    QVector<double> diameter = {ui->diamMinBox->value(), ui->diamMaxBox->value()};
     QString channel = ui->channelBox->currentText();
-    QVector<double> angle = {ui->angleBox->value(), ui->angleMaxBox->value()};
     QString border = ui->borderBox->currentText();
-    QVector<double> length = {ui->lMinBox->value(), ui->lMaxBox->value()};
-    QVector<double> viscosity = {ui->viscMinBox->value(), ui->viscMaxBox->value()};
-    QVector<double> temperature = {ui->tempMinBox->value(), ui->tempMaxBox->value()};
 
     bool reCheckBox = ui->reCheckBox->checkState();
     bool prCheckBox = ui->prCheckBox->checkState();
@@ -352,16 +286,16 @@ void MainWindow::on_searchButton_clicked()
 
     // Calculate the max score based on nb of answers
     int maxScore = 0;
-    if (nuRange != QVector<int> {0,0}) maxScore += 2;
-    if (prRange != QVector<double> {0,0}) maxScore += 2;
+    if (reRange != QVector<int> {0,0}) maxScore += 2;
+    if (rangeValues[0] != QVector<double> {0,0}) maxScore += 2;
     if (fluid != "--") maxScore += 2;
     if (section != "--") maxScore += 2;
-    if (diameter != QVector<double> {0,0}) maxScore += 2;
+    if (rangeValues[1] != QVector<double> {0,0}) maxScore += 2;
     if (channel != "--") maxScore += 2;
-    if (angle != QVector<double> {0,0}) maxScore += 2;
+    if (rangeValues[2] != QVector<double> {0,0}) maxScore += 2;
     if (border != "--") maxScore += 2;
-    if (length != QVector<double> {0,0}) maxScore += 2;
-    if (viscosity != QVector<double> {0,0}) maxScore += 2;
+    if (rangeValues[3] != QVector<double> {0,0}) maxScore += 2;
+    if (rangeValues[4] != QVector<double> {0,0}) maxScore += 2;
 
     if (reCheckBox) maxScore += 2;
     if (prCheckBox) maxScore += 2;
@@ -379,17 +313,17 @@ void MainWindow::on_searchButton_clicked()
 
     for (int i = 0; i < corList.size(); i++){
         // We compare with all the correlations and add results to list
-        resultsList.push_back(corList[i].compare(nuRange, reCheckBox,
-                                                 prRange, prCheckBox,
+        resultsList.push_back(corList[i].compare(reRange, reCheckBox,
+                                                 rangeValues[0], prCheckBox,
                                                  fluid,
                                                  section,
-                                                 diameter, dCheckBox,
+                                                 rangeValues[1], dCheckBox,
                                                  channel,
-                                                 angle, angleCheckBox,
+                                                 rangeValues[2], angleCheckBox,
                                                  border,
-                                                 length, lCheckBox,
-                                                 viscosity, viscCheckBox,
-                                                 temperature, tempCheckBox));
+                                                 rangeValues[3], lCheckBox,
+                                                 rangeValues[4], viscCheckBox,
+                                                 rangeValues[5], tempCheckBox));
         int score = resultsList[i].first;
         // Code to input the data in descending order from score
         int pos = 0;
@@ -404,6 +338,12 @@ void MainWindow::on_searchButton_clicked()
     }
 
     auto modelTable = new QStandardItemModel(); // For TableView
+    int allRangesTableOrder[] = {2, 4, 8, 11, 14, 16, 18};
+    int allStringsTableOrder[] = {6, 7, 10, 13};
+    QList<QVector<double> > allRanges;
+    QList<bool> allVars;
+    QList<QStringList> allStringLists;
+
     for (int i = 0; i < rankList.size(); i++){      // We add to the list of options to ListView
         modelTable->appendRow(new QStandardItem(rankList[i].second.second));    // Append first element to TableView
 
@@ -422,233 +362,77 @@ void MainWindow::on_searchButton_clicked()
         if (a > 99) modelTable->setData(coincidenceIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
         else modelTable->setData(coincidenceIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
 
-        //(condition ? if_true : if_false) -> print NuRange into TableView
-        QString printNuRange = ((corList[rankList[i].second.first].getReRange()[0] == NULL && corList[rankList[i].second.first].getReRange()[1] == NULL) ?
-                    "--": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getReRange()[0])).arg(QString::number(corList[rankList[i].second.first].getReRange()[1])));
-        QStandardItem *itemNuRange = new QStandardItem(printNuRange);
-        modelTable->setItem(i,2,itemNuRange);
-        QModelIndex nuRangeIndex = modelTable->index(i,2);
-        if (resultsList[rankList[i].second.first].second[0]) modelTable->setData(nuRangeIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        else modelTable->setData(nuRangeIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+        allRanges.clear();
+        allRanges = corList[rankList[i].second.first].getAllRanges();
+        allVars.clear();
+        allVars = corList[rankList[i].second.first].getAllVars();
+        allStringLists.clear();
+        allStringLists = corList[rankList[i].second.first].getAllStringLists();
 
-        // Nu = f(Re)
-        QStandardItem *itemReVar = new QStandardItem("");
-        modelTable->setItem(i,3,itemReVar);
-        QModelIndex reVarIndex = modelTable->index(i,3);
-        if (resultsList[rankList[i].second.first].second[1]) modelTable->setData(reVarIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        //else modelTable->setData(reVarIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+        for (int k = 0; k < allRanges.size(); k++){
+            QString *kRangeString = new QString((allRanges[k] == QVector<double> {0,0} ?
+                                                "--" : (fabs(allRanges[k][0] - allRanges[k][1]) < 1e-8 ?
+                                                        QString("[%0]").arg(QString::number(allRanges[k][0])) :
+                                                        QString("[%0,%1]").arg(QString::number(allRanges[k][0])).arg(QString::number(allRanges[k][1])))));
+            QStandardItem *itemRange = new QStandardItem(*kRangeString);
+            delete kRangeString;
+            modelTable->setItem(i,allRangesTableOrder[k],itemRange);
+            QModelIndex rangeIndex = modelTable->index(i,allRangesTableOrder[k]);
+            if (resultsList[rankList[i].second.first].second[k]) modelTable->setData(rangeIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+            else modelTable->setData(rangeIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
 
-        // print valid PrRange
-        QString printPrRange = ((corList[rankList[i].second.first].getPrRange()[0] == NULL && corList[rankList[i].second.first].getPrRange()[1] == NULL) ?
-                    "--": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getPrRange()[0])).arg(QString::number(corList[rankList[i].second.first].getPrRange()[1])));
-        QStandardItem *itemPrRange = new QStandardItem(printPrRange);
-        modelTable->setItem(i,4,itemPrRange);
-        QModelIndex prRangeIndex = modelTable->index(i,4);
-        if (resultsList[rankList[i].second.first].second[2]) modelTable->setData(prRangeIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        else modelTable->setData(prRangeIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+            QStandardItem *itemVar = new QStandardItem("");
+            modelTable->setItem(i,allRangesTableOrder[k]+1,itemVar);
+            QModelIndex varIndex = modelTable->index(i,allRangesTableOrder[k]+1);
+            if (allVars[k]) modelTable->setData(varIndex,QIcon(":/fx.png"),Qt::DecorationRole);
+        }
 
-        // Nu = f(Pr)
-        QStandardItem *itemPrVar = new QStandardItem("");
-        modelTable->setItem(i,5,itemPrVar);
-        QModelIndex prVarIndex = modelTable->index(i,5);
-        if (resultsList[rankList[i].second.first].second[3]) modelTable->setData(prVarIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        //else modelTable->setData(prVarIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+        for (int k = 0; k < allStringLists.size(); k++){
+            QString kStringListsString;
+            for (int n = 0; n < allStringLists[k].size(); n++){
+                kStringListsString += allStringLists[k][n];
+                if (n != allStringLists[k].size() - 1) kStringListsString += " \n";
+            }
+            QStandardItem *itemString = new QStandardItem(kStringListsString);
+            modelTable->setItem(i,allStringsTableOrder[k],itemString);
 
-        // print valid fluid
-        QString printFluid = (corList[rankList[i].second.first].getFluid() == nullptr ?
-                    "--": corList[rankList[i].second.first].getFluid());
-        QStandardItem *itemFluid = new QStandardItem(printFluid);
-        modelTable->setItem(i,6,itemFluid);
-        QModelIndex fluidIndex = modelTable->index(i,6);
-        if (resultsList[rankList[i].second.first].second[4]) modelTable->setData(fluidIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        else modelTable->setData(fluidIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // print valid section
-        QString printSection = (corList[rankList[i].second.first].getSection() == nullptr ?
-                    "--": corList[rankList[i].second.first].getSection());
-        QStandardItem *itemSection = new QStandardItem(printSection);
-        modelTable->setItem(i,7,itemSection);
-        QModelIndex sectionIndex = modelTable->index(i,7);
-        if (resultsList[rankList[i].second.first].second[5]) modelTable->setData(sectionIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        else modelTable->setData(sectionIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // print valid diameter
-        QString printDiam = ((corList[rankList[i].second.first].getDiam()[0] == NULL && corList[rankList[i].second.first].getDiam()[1] == NULL) ?
-                    "--": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getDiam()[0])).arg(QString::number(corList[rankList[i].second.first].getDiam()[1])));
-        QStandardItem *itemDiam = new QStandardItem(printDiam);
-        modelTable->setItem(i,8,itemDiam);
-        QModelIndex diamIndex = modelTable->index(i,8);
-        if (resultsList[rankList[i].second.first].second[6]) modelTable->setData(diamIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        else modelTable->setData(diamIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // Nu = f(D)
-        QStandardItem *itemDiamVar = new QStandardItem("");
-        modelTable->setItem(i,9,itemDiamVar);
-        QModelIndex dVarIndex = modelTable->index(i,9);
-        if (resultsList[rankList[i].second.first].second[7]) modelTable->setData(dVarIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        //else modelTable->setData(dVarIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // print valid channel
-        QString printChannel = (corList[rankList[i].second.first].getChannel() == nullptr ?
-                    "--": corList[rankList[i].second.first].getChannel());
-        QStandardItem *itemChannel = new QStandardItem(printChannel);
-        modelTable->setItem(i,10,itemChannel);
-        QModelIndex channelIndex = modelTable->index(i,10);
-        if (resultsList[rankList[i].second.first].second[8]) modelTable->setData(channelIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        else modelTable->setData(channelIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // print valid angle
-        QString printAngle = ((corList[rankList[i].second.first].getAngle()[0] == NULL && corList[rankList[i].second.first].getAngle()[1] == NULL) ?
-                    "--": QString("%0°").arg(QString::number(corList[rankList[i].second.first].getAngle()[0])));
-        QStandardItem *itemAngle = new QStandardItem(printAngle);
-        modelTable->setItem(i,11,itemAngle);
-        QModelIndex angleIndex = modelTable->index(i,11);
-        if (resultsList[rankList[i].second.first].second[9]) modelTable->setData(angleIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        else modelTable->setData(angleIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // Nu = f(Angle)
-        QStandardItem *itemAngleVar = new QStandardItem("");
-        modelTable->setItem(i,12,itemAngleVar);
-        QModelIndex angleVarIndex = modelTable->index(i,12);
-        if (resultsList[rankList[i].second.first].second[10]) modelTable->setData(angleVarIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        //else modelTable->setData(angleVarIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // print valid border
-        QString printBorder = (corList[rankList[i].second.first].getBorder() == nullptr ?
-                    "--": corList[rankList[i].second.first].getBorder());
-        QStandardItem *itemBorder = new QStandardItem(printBorder);
-        modelTable->setItem(i,13,itemBorder);
-        QModelIndex borderIndex = modelTable->index(i,13);
-        if (resultsList[rankList[i].second.first].second[11]) modelTable->setData(borderIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        else modelTable->setData(borderIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // print valid length
-        QString printLength = ((corList[rankList[i].second.first].getLength()[0] == NULL && corList[rankList[i].second.first].getLength()[1] == NULL) ?
-                    "--": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getLength()[0])).arg(QString::number(corList[rankList[i].second.first].getLength()[1])));
-        QStandardItem *itemLength = new QStandardItem(printLength);
-        modelTable->setItem(i,14,itemLength);
-        QModelIndex lengthIndex = modelTable->index(i,14);
-        if (resultsList[rankList[i].second.first].second[12]) modelTable->setData(lengthIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        else modelTable->setData(lengthIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // Nu = f(l)
-        QStandardItem *itemLVar = new QStandardItem("");
-        modelTable->setItem(i,15,itemLVar);
-        QModelIndex lVarIndex = modelTable->index(i,15);
-        if (resultsList[rankList[i].second.first].second[13]) modelTable->setData(lVarIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        //else modelTable->setData(lVarIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // print valid viscosity
-        QString printVisc = ((corList[rankList[i].second.first].getVisc()[0] == NULL && corList[rankList[i].second.first].getVisc()[1] == NULL) ?
-                    "--": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getVisc()[0])).arg(QString::number(corList[rankList[i].second.first].getVisc()[1])));
-        QStandardItem *itemVisc = new QStandardItem(printVisc);
-        modelTable->setItem(i,16,itemVisc);
-        QModelIndex viscIndex = modelTable->index(i,16);
-        if (resultsList[rankList[i].second.first].second[14]) modelTable->setData(viscIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        else modelTable->setData(viscIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // Nu = f(mu)
-        QStandardItem *itemViscVar = new QStandardItem("");
-        modelTable->setItem(i,17,itemViscVar);
-        QModelIndex viscVarIndex = modelTable->index(i,17);
-        if (resultsList[rankList[i].second.first].second[15]) modelTable->setData(viscVarIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        //else modelTable->setData(viscVarIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // print valid temperature
-        QString printTemp = ((corList[rankList[i].second.first].getTemp()[0] == NULL && corList[rankList[i].second.first].getTemp()[1] == NULL) ?
-                    "--": QString("[%0,%1]").arg(QString::number(corList[rankList[i].second.first].getTemp()[0])).arg(QString::number(corList[rankList[i].second.first].getTemp()[1])));
-        QStandardItem *itemTemp = new QStandardItem(printTemp);
-        modelTable->setItem(i,18,itemTemp);
-        QModelIndex tempIndex = modelTable->index(i,18);
-        if (resultsList[rankList[i].second.first].second[16]) modelTable->setData(tempIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        else modelTable->setData(tempIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
-        // Nu = f(t)
-        QStandardItem *itemTempVar = new QStandardItem("");
-        modelTable->setItem(i,19,itemTempVar);
-        QModelIndex tempVarIndex = modelTable->index(i,19);
-        if (resultsList[rankList[i].second.first].second[17]) modelTable->setData(tempVarIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
-        //else modelTable->setData(tempVarIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
-
+            QModelIndex stringIndex = modelTable->index(i,allStringsTableOrder[k]);
+            if (resultsList[rankList[i].second.first].second[k+7]) modelTable->setData(stringIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+            else modelTable->setData(stringIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+        }
     }
+
+
     modelTable->setHeaderData(0,Qt::Horizontal,"Author");
     modelTable->setHeaderData(1,Qt::Horizontal,"Coincidence");
     modelTable->setHeaderData(2,Qt::Horizontal,"Re - Range");
-    modelTable->setHeaderData(3,Qt::Horizontal,"f(Re)");
+    modelTable->setHeaderData(3,Qt::Horizontal,"");
     modelTable->setHeaderData(4,Qt::Horizontal,"Pr - Range");
-    modelTable->setHeaderData(5,Qt::Horizontal,"f(Pr)");
+    modelTable->setHeaderData(5,Qt::Horizontal,"");
     modelTable->setHeaderData(6,Qt::Horizontal,"Fluid");
     modelTable->setHeaderData(7,Qt::Horizontal,"Section");
     modelTable->setHeaderData(8,Qt::Horizontal,"Diameter");
-    modelTable->setHeaderData(9,Qt::Horizontal,"f(D)");
+    modelTable->setHeaderData(9,Qt::Horizontal,"");
     modelTable->setHeaderData(10,Qt::Horizontal,"Channel");
     modelTable->setHeaderData(11,Qt::Horizontal,"Angle");
-    modelTable->setHeaderData(12,Qt::Horizontal,"f(a)");
+    modelTable->setHeaderData(12,Qt::Horizontal,"");
     modelTable->setHeaderData(13,Qt::Horizontal,"Border");
     modelTable->setHeaderData(14,Qt::Horizontal,"Length");
-    modelTable->setHeaderData(15,Qt::Horizontal,"f(l)");
+    modelTable->setHeaderData(15,Qt::Horizontal,"");
     modelTable->setHeaderData(16,Qt::Horizontal,"Viscosity");
-    modelTable->setHeaderData(17,Qt::Horizontal,"f(mu)");
+    modelTable->setHeaderData(17,Qt::Horizontal,"");
     modelTable->setHeaderData(18,Qt::Horizontal,"Temperature");
-    modelTable->setHeaderData(19,Qt::Horizontal,"f(t)");
+    modelTable->setHeaderData(19,Qt::Horizontal,"");
     ui->tableView->setModel(modelTable);    // Set model for tableView
     ui->tableView->horizontalHeader()->show();
     ui->tableView->resizeColumnsToContents();
+    ui->tableView->resizeRowsToContents();
 
     alreadySearched = true;
-    */
 }
-
-/*void MainWindow::on_prInputButton_clicked()
-{
-    // Change the input GUI for Prandtl number
-    if (prRangeStatement == true){
-        ui->prInputButton->setText("Number");
-        ui->prMaxBox->hide();
-        ui->prMinBox->setMinimumWidth(151);
-        ui->prMinBox->setMaximumWidth(151);
-        ui->prMinLabel->hide();
-        ui->prMaxLabel->hide();
-        prRangeStatement = false;
-    }
-    else{
-        ui->prInputButton->setText("Range");
-        ui->prMaxBox->show();
-        ui->prMinBox->setMinimumWidth(71);
-        ui->prMinBox->setMaximumWidth(71);
-        ui->prMinLabel->show();
-        ui->prMaxLabel->show();
-        prRangeStatement = true;
-    }
-}
-
-void MainWindow::on_reInputButton_clicked()
-{
-    // Function to hide/show some elements
-    // Change the input GUI for Reynolds input
-    if (reRangeStatement == true){
-        ui->reInputButton->setText("Number");
-        ui->reMaxBox->hide();
-        ui->reMinBox->setMinimumWidth(151);
-        ui->reMinBox->setMaximumWidth(151);
-        ui->reMinLabel->hide();
-        ui->reMaxLabel->hide();
-        reRangeStatement = false;
-    }
-    else{
-        ui->reInputButton->setText("Range");
-        ui->reMaxBox->show();
-        ui->reMinBox->setMinimumWidth(71);
-        ui->reMinBox->setMaximumWidth(71);
-        ui->reMinLabel->show();
-        ui->reMaxLabel->show();
-        reRangeStatement = true;
-    }
-}*/
 
 void MainWindow::on_deleteButton_clicked()
 {
-    /*
     // Open message box to be sure of the deletion
     QMessageBox::StandardButton verify;
     verify = QMessageBox::question(this, "Confirmation", "Are you sure?",
@@ -675,53 +459,59 @@ void MainWindow::on_deleteButton_clicked()
         Correlation *k;
         QString expr;
         QString author;
-        QVector<int> reRange;
-        QVector<double> prRange;
         QString fluid;
         QString section;
-        QVector<double> diameter;
         QString channel;
-        QVector<double> angle;
         QString border;
-        QVector<double> length;
-        QVector<double> visc;
-        QVector<double> temperature;
         QString reference;
         QString notes;
+        QList<bool> allVars;
+        QList<QVector<double>> allRanges;
 
         // Iterate all correlation list to add again except the excluded one
         for (int i = 0; i < corList.size(); i++){
             k = &corList[i]; // to search just one time
-            // Convert Null values to "" or 0 to write into file
-            expr = (k->getExpr() == nullptr ? "--" : k->getExpr());
-            author = (k->getAuthor() == nullptr ? "--" : k->getAuthor());
-            reRange = (k->getNuRange()[0] == NULL ? QVector<int> {0,0} : k->getNuRange());
-            prRange = (k->getPrRange()[0] == NULL ? QVector<double> {0,0} : k->getPrRange());
-            fluid = (k->getFluid() == nullptr ? "--" : k->getFluid());
-            section = (k->getSection() == nullptr ? "--" : k->getSection());
-            diameter = (k->getDiam()[0] == NULL ? QVector<double> {0,0} : k->getDiam());
-            channel = (k->getChannel() == nullptr ? "--" : k->getChannel());
-            angle = (k->getAngle()[0] == NULL ? QVector<double> {0,0} : k->getAngle());
-            border = (k->getBorder() == nullptr ? "--" : k->getBorder());
-            length = (k->getLength()[0] == NULL ? QVector<double> {0,0} : k->getLength());
-            visc = (k->getVisc()[0] == NULL ? QVector<double> {0,0} : k->getVisc());
-            temperature = (k->getTemp()[0] == NULL ? QVector<double> {0,0} : k->getTemp());
-            reference = (k->getReference() == nullptr ? "--" : k->getReference());
-            notes = (k->getNotes() == nullptr ? "--" : k->getNotes());
+            expr = k->getExpr();
+            author = k->getAuthor();
+            reference = k->getReference();
+            notes = k->getNotes();
+            allVars = k->getAllVars();
+            allRanges = k->getAllRanges();
+
+            fluid.clear();
+            for (int j = 0; j < k->getFluid().size(); j++){
+                fluid += k->getFluid()[j];
+                if (j != k->getFluid().size() - 1) fluid += "/";
+            }
+            section.clear();
+            for (int j = 0; j < k->getSection().size(); j++){
+                section += k->getSection()[j];
+                if (j != k->getSection().size() - 1) section += "/";
+            }
+            channel.clear();
+            for (int j = 0; j < k->getChannel().size(); j++){
+                channel += k->getChannel()[j];
+                if (j != k->getChannel().size() - 1) channel += "/";
+            }
+            border.clear();
+            for (int j = 0; j < k->getBorder().size(); j++){
+                border += k->getBorder()[j];
+                if (j != k->getBorder().size() - 1) border += "/";
+            }
 
             out << expr << ";"
                 << author << ";"
-                << reRange[0] << "/" << reRange[1] << "/" << 0 << ";"
-                << prRange[0] << "/" << prRange[1] << "/" << 0 << ";"
+                << allRanges[0][0] << "/" << allRanges[0][1] << "/" << allVars[0] << ";"
+                << allRanges[1][0] << "/" << allRanges[1][1] << "/" << allVars[1] << ";"
                 << fluid << ";"
                 << section << ";"
-                << diameter[0] << "/" << diameter[1] << "/" << 0 << ";"
+                << allRanges[2][0] << "/" << allRanges[2][1] << "/" << allVars[2] << ";"
                 << channel << ";"
-                << angle[0] << "/" << angle[1] << "/" << 0 << ";"
+                << allRanges[3][0] << "/" << allRanges[3][1] << "/" << allVars[3] << ";"
                 << border << ";"
-                << length[0] << "/" << length[1] << "/" << 0 << ";"
-                << visc[0] << "/" << visc[1] << "/" << 0 << ";"
-                << temperature[0] << "/" << temperature[1] << "/" << 0 << ";"
+                << allRanges[4][0] << "/" << allRanges[4][1] << "/" << allVars[4] << ";"
+                << allRanges[5][0] << "/" << allRanges[5][1] << "/" << allVars[5] << ";"
+                << allRanges[6][0] << "/" << allRanges[6][1] << "/" << allVars[6] << ";"
                 << reference << ";"
                 << notes << ";\n";
         }
@@ -730,12 +520,11 @@ void MainWindow::on_deleteButton_clicked()
         if (alreadySearched) on_searchButton_clicked();
         else showCorrelations();
     }
-    */
 }
 
 void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
-    /*
+
     // Adequate index if list is order by search
     int ind = (alreadySearched ?
                  rankList[index.row()].second.first :
@@ -752,8 +541,8 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
     QScriptEngine myEngine;
 
     QString expression = corList[ind].getExpr();
-    int reMin = corList[ind].getNuRange()[0];
-    int reMax = corList[ind].getNuRange()[1];       // ADD VERIFICATION
+    int reMin = corList[ind].getReRange()[0];
+    int reMax = corList[ind].getReRange()[1];       // ADD VERIFICATION
     expression.replace(QString("("),QString("Math.pow("));
     expression.replace(QString("^"),QString(","));
     QString funExpr = "(function(Re, Pr) { return " + expression + ";})";
@@ -798,15 +587,111 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
     connect(ui->customPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->customPlot->yAxis2, SLOT(setRange(QCPRange)));
     ui->customPlot->replot();
     ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
-    */
+
 }
 
 void MainWindow::on_plotButton_clicked()
 {
-    /*
     QModelIndex ind = ui->tableView->selectionModel()->currentIndex();
     on_tableView_doubleClicked(ind);
-    */
+}
+
+void MainWindow::on_reRangeButton_clicked()
+{
+    if (ui->reRangeButton->isChecked()){
+        ui->reRangeButton->setText("[*,*]");
+        ui->reMaxBox->hide();
+        ui->reMinBox->setSpecialValueText("");
+    }
+    else{
+        ui->reRangeButton->setText("[*]");
+        ui->reMaxBox->show();
+        ui->reMinBox->setSpecialValueText("min");
+    }
+}
+
+void MainWindow::on_prRangeButton_clicked()
+{
+    if (ui->prRangeButton->isChecked()){
+        ui->prRangeButton->setText("[*,*]");
+        ui->prMaxBox->hide();
+        ui->prMinBox->setSpecialValueText("");
+    }
+    else{
+        ui->prRangeButton->setText("[*]");
+        ui->prMaxBox->show();
+        ui->prMinBox->setSpecialValueText("min");
+    }
+}
+
+void MainWindow::on_dRangeButton_clicked()
+{
+    if (ui->dRangeButton->isChecked()){
+        ui->dRangeButton->setText("[*,*]");
+        ui->diamMaxBox->hide();
+        ui->diamMinBox->setSpecialValueText("");
+    }
+    else{
+        ui->dRangeButton->setText("[*]");
+        ui->diamMaxBox->show();
+        ui->diamMinBox->setSpecialValueText("min");
+    }
+}
+
+void MainWindow::on_aRangeButton_clicked()
+{
+    if (ui->aRangeButton->isChecked()){
+        ui->aRangeButton->setText("[*,*]");
+        ui->angleMaxBox->hide();
+        ui->angleBox->setSpecialValueText("");
+    }
+    else{
+        ui->aRangeButton->setText("[*]");
+        ui->angleMaxBox->show();
+        ui->angleBox->setSpecialValueText("min");
+    }
+}
+
+void MainWindow::on_lRangeButton_clicked()
+{
+    if (ui->lRangeButton->isChecked()){
+        ui->lRangeButton->setText("[*,*]");
+        ui->lMaxBox->hide();
+        ui->lMinBox->setSpecialValueText("");
+    }
+    else{
+        ui->lRangeButton->setText("[*]");
+        ui->lMaxBox->show();
+        ui->lMinBox->setSpecialValueText("min");
+    }
+}
+
+void MainWindow::on_viscRangeButton_clicked()
+{
+    if (ui->viscRangeButton->isChecked()){
+        ui->viscRangeButton->setText("[*,*]");
+        ui->viscMaxBox->hide();
+        ui->viscMinBox->setSpecialValueText("");
+    }
+    else{
+        ui->viscRangeButton->setText("[*]");
+        ui->viscMaxBox->show();
+        ui->viscMinBox->setSpecialValueText("min");
+    }
+}
+
+void MainWindow::on_tempRangeButton_clicked()
+{
+    if (ui->tempRangeButton->isChecked()){
+        ui->tempRangeButton->setText("[*,*]");
+        ui->tempMaxBox->hide();
+        ui->tempMinBox->setSpecialValueText("");
+    }
+    else{
+        ui->tempRangeButton->setText("[*]");
+        ui->tempMaxBox->show();
+        ui->tempMinBox->setSpecialValueText("min");
+    }
 }
 
 

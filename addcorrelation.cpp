@@ -84,6 +84,7 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
     }
 
     QStringList wordList;
+    QList<QStringList> stringLists;
     int opt[] = {4, 5, 7, 9};
     QComboBox* listOptions[] = {ui->fluidBox, ui->sectionBox, ui->channelTypeBox, ui->borderBox};
 
@@ -94,10 +95,17 @@ AddCorrelation::AddCorrelation(QWidget *parent) :
             // Here we add the existent options in the database
             // if (word is not found in options already and word is not empty line) -> add word to options
 
+            stringLists.clear();    //
             for (int i = 0; i < 4; i++){
-                if (listOptions[i]->findText(wordList[opt[i]]) == -1 && wordList[opt[i]] != "--"){
-                    listOptions[i]->addItem(wordList[opt[i]]);
-                    comboBoxOptions[i].push_back(wordList[opt[i]]);
+                stringLists.push_back(wordList[opt[i]].split('/'));
+            }
+
+            for (int i = 0; i < stringLists.size(); i++){
+                for (int j = 0; j < stringLists[i].size(); j++){
+                    if (listOptions[i]->findText(stringLists[i][j]) == -1 && stringLists[i][j] != "--"){
+                        listOptions[i]->addItem(stringLists[i][j]);
+                        comboBoxOptions[i].push_back(stringLists[i][j]);
+                    }
                 }
             }
         }

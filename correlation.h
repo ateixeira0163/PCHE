@@ -36,6 +36,9 @@ public:
     QStringList getBorder();
     QString getReference();
     QString getNotes();
+    QList<QVector<double>> getAllRanges();
+    QList<bool> getAllVars();
+    QList<QStringList> getAllStringLists();
 
 
     QPair<int, QList<bool>> compare(QVector<int> cReRange, bool cReVar,

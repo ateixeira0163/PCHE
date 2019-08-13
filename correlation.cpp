@@ -36,30 +36,6 @@ Correlation::Correlation(QString inExpr, QString inAuthor,
     reference = inReference;
     notes = inNotes;
 
-    /*
-    expr = (inExpr == "--" ? nullptr : inExpr);       // If/Else short statement
-    author = (inAuthor == "--" ? nullptr : inAuthor); // (condition ? if_true : if_false)
-    reRange = ((inReRange[0] == 0 && inReRange[1] == 0) ? QVector<int> {NULL,NULL} : inReRange);
-    reV = reVar;
-    prRange = ((inPrRange[0] < 0.00001 && inPrRange[1] < 0.00001) ? QVector<double> {NULL,NULL} : inPrRange);
-    prV = prVar;
-    fluid = (inFluid == "--" ? nullptr : inFluid);
-    section = (inSection == "--" ? nullptr : inSection);
-    diamRange = ((inDiam[0] < 1e-6 && inDiam[1] < 1e-6) ? QVector<double> {NULL,NULL} : inDiam);
-    diamV = diamVar;
-    channel = (inChannelType == "--" ? nullptr : inChannelType);
-    angleRange = ((fabs(inAngle[0]) < 1e-6 && fabs(inAngle[1]) < 1e-6) ? QVector<double> {NULL,NULL} : inAngle);
-    angleV = angleVar;
-    border = (inBorder == "--" ? nullptr : inBorder);
-    lengthRange = ((inLength[0] < 1e-6 && inLength[1] < 1e-6) ? QVector<double> {NULL,NULL} : inLength);
-    lV = lengthVar;
-    viscRange = ((inVisc[0] < 1e-6 && inVisc[1] < 1e-6) ? QVector<double> {NULL, NULL} : inVisc);
-    viscV = viscVar;
-    tempRange = ((fabs(inTemp[0]) < 1e-6 && fabs(inTemp[1]) < 1e-6) ? QVector<double> {NULL,NULL} : inTemp);
-    tempV = tempVar;
-    reference = (inReference == "" ? nullptr : inReference);
-    notes = (inNotes == "" ? nullptr : inNotes);*/
-
 }
 
 QString Correlation::getExpr()
@@ -135,6 +111,25 @@ QString Correlation::getReference()
 QString Correlation::getNotes()
 {
     return notes;
+}
+
+QList<QVector<double> > Correlation::getAllRanges()
+{
+    // Just a little gimmick to transform Reynolds range into double too
+    QList<QVector<double>> allRanges = {QVector<double> {double(reRange[0]), double(reRange[1])}, prRange, diamRange, angleRange, lengthRange, viscRange, tempRange};
+    return allRanges;
+}
+
+QList<bool> Correlation::getAllVars()
+{
+    QList<bool> allVars = {reV, prV, diamV, angleV, lV, viscV, tempV};
+    return allVars;
+}
+
+QList<QStringList> Correlation::getAllStringLists()
+{
+    QList<QStringList> allStringLists = {fluid, section, channel, border};
+    return allStringLists;
 }
 
 QPair<int, QList<bool>> Correlation::compare(QVector<int> cReRange, bool cReVar,
@@ -232,6 +227,27 @@ QPair<int, QList<bool>> Correlation::compare(QVector<int> cReRange, bool cReVar,
         }
         else results.append(false);
     }
+
+    /* Results order:
+     * Re Range     [0]
+     * Pr Range     [1]
+     * D Range      [2]
+     * Angle Range  [3]
+     * Length Range [4]
+     * Visc Range   [5]
+     * Temp Range   [6]
+     * Fluid        [7]
+     * Section      [8]
+     * Channel      [9]
+     * Border       [10]
+     * Nu(Re)       [11]
+     * Nu(Pr)       [12]
+     * Nu(D)        [13]
+     * Nu(a)        [14]
+     * Nu(L)        [15]
+     * Nu(mu)       [16]
+     * Nu(T)        [17]
+     */
 
     QPair<int,QList<bool>> finalResults = qMakePair(score,results);
 

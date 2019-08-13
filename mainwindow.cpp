@@ -347,6 +347,11 @@ void MainWindow::on_searchButton_clicked()
     for (int i = 0; i < rankList.size(); i++){      // We add to the list of options to ListView
         modelTable->appendRow(new QStandardItem(rankList[i].second.second));    // Append first element to TableView
 
+        QStandardItem *itemCheckBox = new QStandardItem(true);
+        itemCheckBox->setCheckable(true);
+        itemCheckBox->setText(rankList[i].second.second);
+        modelTable->setItem(i,0,itemCheckBox);
+
         QModelIndex iIndex = modelTable->index(i,0);    // create index to add icons
         // Add correspondent icon
         if (rankList[i].first == maxScore) modelTable->setData(iIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
@@ -898,7 +903,7 @@ void MainWindow::calculateResults()
         pOutA = importedData[8][i];
         pInA = importedData[6][i];
         muA = interpolate(((tOutA + tInA)/2)+273.15, (pOutA + pInA)/2, muAir);
-        if (int(muA) != 0) reAir.push_back( ((((pOutA + pInA)/2)*1e+05)/(287.058 * (((tOutA + tInA)/2) + 273.15)))*(uA/muA)*modelParameters["dH"]);
+        if (fabs(muA) > 0) reAir.push_back( ((((pOutA + pInA)/2)*1e+05)/(287.058 * (((tOutA + tInA)/2) + 273.15)))*(uA/muA)*modelParameters["dH"]);
         else reAir.push_back(0);
 
         // qW
@@ -1035,6 +1040,7 @@ void MainWindow::cellBoxChanged(QStandardItem* cell)
 {
     //! Function that let the user only check boxes that have the same unit for comparison
     //! Because if not, there'll be to many different axis to plot
+     qDebug() << cell;
     /* Just to remember:
      * [0] LMTD
      * [1] Pressure Drop

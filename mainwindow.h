@@ -49,9 +49,14 @@ private slots:
     void on_addNewButton_clicked();
     void showCorrelations();
     void on_searchButton_clicked();
+    void correlationCellChanged();
     void on_deleteButton_clicked();
     void on_tableView_doubleClicked(const QModelIndex &index);
+    void on_importCorResultsButton_clicked();
     void on_plotButton_clicked();
+    void correlationContextMenuRequest(QPoint pos);
+    void moveLegendC();
+    void hideLegendC();
     void on_reRangeButton_clicked();
     void on_prRangeButton_clicked();
     void on_dRangeButton_clicked();
@@ -88,6 +93,8 @@ private slots:
 
 
 
+
+
 private:
     Ui::MainWindow *ui;
     aboutDialog *aboutDialogW;  // To create a pointer to the object -> aboutDialogWindow
@@ -101,6 +108,8 @@ private:
     QVector<Correlation> corList;
     QList<QPair<int, QPair<int,QString> > > rankList;
     bool alreadySearched;
+    QString importedCorrelation = nullptr;
+    QVector<QVector<double>> importedCorrelationData;
 
     // Plot results
     QString importedFileName = nullptr;

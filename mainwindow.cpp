@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     alreadySearched = false;
     // Open menu to move legend (is here not to be called more than once)
     connect(ui->customPlot, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(correlationContextMenuRequest(QPoint)));
-
+    connect(ui->tableView->model(), SIGNAL(itemChanged(QStandardItem*)), this, SLOT(correlationCellChanged()));
 
     // Model parameters input as default for now // CHANGE LATER
     modelParameters["chNb"] = 10;       // channels number
@@ -55,14 +55,6 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
         cpAir[5].append(qMakePair(cpAirT[i], cpAir5bar[i]));
         cpAir[10].append(qMakePair(cpAirT[i], cpAir10bar[i]));
     }
-
-
-    /* For testing puporses
-    interpolate(390, 7.5, muAir);
-    interpolate(290,5,muAir);
-    interpolate(290,2,muAir);
-    interpolate(335,10,muAir);
-    interpolate(320,10,muAir); */
 
     rangeRect = new QCPItemRect(ui->customPlotData);
 }
@@ -148,22 +140,6 @@ void MainWindow::loadCorrelations()
 
     if (alreadySearched) on_searchButton_clicked();
     else showCorrelations();
-
-    //Test purpose
-    /*
-    QPair<int, QList<bool>> r = corList[1].compare(QVector<int> {0,0}, true,
-                                                   QVector<double> {0,0}, false,
-                                                   "CO",
-                                                   "hh",
-                                                   QVector<double> {0,0}, false,
-                                                   "--",
-                                                   QVector<double> {0,0}, false,
-                                                   "--",
-                                                   QVector<double> {0,0}, false,
-                                                   QVector<double> {0,0}, false,
-                                                   QVector<double> {0,0}, false);
-
-    qDebug() << r << r.second.size();*/
 
 }
 
@@ -255,8 +231,6 @@ void MainWindow::showCorrelations()
     ui->tableView->horizontalHeader()->show(); // show horizontal header
     ui->tableView->resizeColumnsToContents();
     ui->tableView->resizeRowsToContents();
-    connect(modelTable, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(correlationCellChanged()));
-
 
 }
 
@@ -444,16 +418,13 @@ void MainWindow::on_searchButton_clicked()
     ui->tableView->horizontalHeader()->show();
     ui->tableView->resizeColumnsToContents();
     ui->tableView->resizeRowsToContents();
-    connect(modelTable, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(correlationCellChanged()));
 
     alreadySearched = true;
 }
 
 void MainWindow::correlationCellChanged()
 {
-    if (importedCorrelation != nullptr){
-        on_plotButton_clicked();
-    }
+    on_plotButton_clicked();
 }
 
 void MainWindow::on_deleteButton_clicked()
@@ -547,7 +518,7 @@ void MainWindow::on_deleteButton_clicked()
     }
 }
 
-void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
+/*void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
 
     // Adequate index if list is order by search
@@ -613,7 +584,7 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
     ui->customPlot->replot();
     ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 
-}
+}*/
 
 void MainWindow::on_importCorResultsButton_clicked()
 {
@@ -664,154 +635,167 @@ void MainWindow::on_importCorResultsButton_clicked()
 void MainWindow::on_plotButton_clicked()
 {
     //! Function to plot correlation data imported and also results from correlations database
+    ui->customPlot->clearGraphs();
+    ui->customPlot->replot();
 
-        ui->customPlot->clearGraphs();
-        ui->customPlot->replot();
+    // Style
+    ui->customPlot->legend->setVisible(true);
+    ui->customPlot->legend->setFont(QFont("Helvetica",9));
+    ui->customPlot->legend->setBrush(QBrush(QColor(255,255,255,230)));
+    ui->customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignBottom|Qt::AlignRight);
 
+    // Create graphs
+
+    // Scatter styles
+    QVector<QCPScatterStyle::ScatterShape> shapes;
+    shapes << QCPScatterStyle::ssCross;
+    shapes << QCPScatterStyle::ssPlus;
+    shapes << QCPScatterStyle::ssCircle;
+    shapes << QCPScatterStyle::ssDisc;
+    shapes << QCPScatterStyle::ssDiamond;
+    shapes << QCPScatterStyle::ssStar;
+    shapes << QCPScatterStyle::ssTriangle;
+    shapes << QCPScatterStyle::ssTriangleInverted;
+    shapes << QCPScatterStyle::ssCrossSquare;
+    shapes << QCPScatterStyle::ssPlusSquare;
+    shapes << QCPScatterStyle::ssCrossCircle;
+    shapes << QCPScatterStyle::ssPlusCircle;
+    shapes << QCPScatterStyle::ssPeace;
+    shapes << QCPScatterStyle::ssCustom;
+    QPen pen, penScatter;
+    // plot importedGraph
+
+    if (importedCorrelation != nullptr){
+        ui->customPlot->addGraph();
+        ui->customPlot->graph()->setData(importedCorrelationData[0],importedCorrelationData[1]);
         // Style
-        ui->customPlot->legend->setVisible(true);
-        ui->customPlot->legend->setFont(QFont("Helvetica",9));
-        ui->customPlot->legend->setBrush(QBrush(QColor(255,255,255,230)));
-        ui->customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignBottom|Qt::AlignRight);
+        pen.setColor(QColor(Qt::red));
+        pen.setStyle(Qt::DashLine);
+        ui->customPlot->graph()->setName("Imported Values");
+        ui->customPlot->graph()->setPen(pen);
+        ui->customPlot->graph()->setLineStyle(QCPGraph::lsLine);
+        ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(
+                                                     QCPScatterStyle::ssSquare,
+                                                     QPen(QColor(Qt::red)),
+                                                     QBrush(Qt::NoBrush),10));
+    }
 
-        // Create graphs
+    // Create numbers to plot
 
-        // Scatter styles
-        QVector<QCPScatterStyle::ScatterShape> shapes;
-        shapes << QCPScatterStyle::ssCross;
-        shapes << QCPScatterStyle::ssPlus;
-        shapes << QCPScatterStyle::ssCircle;
-        shapes << QCPScatterStyle::ssDisc;
-        shapes << QCPScatterStyle::ssDiamond;
-        shapes << QCPScatterStyle::ssStar;
-        shapes << QCPScatterStyle::ssTriangle;
-        shapes << QCPScatterStyle::ssTriangleInverted;
-        shapes << QCPScatterStyle::ssCrossSquare;
-        shapes << QCPScatterStyle::ssPlusSquare;
-        shapes << QCPScatterStyle::ssCrossCircle;
-        shapes << QCPScatterStyle::ssPlusCircle;
-        shapes << QCPScatterStyle::ssPeace;
-        shapes << QCPScatterStyle::ssCustom;
-        QPen pen, penScatter;
-        // plot importedGraph
-
-        if (importedCorrelation != nullptr){
-            ui->customPlot->addGraph();
-            ui->customPlot->graph()->setData(importedCorrelationData[0],importedCorrelationData[1]);
-            // Style
-            pen.setColor(QColor(Qt::red));
-            pen.setStyle(Qt::DashLine);
-            ui->customPlot->graph()->setName("Imported Values");
-            ui->customPlot->graph()->setPen(pen);
-            ui->customPlot->graph()->setLineStyle(QCPGraph::lsLine);
-            ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(
-                                                         QCPScatterStyle::ssSquare,
-                                                         QPen(QColor(Qt::red)),
-                                                         QBrush(Qt::NoBrush),10));
+    QModelIndex indData;
+    QVector<int> choosenData;
+    // Get all the choosen data from tableView to be plotted with imported Results
+    for (int i = 0; i < ui->tableView->model()->rowCount(); i++){
+        indData = ui->tableView->model()->index(i,0,QModelIndex());
+        if (indData.data(Qt::CheckStateRole) == Qt::Checked){
+            choosenData.push_back(i);
         }
+    }
 
-
-        // Create numbers to plot - CHANGE AFTERWARDS   XXXXXXXXXXXXXXXXXXXXXXXXX
-
-        QModelIndex indData;
-        QVector<int> choosenData;
-        // Get all the choosen data from tableView to be plotted with imported Results
-        for (int i = 0; i < ui->tableView->model()->rowCount(); i++){
-            indData = ui->tableView->model()->index(i,0,QModelIndex());
-            if (indData.data(Qt::CheckStateRole) == Qt::Checked){
-                choosenData.push_back(i);
-            }
-        }
-
-        // Adequate index in corList object ordered by search
-        if (alreadySearched){
-            int realInd;
-            QModelIndex modelIndex;
-            for (int i = 0; i < choosenData.size(); i++){
-                modelIndex = ui->tableView->model()->index(choosenData[i],0);
-                realInd = (alreadySearched ?
-                               rankList[modelIndex.row()].second.first :
-                               modelIndex.row());
-                choosenData[i] = realInd;
-            }
-        }
-
-        // +++++++++++++++++++ Correlations database calculations ++++++++++++++++
-        QScriptEngine myEngine;
-        QString expression;
+    // Adequate index in corList object ordered by search
+    if (alreadySearched){
+        int realInd;
+        QModelIndex modelIndex;
         for (int i = 0; i < choosenData.size(); i++){
-            expression = corList[choosenData[i]].getExpr();
+            modelIndex = ui->tableView->model()->index(choosenData[i],0);
+            realInd = (alreadySearched ?
+                           rankList[modelIndex.row()].second.first :
+                           modelIndex.row());
+            choosenData[i] = realInd;
+        }
+    }
 
-            int reMin, reMax;
-            if (importedCorrelation != nullptr){    // If there's a imported file - Ranges are equal to data inputed
-                // CONTINUE FROM HERE
+    // +++++++++++++++++++ Correlations database calculations ++++++++++++++++
+    QScriptEngine myEngine;
+    QString expression;
+
+    QList<QVector<QVector<double>>> databaseCorrelations;
+    for (int i = 0; i < choosenData.size(); i++){
+        expression = corList[choosenData[i]].getExpr();
+        expression.replace(QString("("),QString("Math.pow("));
+        expression.replace(QString("^"),QString(","));
+        QString funcExpr = "(function(Re, Pr) { return " + expression + ";})";
+        QScriptValue funcScript = myEngine.evaluate(funcExpr);
+
+        QVector<QVector<double>> choosenCorrelation;
+
+        //  === Case 1 - if there's an imported file ===
+        if (importedCorrelation != nullptr){    // If there's a imported file - Ranges are equal to data inputed
+            choosenCorrelation.push_back(importedCorrelationData[0]); // Ranges equal to data inputed
+            // Calculate expression for all Reynolds inputed in file
+            QVector<double> row;
+            for (int j = 0; j < choosenCorrelation[0].size(); j++){
+                QScriptValueList args;
+                args << choosenCorrelation[0][j] << 1;  // CHANGE TO GET PR NUMBER DIFFERENTLY
+                QScriptValue result = funcScript.call(QScriptValue(), args);
+                row.push_back(result.toNumber());
+
             }
-
-
-
+            choosenCorrelation.push_back(row);
         }
-
-        // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-        QVector<QVector<double>> testData;
-        QVector<double> testData2;
-        for (int k = 0; k < choosenData.size(); k++){
-            testData2.clear();
-            for (int i = 0; i < importedCorrelationData[1].size(); i++){
-                testData2.push_back(importedCorrelationData[1][i] - 10*(k+1));
+        // === Case 2 - If there's not yet an imported file ===
+        else{
+            QVector<int> reRange = corList[choosenData[i]].getReRange();
+            QVector<double> x(21), y(21);
+            for (int n = 0; n < 21; n++){
+                x[n] = reRange[0] + n*(reRange[1] - reRange[0])/20;
+                QScriptValueList args;
+                args << x[n] << 1; //PR = 1 for now
+                QScriptValue result = funcScript.call(QScriptValue(), args);
+                y[n] = result.toNumber();
             }
-            testData.push_back(testData2);
+            choosenCorrelation.push_back(x);
+            choosenCorrelation.push_back(y);
         }
 
+        // Results are stored in databaseCorrelation in whichever case
+        databaseCorrelations.push_back(choosenCorrelation);
+    }
 
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        // plot choosen Graphs
-        for (int i = 0; i < choosenData.size(); i++){
-            ui->customPlot->addGraph();
-            pen.setColor(QColor(int(qSin(i*0.3)*100+100), int(qSin(i*0.6+0.7)*100+100), int(qSin(i*0.4+0.6)*100+100)));
-            pen.setStyle(Qt::DashLine);
-            penScatter.setColor(QColor(int(qSin(i*0.3)*100+100), int(qSin(i*0.6+0.7)*100+100), int(qSin(i*0.4+0.6)*100+100)));
-            ui->customPlot->graph()->setData(importedCorrelationData[0], testData[i]); // CHANGE AFTER
-            ui->customPlot->rescaleAxes();
-            ui->customPlot->graph()->setName(QString::number(i));
-            ui->customPlot->graph()->setPen(pen);
-            ui->customPlot->graph()->setLineStyle(QCPGraph::lsLine);
-            if (shapes.at(i) != QCPScatterStyle::ssCustom)
-              {
-                ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(shapes.at(i),
-                                                                         penScatter,
-                                                                         QBrush(Qt::NoBrush),
-                                                                         10));
-              }
-              else
-              {
-                QPainterPath customScatterPath;
-                for (int i=0; i<3; ++i)
-                  customScatterPath.cubicTo(qCos(2*M_PI*i/3.0)*9, qSin(2*M_PI*i/3.0)*9, qCos(2*M_PI*(i+0.9)/3.0)*9, qSin(2*M_PI*(i+0.9)/3.0)*9, 0, 0);
-                ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(customScatterPath, QPen(Qt::black, 0), QColor(40, 70, 255, 50), 10));
-              }
-        }
-        // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
-
-
-        //
-
-        ui->customPlot->xAxis->setLabel("[Re]");
-        ui->customPlot->yAxis->setLabel("[Nu]");
-        ui->customPlot->axisRect()->setupFullAxesBox();
+    // plot choosen Graphs
+    for (int i = 0; i < choosenData.size(); i++){
+        ui->customPlot->addGraph();
+        pen.setColor(QColor(int(qSin(i*0.3)*100+100), int(qSin(i*0.6+0.7)*100+100), int(qSin(i*0.4+0.6)*100+100)));
+        pen.setStyle(Qt::DashLine);
+        penScatter.setColor(QColor(int(qSin(i*0.3)*100+100), int(qSin(i*0.6+0.7)*100+100), int(qSin(i*0.4+0.6)*100+100)));
+        ui->customPlot->graph()->setData(databaseCorrelations[i][0],databaseCorrelations[i][1]);
         ui->customPlot->rescaleAxes();
-        ui->customPlot->xAxis2->setVisible(true);
-        ui->customPlot->xAxis2->setTickLabels(false);
-        ui->customPlot->yAxis2->setVisible(true);
-        ui->customPlot->yAxis2->setTickLabels(false);
+        ui->customPlot->graph()->setName(corList[choosenData[i]].getAuthor());
+        ui->customPlot->graph()->setPen(pen);
+        ui->customPlot->graph()->setLineStyle(QCPGraph::lsLine);
+        if (shapes.at(i) != QCPScatterStyle::ssCustom)
+          {
+            ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(shapes.at(i),
+                                                                     penScatter,
+                                                                     QBrush(Qt::NoBrush),
+                                                                     10));
+          }
+          else
+          {
+            QPainterPath customScatterPath;
+            for (int i=0; i<3; ++i)
+              customScatterPath.cubicTo(qCos(2*M_PI*i/3.0)*9, qSin(2*M_PI*i/3.0)*9, qCos(2*M_PI*(i+0.9)/3.0)*9, qSin(2*M_PI*(i+0.9)/3.0)*9, 0, 0);
+            ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(customScatterPath, QPen(Qt::black, 0), QColor(40, 70, 255, 50), 10));
+          }
+    }
 
-        ui->customPlot->replot();
-        ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 
-        // Adding a context menu to hide/move legend
-        ui->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->customPlot->xAxis->setLabel("[Re]");
+    ui->customPlot->yAxis->setLabel("[Nu]");
+    ui->customPlot->axisRect()->setupFullAxesBox();
+    ui->customPlot->rescaleAxes();
+    ui->customPlot->xAxis2->setVisible(true);
+    ui->customPlot->xAxis2->setTickLabels(false);
+    ui->customPlot->yAxis2->setVisible(true);
+    ui->customPlot->yAxis2->setTickLabels(false);
+
+    ui->customPlot->replot();
+    ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+
+    // Adding a context menu to hide/move legend
+    ui->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void MainWindow::correlationContextMenuRequest(QPoint pos)

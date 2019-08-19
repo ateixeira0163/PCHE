@@ -51,7 +51,7 @@ private slots:
     void on_searchButton_clicked();
     void correlationCellChanged();
     void on_deleteButton_clicked();
-    void on_tableView_doubleClicked(const QModelIndex &index);
+    //void on_tableView_doubleClicked(const QModelIndex &index);
     void on_importCorResultsButton_clicked();
     void on_plotButton_clicked();
     void correlationContextMenuRequest(QPoint pos);

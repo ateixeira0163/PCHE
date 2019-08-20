@@ -685,6 +685,7 @@ void MainWindow::on_plotButton_clicked()
 
     QModelIndex indData;
     QVector<int> choosenData;
+
     // Get all the choosen data from tableView to be plotted with imported Results
     for (int i = 0; i < ui->tableView->model()->rowCount(); i++){
         indData = ui->tableView->model()->index(i,0,QModelIndex());
@@ -710,41 +711,22 @@ void MainWindow::on_plotButton_clicked()
     QScriptEngine myEngine;
     QString expression;
 
-    QList<QLabel*> labelPlotResults = {ui->prPlotResultLabel,
-                                      ui->dPlotResultLabel,
-                                      ui->aPlotResultLabel,
-                                      ui->lPlotResultLabel,
-                                      ui->viscPlotResultLabel,
-                                      ui->tempPlotResultLabel};
-    QList<QDoubleSpinBox*> boxPlotResults = {ui->prPlotResultBox,
-                                             ui->dPlotResultBox,
-                                             ui->aPlotResultBox,
-                                             ui->lPlotResultBox,
-                                             ui->viscPlotResultBox,
-                                             ui->tempPlotResultBox};
-    QList<bool> allVars;
+    QList<QDoubleSpinBox*> boxPlotResults = {ui->prDoubleSpinBox,
+                                             ui->dDoubleSpinBox,
+                                             ui->aDoubleSpinBox,
+                                             ui->lDoubleSpinBox,
+                                             ui->muDoubleSpinBox,
+                                             ui->tDoubleSpinBox};
+
     QVector<double> inArgs;
 
-    for (int k = 0; k < labelPlotResults.size(); k++){
-        labelPlotResults[k]->hide();
-        boxPlotResults[k]->hide();
-    };
 
     QList<QVector<QVector<double>>> databaseCorrelations;
     for (int i = 0; i < choosenData.size(); i++){
 
-        // --- Handle args boxes --- //
-        allVars = corList[choosenData[i]].getAllVars();
-
-        for (int k = 0; k < allVars.size() - 1; k++){
-            if (allVars[k+1]){
-                labelPlotResults[k]->show();
-                boxPlotResults[k]->show();
-            }
-        }
 
         inArgs.clear();
-        for (int k = 0; k < allVars.size() - 1; k++){
+        for (int k = 0; k < boxPlotResults.size() - 1; k++){
             inArgs.push_back(boxPlotResults[k]->value());
         }
 
@@ -795,8 +777,6 @@ void MainWindow::on_plotButton_clicked()
 
         // Results are stored in databaseCorrelation in whichever case
         databaseCorrelations.push_back(choosenCorrelation);
-
-
 
     }
 
@@ -995,6 +975,41 @@ void MainWindow::on_tempRangeButton_clicked()
     }
 }
 
+void MainWindow::on_prSlider_sliderMoved(int position)
+{
+    ui->prDoubleSpinBox->setValue(double(position)/10);
+    on_plotButton_clicked();
+}
+
+void MainWindow::on_dSlider_sliderMoved(int position)
+{
+    ui->dDoubleSpinBox->setValue(double(position)/10);
+    on_plotButton_clicked();
+}
+
+void MainWindow::on_aSlider_sliderMoved(int position)
+{
+    ui->aDoubleSpinBox->setValue(double(position));
+    on_plotButton_clicked();
+}
+
+void MainWindow::on_lSlider_sliderMoved(int position)
+{
+    ui->lDoubleSpinBox->setValue(double(position)/10);
+    on_plotButton_clicked();
+}
+
+void MainWindow::on_muSlider_sliderMoved(int position)
+{
+    ui->muDoubleSpinBox->setValue(double(position)/10);
+    on_plotButton_clicked();
+}
+
+void MainWindow::on_tSlider_sliderMoved(int position)
+{
+    ui->tDoubleSpinBox->setValue(double(position)/10);
+    on_plotButton_clicked();
+}
 
 // ============ Results methods =========== //
 
@@ -1888,3 +1903,5 @@ double MainWindow::interpolate(double T, double P, QMap<int, QVector<QPair<doubl
         return propResult;
     }
 }
+
+

@@ -64,6 +64,12 @@ private slots:
     void on_lRangeButton_clicked();
     void on_viscRangeButton_clicked();
     void on_tempRangeButton_clicked();
+    void on_prSlider_sliderMoved(int position);
+    void on_dSlider_sliderMoved(int position);
+    void on_aSlider_sliderMoved(int position);
+    void on_lSlider_sliderMoved(int position);
+    void on_muSlider_sliderMoved(int position);
+    void on_tSlider_sliderMoved(int position);
 
     // =========== Results Tab methods ============ //
 
@@ -90,10 +96,6 @@ private slots:
 
     double mean(int begin, int end, QVector<double> vector);
     double interpolate(double T, double P, QMap<int, QVector<QPair<double,double>>> prop);
-
-
-
-
 
 private:
     Ui::MainWindow *ui;

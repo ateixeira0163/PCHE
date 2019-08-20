@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>376</width>
+    <width>400</width>
     <height>866</height>
    </rect>
   </property>
@@ -259,6 +259,9 @@
            <property name="suffix">
             <string>°</string>
            </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
           </widget>
          </item>
          <item>
@@ -268,6 +271,9 @@
            </property>
            <property name="suffix">
             <string>°</string>
+           </property>
+           <property name="maximum">
+            <double>360.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -459,7 +465,10 @@
             <string>min</string>
            </property>
            <property name="suffix">
-            <string>°</string>
+            <string> °C</string>
+           </property>
+           <property name="maximum">
+            <double>10000.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -475,7 +484,10 @@
             <string>max</string>
            </property>
            <property name="suffix">
-            <string>°</string>
+            <string> °C</string>
+           </property>
+           <property name="maximum">
+            <double>10000.000000000000000</double>
            </property>
           </widget>
          </item>

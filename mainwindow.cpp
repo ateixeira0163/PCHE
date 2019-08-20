@@ -418,6 +418,7 @@ void MainWindow::on_searchButton_clicked()
     ui->tableView->horizontalHeader()->show();
     ui->tableView->resizeColumnsToContents();
     ui->tableView->resizeRowsToContents();
+    connect(modelTable, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(correlationCellChanged()));
 
     alreadySearched = true;
 }
@@ -709,13 +710,51 @@ void MainWindow::on_plotButton_clicked()
     QScriptEngine myEngine;
     QString expression;
 
+    QList<QLabel*> labelPlotResults = {ui->prPlotResultLabel,
+                                      ui->dPlotResultLabel,
+                                      ui->aPlotResultLabel,
+                                      ui->lPlotResultLabel,
+                                      ui->viscPlotResultLabel,
+                                      ui->tempPlotResultLabel};
+    QList<QDoubleSpinBox*> boxPlotResults = {ui->prPlotResultBox,
+                                             ui->dPlotResultBox,
+                                             ui->aPlotResultBox,
+                                             ui->lPlotResultBox,
+                                             ui->viscPlotResultBox,
+                                             ui->tempPlotResultBox};
+    QList<bool> allVars;
+    QVector<double> inArgs;
+
+    for (int k = 0; k < labelPlotResults.size(); k++){
+        labelPlotResults[k]->hide();
+        boxPlotResults[k]->hide();
+    };
+
     QList<QVector<QVector<double>>> databaseCorrelations;
     for (int i = 0; i < choosenData.size(); i++){
+
+        // --- Handle args boxes --- //
+        allVars = corList[choosenData[i]].getAllVars();
+
+        for (int k = 0; k < allVars.size() - 1; k++){
+            if (allVars[k+1]){
+                labelPlotResults[k]->show();
+                boxPlotResults[k]->show();
+            }
+        }
+
+        inArgs.clear();
+        for (int k = 0; k < allVars.size() - 1; k++){
+            inArgs.push_back(boxPlotResults[k]->value());
+        }
+
+        // --- Convert expression from string to mathematical expression ---
         expression = corList[choosenData[i]].getExpr();
         expression.replace(QString("("),QString("Math.pow("));
         expression.replace(QString("^"),QString(","));
-        QString funcExpr = "(function(Re, Pr) { return " + expression + ";})";
+        QString funcExpr = "(function(Re, Pr, D, A, L, Mu, T) { return " + expression + ";})";
         QScriptValue funcScript = myEngine.evaluate(funcExpr);
+
 
         QVector<QVector<double>> choosenCorrelation;
 
@@ -726,7 +765,10 @@ void MainWindow::on_plotButton_clicked()
             QVector<double> row;
             for (int j = 0; j < choosenCorrelation[0].size(); j++){
                 QScriptValueList args;
-                args << choosenCorrelation[0][j] << 1;  // CHANGE TO GET PR NUMBER DIFFERENTLY
+                args << choosenCorrelation[0][j];
+                for (int k = 0; k < inArgs.size(); k++){
+                    args << inArgs[k];
+                };
                 QScriptValue result = funcScript.call(QScriptValue(), args);
                 row.push_back(result.toNumber());
 
@@ -740,7 +782,10 @@ void MainWindow::on_plotButton_clicked()
             for (int n = 0; n < 21; n++){
                 x[n] = reRange[0] + n*(reRange[1] - reRange[0])/20;
                 QScriptValueList args;
-                args << x[n] << 1; //PR = 1 for now
+                args << x[n];
+                for (int k = 0; k < inArgs.size(); k++){
+                    args << inArgs[k];
+                };
                 QScriptValue result = funcScript.call(QScriptValue(), args);
                 y[n] = result.toNumber();
             }
@@ -750,6 +795,9 @@ void MainWindow::on_plotButton_clicked()
 
         // Results are stored in databaseCorrelation in whichever case
         databaseCorrelations.push_back(choosenCorrelation);
+
+
+
     }
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -765,7 +813,7 @@ void MainWindow::on_plotButton_clicked()
         ui->customPlot->graph()->setName(corList[choosenData[i]].getAuthor());
         ui->customPlot->graph()->setPen(pen);
         ui->customPlot->graph()->setLineStyle(QCPGraph::lsLine);
-        if (shapes.at(i) != QCPScatterStyle::ssCustom)
+        if (i < shapes.size() -1)
           {
             ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(shapes.at(i),
                                                                      penScatter,

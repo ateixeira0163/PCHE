@@ -27,6 +27,7 @@
 #include <QtScript/QScriptEngine>
 #include "qcustomplot.h"
 #include <QtMath>
+#include <algorithm>
 
 namespace Ui {
 class MainWindow;
@@ -70,6 +71,7 @@ private slots:
     void on_lSlider_sliderMoved(int position);
     void on_muSlider_sliderMoved(int position);
     void on_tSlider_sliderMoved(int position);
+    void on_bestFitButton_clicked();
 
     // =========== Results Tab methods ============ //
 
@@ -96,6 +98,8 @@ private slots:
 
     double mean(int begin, int end, QVector<double> vector);
     double interpolate(double T, double P, QMap<int, QVector<QPair<double,double>>> prop);
+    double quadraticDiff(QVector<double> y1, QVector<double> y2);
+
 
 private:
     Ui::MainWindow *ui;

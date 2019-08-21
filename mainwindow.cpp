@@ -782,6 +782,44 @@ void MainWindow::on_plotButton_clicked()
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
+    // +++++++++++++++++++ Calculate distance between datas +++++++++++++++++++
+
+    // Only if there's a data to compare
+    if (importedCorrelation != nullptr){
+        ui->bestFitTableView->show();
+        QVector<double> qDiff;
+        auto modelTable = new QStandardItemModel();
+        for (int i = 0; i < databaseCorrelations.size(); i++){
+            qDiff.push_back(quadraticDiff(importedCorrelationData[1],databaseCorrelations[i][1]));
+            modelTable->appendRow(new QStandardItem(corList[choosenData[i]].getAuthor()));
+
+            QStandardItem *itemQDiff = new QStandardItem(QString::number(qDiff[i]));
+            modelTable->setItem(i,1,itemQDiff);
+        }
+
+        int minIndex = qDiff.indexOf(*std::min_element(qDiff.constBegin(), qDiff.constEnd()));
+        if (minIndex != -1){
+            QModelIndex bestFitIndex = modelTable->index(minIndex,0);
+            modelTable->setData(bestFitIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
+        }
+
+        modelTable->setHeaderData(0, Qt::Horizontal, "Author");
+        modelTable->setHeaderData(1,Qt::Horizontal,"QDiff");
+        ui->bestFitTableView->setModel(modelTable);
+        ui->bestFitTableView->horizontalHeader()->show();
+        ui->bestFitTableView->resizeColumnsToContents();
+    }
+    else{
+        ui->bestFitTableView->hide();
+    }
+
+
+
+
+
+    // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
     // plot choosen Graphs
     for (int i = 0; i < choosenData.size(); i++){
         ui->customPlot->addGraph();
@@ -1009,6 +1047,11 @@ void MainWindow::on_tSlider_sliderMoved(int position)
 {
     ui->tDoubleSpinBox->setValue(double(position)/10);
     on_plotButton_clicked();
+}
+
+void MainWindow::on_bestFitButton_clicked()
+{
+
 }
 
 // ============ Results methods =========== //
@@ -1904,4 +1947,13 @@ double MainWindow::interpolate(double T, double P, QMap<int, QVector<QPair<doubl
     }
 }
 
+double MainWindow::quadraticDiff(QVector<double> y1, QVector<double> y2)
+{
+    double qD = 0;
+    for (int i = 0; i < y1.size(); i++){
+        qD += sqrt(pow(y1[i] - y2[i],2));
+    }
+    qD /= y1.size();
+    return qD;
+}
 

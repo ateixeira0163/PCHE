@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     alreadySearched = false;
+    ui->moreButton->clicked();
     // Open menu to move legend (is here not to be called more than once)
     connect(ui->customPlot, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(correlationContextMenuRequest(QPoint)));
     connect(ui->tableView->model(), SIGNAL(itemChanged(QStandardItem*)), this, SLOT(correlationCellChanged()));
@@ -426,6 +427,45 @@ void MainWindow::on_searchButton_clicked()
 void MainWindow::correlationCellChanged()
 {
     on_plotButton_clicked();
+}
+
+void MainWindow::on_moreButton_clicked()
+{
+    //! Function to hide/show some options of search
+    QList<QLabel*> labels = {ui->sectionLabel, ui->diameterLabel,
+                            ui->channelLabel, ui->borderLabel,
+                            ui->lengthLabel, ui->viscosityLabel,
+                            ui->temperatureLabel};
+    QList<QDoubleSpinBox*> dBoxes = {ui->diamMaxBox, ui->diamMinBox,
+                                    ui->lMaxBox, ui->lMinBox,
+                                    ui->viscMinBox, ui->viscMaxBox,
+                                    ui->tempMinBox, ui->tempMaxBox};
+    QList<QPushButton*> rButtons = {ui->dRangeButton, ui->lRangeButton,
+                                   ui->viscRangeButton, ui->tempRangeButton};
+    QList<QCheckBox*> cBoxes = {ui->dCheckBox, ui->lCheckBox,
+                               ui->viscCheckBox, ui->tempCheckBox};
+    QList<QComboBox*> cmbBoxes = {ui->sectionBox, ui->borderBox, ui->channelBox};
+
+    QListIterator<QLabel*> l(labels);
+    QListIterator<QDoubleSpinBox*> d(dBoxes);
+    QListIterator<QPushButton*> r(rButtons);
+    QListIterator<QCheckBox*> c(cBoxes);
+    QListIterator<QComboBox*> cmb(cmbBoxes);
+
+    if (ui->moreButton->isChecked()){
+        while(l.hasNext()) l.next()->show();
+        while(d.hasNext()) d.next()->show();
+        while(r.hasNext()) r.next()->show();
+        while(c.hasNext()) c.next()->show();
+        while(cmb.hasNext()) cmb.next()->show();
+    }
+    else{
+        while(l.hasNext()) l.next()->hide();
+        while(d.hasNext()) d.next()->hide();
+        while(r.hasNext()) r.next()->hide();
+        while(c.hasNext()) c.next()->hide();
+        while(cmb.hasNext()) cmb.next()->hide();
+    }
 }
 
 void MainWindow::on_deleteButton_clicked()
@@ -1956,4 +1996,5 @@ double MainWindow::quadraticDiff(QVector<double> y1, QVector<double> y2)
     qD /= y1.size();
     return qD;
 }
+
 

@@ -51,6 +51,7 @@ private slots:
     void showCorrelations();
     void on_searchButton_clicked();
     void correlationCellChanged();
+    void on_moreButton_clicked();
     void on_deleteButton_clicked();
     //void on_tableView_doubleClicked(const QModelIndex &index);
     void on_importCorResultsButton_clicked();
@@ -99,6 +100,8 @@ private slots:
     double mean(int begin, int end, QVector<double> vector);
     double interpolate(double T, double P, QMap<int, QVector<QPair<double,double>>> prop);
     double quadraticDiff(QVector<double> y1, QVector<double> y2);
+
+
 
 
 private:

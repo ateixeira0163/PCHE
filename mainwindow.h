@@ -136,6 +136,7 @@ private:
     // Parameters for the model
     QMap<QString, double> modelParameters;
     QMap<int, QVector<QPair<double,double>>> muAir, cpW, cpAir;
+    QMap<QString, int> chInput;
 
 
 

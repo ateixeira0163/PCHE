@@ -20,7 +20,25 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     connect(ui->customPlot, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(correlationContextMenuRequest(QPoint)));
     connect(ui->tableView->model(), SIGNAL(itemChanged(QStandardItem*)), this, SLOT(correlationCellChanged()));
 
-    // Model parameters input as default for now // CHANGE LATER
+    // Channels input for AGILENT
+    chInput["scan"] = 0;
+    chInput["tWIn1"] = 2;
+    chInput["tWIn2"] = 3;
+    chInput["tWOut1"] = 1;
+    chInput["tWOut2"] = 5;
+    chInput["tAirIn"] = 11;
+    chInput["tAirOut"] = 4;
+    chInput["pWIn"] = 12;
+    chInput["pWOut"] = 13;
+    chInput["pAirIn"] = 6;
+    chInput["pAirOut"] = 9;
+    chInput["pV"] = 7;
+    chInput["tAmb"] = 10;
+    chInput["diffP"] = 8;
+
+
+    // Model parameters input as default for now // CHANGE LATER    
+
     modelParameters["chNb"] = 10;       // channels number
     modelParameters["wTh"] = 0.0005;    // wall thickness [m]
     modelParameters["chWidth"] = 0.002; // channels width [m]
@@ -377,6 +395,7 @@ void MainWindow::on_searchButton_clicked()
             modelTable->setItem(i,allRangesTableOrder[k]+1,itemVar);
             QModelIndex varIndex = modelTable->index(i,allRangesTableOrder[k]+1);
             if (allVars[k]) modelTable->setData(varIndex,QIcon(":/fx.png"),Qt::DecorationRole);
+
         }
 
         for (int k = 0; k < allStringLists.size(); k++){
@@ -391,6 +410,7 @@ void MainWindow::on_searchButton_clicked()
             QModelIndex stringIndex = modelTable->index(i,allStringsTableOrder[k]);
             if (resultsList[rankList[i].second.first].second[k+7]) modelTable->setData(stringIndex,QIcon(":/checkmarkGreen.png"),Qt::DecorationRole);
             else modelTable->setData(stringIndex,QIcon(":/checkmarkRed.png"),Qt::DecorationRole);
+
         }
     }
 
@@ -1525,7 +1545,7 @@ void MainWindow::on_importResultsButton_clicked()
             itemList = line.split(';');
             if (itemList.size() > 1){
                 row.clear();
-                for (int i = 0; i < 25; i+=2){ // Until now we have 13 columns**
+                for (int i = 0; i < 27; i+=2){ // Until now we have 13 columns**
                     // Reads for i = {0, 2, 4, ..., 24}
                     row.push_back(itemList[i].toDouble());
                 }
@@ -1549,6 +1569,7 @@ void MainWindow::on_importResultsButton_clicked()
             importedData[8][i] = 1000*importedData[8][i]*0.75 - 3 + 1.01325; // P_out (air)
             importedData[11][i] = 1000*importedData[11][i]*0.25 - 0.1 + 1.01325; // P_in (water)
             importedData[12][i] = 1000*importedData[12][i]*0.25 - 0.1 + 1.01325; // P_out (water)
+
         }
 
         data.clear();

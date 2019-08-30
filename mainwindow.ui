@@ -58,6 +58,9 @@
            <string>Search results </string>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
            <item row="0" column="0">
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
@@ -131,7 +134,7 @@
           </property>
           <layout class="QGridLayout" name="gridLayout_11">
            <property name="sizeConstraint">
-            <enum>QLayout::SetFixedSize</enum>
+            <enum>QLayout::SetDefaultConstraint</enum>
            </property>
            <item row="0" column="0">
             <layout class="QGridLayout" name="gridLayout_10">
@@ -873,6 +876,9 @@
            <string>Plot</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_4">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
            <item row="0" column="0">
             <widget class="QSplitter" name="splitter_4">
              <property name="orientation">

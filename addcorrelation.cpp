@@ -120,7 +120,7 @@ AddCorrelation::~AddCorrelation()
 
 void AddCorrelation::on_buttonBox_accepted()
 {
-    // To add the new fluid to the .txt
+    // To add the new correlation to the .csv
 
     // Using QFile
     QFile file("..//PCHEThermalEfficiency//correlations.csv");

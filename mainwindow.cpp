@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     connect(ui->tableView->model(), SIGNAL(itemChanged(QStandardItem*)), this, SLOT(correlationCellChanged()));
 
     // Channels input for AGILENT
+    /*
     chInput["scan"] = 0;
     chInput["tWIn1"] = 2;
     chInput["tWIn2"] = 3;
@@ -49,7 +50,9 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     modelParameters["heatTransferArea"] = modelParameters["chWidth"] * (modelParameters["strLenght"]/(modelParameters["zzNb"]*2*qCos(qDegreesToRadians(modelParameters["zzAngle"]))))*
             2*modelParameters["zzNb"]*modelParameters["chNb"];  // Heat Transfer Area [m]
     modelParameters["dH"] = 2*modelParameters["chWidth"]*modelParameters["chHeight"]/(modelParameters["chWidth"] + modelParameters["chHeight"]); // hidraulic Diameter   2*a*b/(a+b) for rectangle
+    */
 
+    pcheConfig();
 
     QVector<double> muT = {260, 280, 300, 320, 340, 360, 380, 400};
     QVector<double> mu1bar = {16.55e-6, 17.56e-6, 18.54e-6, 19.49e-6, 20.41e-6, 21.32e-6, 22.20e-6, 23.06e-6};
@@ -1276,17 +1279,17 @@ void MainWindow::calculateResults()
 {
     // Function that calculates the parameters and stores them
 
-    int indTi = importedData[0].indexOf(ui->tiBox->value());
-    int indTf = importedData[0].indexOf(ui->tfBox->value());
+    int indTi = importedData[chInput["scan"]].indexOf(ui->tiBox->value());
+    int indTf = importedData[chInput["scan"]].indexOf(ui->tfBox->value());
     double mw = ui->massFlowBox->value();
 
     if ( indTi == -1 || indTi > indTf ){
         indTi = 0;
-        ui->tiBox->setValue(int(importedData[0][0]));
+        ui->tiBox->setValue(int(importedData[chInput["scan"]][0]));
     }
     if ( indTf == -1 ){
-        indTf = importedData[0].size() - 1;
-        ui->tfBox->setValue(int(importedData[0][importedData[0].size() - 1]));
+        indTf = importedData[chInput["scan"]].size() - 1;
+        ui->tfBox->setValue(int(importedData[chInput["scan"]][importedData[chInput["scan"]].size() - 1]));
     }
 
     resultsMatrix.clear();
@@ -1299,23 +1302,23 @@ void MainWindow::calculateResults()
     double tOutA, tInA, tOutW, tInW, lmtd, pOutA, pInA, uA, muA, cpA, mAir;
     for (int i = indTi; i < indTf; i++){
         // LMTD
-        tOutW = (importedData[1][i] + importedData[2][i])/2;
-        tInW = (importedData[3][i] + importedData[4][i])/2;
-        tOutA = importedData[10][i];
-        tInA = importedData[5][i];
+        tOutW = (importedData[chInput["tWOut1"]][i] + importedData[chInput["tWOut2"]][i])/2;
+        tInW = (importedData[chInput["tWIn1"]][i] + importedData[chInput["tWIn1"]][i])/2;
+        tOutA = importedData[chInput["tAirOut"]][i];
+        tInA = importedData[chInput["tAirIn"]][i];
         lmtd = (isnan((tOutA - tInW - tInA + tOutW)/log((tOutA - tInW)/(tInA - tOutW))) ? 0 : (tOutA - tInW - tInA + tOutW)/log((tOutA - tInW)/(tInA - tOutW)));
         logDiffT.push_back(lmtd);
 
         // Pressure Drop
-        pressureDrop.push_back(importedData[6][i] - importedData[8][i]);
+        pressureDrop.push_back(importedData[chInput["pAirIn"]][i] - importedData[chInput["pAirOut"]][i]);
 
         // Air velocity
-        uA = importedData[7][i]/(3600*modelParameters["chNb"]*modelParameters["chWidth"]*modelParameters["chHeight"]); // 3600: h->s
+        uA = importedData[chInput["pV"]][i]/(3600*modelParameters["chNb"]*modelParameters["chWidth"]*modelParameters["chHeight"]); // 3600: h->s
         uAir.push_back(uA);
 
         // Reynolds number
-        pOutA = importedData[8][i];
-        pInA = importedData[6][i];
+        pOutA = importedData[chInput["pAirOut"]][i];
+        pInA = importedData[chInput["pAirIn"]][i];
         muA = interpolate(((tOutA + tInA)/2)+273.15, (pOutA + pInA)/2, muAir);
         if (fabs(muA) > 0) reAir.push_back( ((((pOutA + pInA)/2)*1e+05)/(287.058 * (((tOutA + tInA)/2) + 273.15)))*(uA/muA)*modelParameters["dH"]);
         else reAir.push_back(0);
@@ -1340,14 +1343,16 @@ void MainWindow::calculateResults()
 
     meansVector.push_back(mean(0,logDiffT.size(),logDiffT)); // [0]
     meansVector.push_back(mean(0,pressureDrop.size(),pressureDrop)); // [1]
-    meansVector.push_back(mean(0,uAir.size(),uAir)); // [2]
-    meansVector.push_back(mean(0,reAir.size(),reAir)); // [3]
-    meansVector.push_back(mean(0, qW.size(), qW)); // [4]
-    meansVector.push_back(mean(0, qAir.size(), qAir)); // [5]
-    meansVector.push_back(mean(0, qLosses.size(), qLosses)); // [6]
-    meansVector.push_back(mean(0, globalU.size(), globalU)); // [7]
+    meansVector.push_back(mean(0,importedData[chInput["diffP"]].size(), importedData[chInput["diffP"]]));
+    meansVector.push_back(mean(0,uAir.size(),uAir)); // [3]
+    meansVector.push_back(mean(0,reAir.size(),reAir)); // [4]
+    meansVector.push_back(mean(0, qW.size(), qW)); // [5]
+    meansVector.push_back(mean(0, qAir.size(), qAir)); // [6]
+    meansVector.push_back(mean(0, qLosses.size(), qLosses)); // [7]
+    meansVector.push_back(mean(0, globalU.size(), globalU)); // [8]
     resultsMatrix.push_back(logDiffT); // [0]
     resultsMatrix.push_back(pressureDrop); // [1]
+    resultsMatrix.push_back(importedData[chInput["diffP"]]);
     resultsMatrix.push_back(uAir); // [2]
     resultsMatrix.push_back(reAir); // [3]
     resultsMatrix.push_back(qW);
@@ -1374,7 +1379,7 @@ void MainWindow::calculateResults()
 
     // Add options to plot results after
     QVector<QString> optionsForTable3;
-    optionsForTable3 = {"LMTD", "Pressure Drop", "Air Velocity", "Reynolds Nb (Air)",
+    optionsForTable3 = {"LMTD", "Pressure Drop", "Measured Pressure drop", "Air Velocity", "Reynolds Nb (Air)",
                                          "Heat transfered to water", "Heat lost from Air", "Lost heat",
                                         "Global heat transfer coefficient"};
     auto plotModelTable3 = new QStandardItemModel();
@@ -1563,13 +1568,13 @@ void MainWindow::on_importResultsButton_clicked()
         }
 
         for (int i = 0; i < data.size(); i++) {
-            importedData[0][i] *= ui->timeIntervalBox->value();
-            importedData[6][i] = 1000*importedData[6][i]*0.75 - 3 + 1.01325; // P_in (air) conversion from mA -> bar
-            importedData[7][i] = 1000*importedData[7][i]*1.05 - 4.2; // Q (air) conversion mA -> kg/m^3
-            importedData[8][i] = 1000*importedData[8][i]*0.75 - 3 + 1.01325; // P_out (air)
-            importedData[11][i] = 1000*importedData[11][i]*0.25 - 0.1 + 1.01325; // P_in (water)
-            importedData[12][i] = 1000*importedData[12][i]*0.25 - 0.1 + 1.01325; // P_out (water)
-
+            importedData[chInput["scan"]][i] *= ui->timeIntervalBox->value();
+            importedData[chInput["pAirIn"]][i] = 1000*importedData[chInput["pAirIn"]][i]*0.75 - 3 + 1.01325; // P_in (air) conversion from mA -> bar
+            importedData[chInput["pV"]][i] = 1000*importedData[chInput["pV"]][i]*1.05 - 4.2; // Q (air) conversion mA -> kg/m^3
+            importedData[chInput["pAirOut"]][i] = 1000*importedData[chInput["pAirOut"]][i]*0.75 - 3 + 1.01325; // P_out (air)
+            importedData[chInput["pWIn"]][i] = 1000*importedData[chInput["pWIn"]][i]*0.25 - 0.1 + 1.01325; // P_in (water)
+            importedData[chInput["pWOut"]][i] = 1000*importedData[chInput["pWOut"]][i]*0.25 - 0.1 + 1.01325; // P_out (water)
+            importedData[chInput["diffP"]][i] = importedData[chInput["diffP"]][i]; // Add diff p conversion
         }
 
         data.clear();
@@ -1657,7 +1662,7 @@ void MainWindow::on_plotResultsButton_clicked()
                 pen.setColor(QColor((choosenData.size()-i)*254/choosenData.size(),(i)*254/choosenData.size(), 100, 255));
                 ui->customPlotData->graph(i)->setPen(pen);
                 ui->customPlotData->graph(i)->setLineStyle(QCPGraph::lsLine);
-                ui->customPlotData->graph(i)->setData(importedData[0],importedData[choosenData[i]]);
+                ui->customPlotData->graph(i)->setData(importedData[chInput["scan"]],importedData[choosenData[i]]);
                 ui->customPlotData->graph(i)->setName(headerList[choosenData[i]]);
             }
 
@@ -1665,8 +1670,8 @@ void MainWindow::on_plotResultsButton_clicked()
 
             QVector<double> eXData;                                        // Create list for X axis that jumps 'eSpacing' points
             int eSpacing = 10;  // Change this parameter to change how many points show the error bar
-            for (int i = 0; i < importedData[0].size(); i += eSpacing){
-                eXData.push_back(importedData[0][i]);
+            for (int i = 0; i < importedData[chInput["scan"]].size(); i += eSpacing){
+                eXData.push_back(importedData[chInput["scan"]][i]);
             }
 
             QVector<double> e(eXData.size());
@@ -1675,7 +1680,7 @@ void MainWindow::on_plotResultsButton_clicked()
 
             for (int i = 0; i < choosenData.size(); i++){   // Create a matrix for y axis that jumps 'eSpacing' points
                 eYData = new QVector<double>;
-                for (int j = 0; j < importedData[0].size(); j += eSpacing){
+                for (int j = 0; j < importedData[chInput["scan"]].size(); j += eSpacing){
                     eYData->push_back(importedData[choosenData[i]][j]);
                 }
 
@@ -1762,8 +1767,8 @@ void MainWindow::on_plotResultsButton_clicked()
 
 void MainWindow::refreshRange(int minValue, int maxValue)
 {
-    ui->tiBox->setValue(importedData[0][minValue*importedData[0].size()/100]);
-    ui->tfBox->setValue(importedData[0][maxValue*importedData[0].size()/100]);
+    ui->tiBox->setValue(importedData[chInput["scan"]][minValue*importedData[chInput["scan"]].size()/100]);
+    ui->tfBox->setValue(importedData[chInput["scan"]][maxValue*importedData[chInput["scan"]].size()/100]);
     calculateResults();
     rangeRect->topLeft->setCoords(ui->tiBox->value(),300);
     rangeRect->bottomRight->setCoords(ui->tfBox->value(),0);
@@ -1885,8 +1890,8 @@ void MainWindow::on_plotResultsButton2_clicked()
         calculateResults();
 
 
-        int indTi = importedData[0].indexOf(ui->tiBox->value());
-        //int indTf = importedData[0].indexOf(ui->tfBox->value());
+        int indTi = importedData[chInput["scan"]].indexOf(ui->tiBox->value());
+        //int indTf = importedData[chInput["scan"]].indexOf(ui->tfBox->value());
 
         // Get all choosen results to be plotted
         QModelIndex indResults;
@@ -1910,7 +1915,7 @@ void MainWindow::on_plotResultsButton2_clicked()
         for (int i = 0; i < choosenResults.size(); i++){
             ui->plotResults2->addGraph(); // For now defaut axis
             ui->plotResults2->graph(i)->setLineStyle(QCPGraph::lsLine);
-            ui->plotResults2->graph(i)->setData(importedData[0].mid(indTi,resultsMatrix[choosenResults[i]].size()),resultsMatrix[choosenResults[i]]);
+            ui->plotResults2->graph(i)->setData(importedData[chInput["scan"]].mid(indTi,resultsMatrix[choosenResults[i]].size()),resultsMatrix[choosenResults[i]]);
             ui->plotResults2->graph(i)->setName(ui->plotTable3->model()->data(ui->plotTable3->model()->index(choosenResults[i],0)).toString());
         }
 
@@ -1940,11 +1945,61 @@ void MainWindow::on_plotResultsButton2_clicked()
 
 void MainWindow::on_pushButton_clicked()
 {
-    ui->plotRangeSlider->setValues((ui->tiBox->value()/ui->timeIntervalBox->value())*100/importedData[0].size(),
-            (ui->tfBox->value()/ui->timeIntervalBox->value())*100/importedData[0].size());
+    ui->plotRangeSlider->setValues((ui->tiBox->value()/ui->timeIntervalBox->value())*100/importedData[chInput["scan"]].size(),
+            (ui->tfBox->value()/ui->timeIntervalBox->value())*100/importedData[chInput["scan"]].size());
     calculateResults();
 }
 
+void MainWindow::on_actionPCHE_Configuration_triggered()
+{
+    PCHEConfig pcheConfig;
+    connect(&pcheConfig, &PCHEConfig::sendSignal, this, &MainWindow::pcheConfig);
+    pcheConfig.exec();
+}
+
+void MainWindow::pcheConfig()
+{
+    QFile file("..//PCHEThermalEfficiency//config.csv");
+    if (!file.open(QFile::ReadOnly | QIODevice::Text)){
+        qDebug() << file.errorString();
+    }
+
+    QStringList channelsList;
+    QString line = file.readLine();
+    channelsList = line.split(';');
+
+    chInput["scan"] = channelsList[0].toInt();
+    chInput["tWIn1"] = channelsList[1].toInt();
+    chInput["tWIn2"] = channelsList[2].toInt();
+    chInput["tWOut1"] = channelsList[3].toInt();
+    chInput["tWOut2"] = channelsList[4].toInt();
+    chInput["tAirIn"] = channelsList[5].toInt();
+    chInput["tAirOut"] = channelsList[6].toInt();
+    chInput["pWIn"] = channelsList[7].toInt();
+    chInput["pWOut"] = channelsList[8].toInt();
+    chInput["pAirIn"] = channelsList[9].toInt();
+    chInput["pAirOut"] = channelsList[10].toInt();
+    chInput["pV"] = channelsList[11].toInt();
+    chInput["tAmb"] = channelsList[12].toInt();
+    chInput["diffP"] = channelsList[13].toInt();
+
+    line = file.readLine();
+    QStringList parameters = line.split(';');
+    modelParameters["chNb"] = parameters[0].toInt();       // channels number
+    modelParameters["wTh"] = parameters[1].toDouble();    // wall thickness [m]
+    modelParameters["chWidth"] = parameters[2].toDouble(); // channels width [m]
+    modelParameters["chHeight"] = parameters[3].toDouble();// channels height [m]
+    modelParameters["strLenght"] = parameters[4].toDouble();// straight lenght [m]
+    modelParameters["zzNb"] = parameters[5].toInt();        // zigzag number in straight lenght
+    modelParameters["zzAngle"] = parameters[6].toInt();    // zigzag angle [º]
+
+    modelParameters["heatTransferArea"] = modelParameters["chWidth"] * (modelParameters["strLenght"]/(modelParameters["zzNb"]*2*qCos(qDegreesToRadians(modelParameters["zzAngle"]))))*
+            2*modelParameters["zzNb"]*modelParameters["chNb"];  // Heat Transfer Area [m]
+    modelParameters["dH"] = 2*modelParameters["chWidth"]*modelParameters["chHeight"]/(modelParameters["chWidth"] + modelParameters["chHeight"]); // hidraulic Diameter   2*a*b/(a+b) for rectangle
+
+    file.close();
+
+}
 
 // =========== Other functions ==================== //
 
@@ -2017,5 +2072,7 @@ double MainWindow::quadraticDiff(QVector<double> y1, QVector<double> y2)
     qD /= y1.size();
     return qD;
 }
+
+
 
 

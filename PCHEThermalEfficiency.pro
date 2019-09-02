@@ -33,7 +33,8 @@ SOURCES += \
     aboutdialog.cpp \
     addnewfluidwindow.cpp \
     qcustomplot.cpp \
-    ctkrangeslider.cpp
+    ctkrangeslider.cpp \
+    pcheconfig.cpp
 
 HEADERS += \
     addcorrelation.h \
@@ -42,13 +43,15 @@ HEADERS += \
     aboutdialog.h \
     addnewfluidwindow.h \
     qcustomplot.h \
-    ctkrangeslider.h
+    ctkrangeslider.h \
+    pcheconfig.h
 
 FORMS += \
     addcorrelation.ui \
         mainwindow.ui \
     aboutdialog.ui \
-    addnewfluidwindow.ui
+    addnewfluidwindow.ui \
+    pcheconfig.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

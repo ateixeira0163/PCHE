@@ -6,6 +6,7 @@
 #include "addnewfluidwindow.h"
 #include "addcorrelation.h"
 #include "correlation.h"
+#include "pcheconfig.h"
 #include <string>
 #include <QActionGroup>
 #include <QMessageBox>
@@ -94,12 +95,16 @@ private slots:
     void hideLegend();
     void on_plotResultsButton2_clicked();
     void on_pushButton_clicked();
+    void on_actionPCHE_Configuration_triggered();
+    void pcheConfig();
 
     // ========== Other functions ============== //
 
     double mean(int begin, int end, QVector<double> vector);
     double interpolate(double T, double P, QMap<int, QVector<QPair<double,double>>> prop);
     double quadraticDiff(QVector<double> y1, QVector<double> y2);
+
+
 
 
 

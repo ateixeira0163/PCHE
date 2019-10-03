@@ -103,6 +103,8 @@ private slots:
     double mean(int begin, int end, QVector<double> vector);
     double interpolate(double T, double P, QMap<int, QVector<QPair<double,double>>> prop);
     double quadraticDiff(QVector<double> y1, QVector<double> y2);
+    int LUDecompose(double **A, int N, double tol, int *P);
+    void LUSolve(double **A, int *P, double *b, int N, double *x);
 
 
 
@@ -124,6 +126,7 @@ private:
     bool alreadySearched;
     QString importedCorrelation = nullptr;
     QVector<QVector<double>> importedCorrelationData;
+    QStringList headerImportedCorrelation;
 
     // Plot results
     QString importedFileName = nullptr;

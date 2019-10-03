@@ -79,6 +79,8 @@ MainWindow::MainWindow(QWidget *parent) :   // Class MainWindow constructor
     }
 
     rangeRect = new QCPItemRect(ui->customPlotData);
+
+
 }
 
 MainWindow::~MainWindow()   // Class MainWindow destructor
@@ -665,29 +667,34 @@ void MainWindow::on_importCorResultsButton_clicked()
         }
 
         QString header = file.readLine(); // Reads the first line
-        QStringList headerList = header.split(';'); // Put each element into a list
+        headerImportedCorrelation.clear();
+        headerImportedCorrelation = header.split(';');
 
         QVector<QVector<double>> correlationDataColumns;
         QStringList lineList;
-
+        QVector<double> tempRow;
         QString line;
         while(!file.atEnd()){
                 line = file.readLine();
                 lineList = line.split(';');
+                tempRow.clear();
                 if (lineList.size() > 1){
-                    correlationDataColumns.append({lineList[0].toDouble(), lineList[1].toDouble()});
+                    // Add verification to add more elements if there's more like geometrical aspects as variables
+                    for (int i = 0; i < lineList.size(); i++){
+                        tempRow.append(lineList[i].toDouble());
+                    }
+                    correlationDataColumns.append(tempRow);
                 }
         }
 
         // Transposing data form to rows instead of columns to do correlationData[i] -> Reynolds range
-        QVector<double> row;
         importedCorrelationData.clear();
         for (int i = 0; i < correlationDataColumns[0].size(); i++){
-            row.clear();
+            tempRow.clear();
             for (int j = 0; j < correlationDataColumns.size(); j++){
-                row.push_back(correlationDataColumns[j][i]);
+                tempRow.push_back(correlationDataColumns[j][i]);
             }
-            importedCorrelationData.push_back(row);
+            importedCorrelationData.push_back(tempRow);
         }
 
         file.close();
@@ -731,7 +738,7 @@ void MainWindow::on_plotButton_clicked()
 
     if (importedCorrelation != nullptr){
         ui->customPlot->addGraph();
-        ui->customPlot->graph()->setData(importedCorrelationData[0],importedCorrelationData[1]);
+        ui->customPlot->graph()->setData(importedCorrelationData[1],importedCorrelationData[0]);
         // Style
         pen.setColor(QColor(Qt::red));
         pen.setStyle(Qt::DashLine);
@@ -805,7 +812,7 @@ void MainWindow::on_plotButton_clicked()
 
         //  === Case 1 - if there's an imported file ===
         if (importedCorrelation != nullptr){    // If there's a imported file - Ranges are equal to data inputed
-            choosenCorrelation.push_back(importedCorrelationData[0]); // Ranges equal to data inputed
+            choosenCorrelation.push_back(importedCorrelationData[1]); // Ranges equal to data inputed
             // Calculate expression for all Reynolds inputed in file
             QVector<double> row;
             for (int j = 0; j < choosenCorrelation[0].size(); j++){
@@ -854,7 +861,7 @@ void MainWindow::on_plotButton_clicked()
         QVector<double> qDiff;
         auto modelTable = new QStandardItemModel();
         for (int i = 0; i < databaseCorrelations.size(); i++){
-            qDiff.push_back(quadraticDiff(importedCorrelationData[1],databaseCorrelations[i][1]));
+            qDiff.push_back(quadraticDiff(importedCorrelationData[0],databaseCorrelations[i][1]));
             modelTable->appendRow(new QStandardItem(corList[choosenData[i]].getAuthor()));
 
             QStandardItem *itemQDiff = new QStandardItem(QString::number(qDiff[i]));
@@ -1114,6 +1121,83 @@ void MainWindow::on_tSlider_sliderMoved(int position)
 
 void MainWindow::on_bestFitButton_clicked()
 {
+    // ! Calculate parameters for function in the form Nu = a*Re^b*Pr^c
+
+    if (importedCorrelation != nullptr){
+        // Usual order for the data to be inputed
+        // importedCorrelationData[1] -> Re
+        // importedCorrelationData[0] -> Nu
+        // importedCorrelationData[2] -> Pr
+        // importedCorrelationData[2+] -> Geometrical
+
+        int n = headerImportedCorrelation.size();   //nb of parameters to be calculated
+
+        double **A;
+        A = new double *[n];
+        for (int i = 0; i < n; i++){
+            A[i] = new double [n];
+        }
+        int *P;
+        P = new int [n+1];
+        double *b;
+        b = new double [n];
+        double *x;
+        x = new double [n];
+
+        for (int k = 0; k < importedCorrelationData[0].size(); k++){
+            // Constructing matrix A
+            for (int i = 0; i < n; i++){
+                for (int j = 0; j < n; j++){
+                    if (i == 0 && j == 0) A[0][0] += 1;
+                    else if (i == 0 && j != 0) A[0][j] += log(importedCorrelationData[j][k]);  // first row
+                    else if (j == 0 && i != 0) A[i][0] += log(importedCorrelationData[i][k]);    // first column
+                    else if (i == j && i != 0 && j != 0) A[i][j] += pow(log(importedCorrelationData[i][k]),2);   // Diagonal
+                    else A[i][j] += log(importedCorrelationData[i][k])*log(importedCorrelationData[j][k]);
+                }
+
+                // Vector b
+                if (i == 0) b[0] += log(importedCorrelationData[0][k]);
+                else b[i] += log(importedCorrelationData[0][k])*log(importedCorrelationData[i][k]);
+            }
+
+        }
+
+        int result = LUDecompose(A,n,1e-03,P);
+
+        if (result == 1){
+            LUSolve(A,P,b,n,x);
+            //qDebug() << x[0] << "\n" << x[1] << "\n" << x[2];
+            QString resultString = QString("Nu = %0").arg(QString::number(exp(x[0])));
+            for (int i = 1; i < n; i++){
+                resultString += QString("%0<sup>%1</sup>").arg(headerImportedCorrelation[i]).arg(QString::number(x[i]));
+            }
+            ui->fitResultLabel->setText(resultString);
+
+            ui->customPlot->addGraph();
+            QVector<double> nuResults;
+            double temp;
+            for (int i = 0; i < importedCorrelationData[0].size(); i++){
+                temp = exp(x[0]);
+                for (int k = 1; k < n; k++){
+                    temp *= pow(importedCorrelationData[k][i],x[k]);
+                }
+                nuResults.push_back(temp);
+            }
+            ui->customPlot->graph()->setData(importedCorrelationData[1], nuResults);
+            QPen pen;
+            pen.setColor(QColor(Qt::blue));
+            ui->customPlot->graph()->setName("Fitted curve");
+            ui->customPlot->graph()->setPen(pen);
+            ui->customPlot->graph()->setLineStyle(QCPGraph::lsLine);
+            ui->customPlot->replot();
+        }
+
+        for (int i = 0; i < n; i++) delete A[i];
+        delete A;
+        delete P;
+        delete b;
+        delete x;
+    }
 
 }
 
@@ -1532,7 +1616,7 @@ void MainWindow::on_importResultsButton_clicked()
         QString header;
         // To ignore all the lines up do 21.
         // Save .csv in .csv - UTF-8 to work
-        for (int i = 0; i < 21; i++){
+        for (int i = 0; i < 22; i++){
             header = file.readLine();
         }
         headerListPlot = header.split(';');
@@ -2073,6 +2157,77 @@ double MainWindow::quadraticDiff(QVector<double> y1, QVector<double> y2)
     return qD;
 }
 
+int MainWindow::LUDecompose(double **A, int N, double tol, int *P)
+{
+    //! A - array of pointers to rows of a square matrix with dimension N
+    //! N - Dimension of matrix
+    //! tol - tolerance for failure to matrix near degenerate
+    //!
 
+    int i, j, k, imax;
+    double maxA, *ptr, absA;
 
+    for (i = 0; i <= N; i++)
+        P[i] = i; //Unit permutation matrix, P[N] initialized with N
 
+    for (i = 0; i < N; i++) {
+        maxA = 0.0;
+        imax = i;
+
+        for (k = i; k < N; k++)
+            if ((absA = fabs(A[k][i])) > maxA) {
+                maxA = absA;
+                imax = k;
+            }
+
+        //if (maxA < tol){
+        //    qDebug() << maxA;
+        //    return 0; //failure, matrix is degenerate
+        //}
+
+        if (imax != i) {
+            //pivoting P
+            j = P[i];
+            P[i] = P[imax];
+            P[imax] = j;
+
+            //pivoting rows of A
+            ptr = A[i];
+            A[i] = A[imax];
+            A[imax] = ptr;
+
+            //counting pivots starting from N (for determinant)
+            P[N]++;
+        }
+
+        for (j = i + 1; j < N; j++) {
+            A[j][i] /= A[i][i];
+
+            for (k = i + 1; k < N; k++)
+                A[j][k] -= A[j][i] * A[i][k];
+        }
+    }
+
+    return 1;  //decomposition done
+}
+
+void MainWindow::LUSolve(double **A, int *P, double *b, int N, double *x)
+{
+    //! b - rhs vector
+    //!
+
+    for (int i = 0; i < N; i++) {
+        x[i] = b[P[i]];
+
+        for (int k = 0; k < i; k++)
+            x[i] -= A[i][k] * x[k];
+    }
+
+    for (int i = N - 1; i >= 0; i--) {
+        for (int k = i + 1; k < N; k++)
+            x[i] -= A[i][k] * x[k];
+
+        x[i] = x[i] / A[i][i];
+    }
+
+}
